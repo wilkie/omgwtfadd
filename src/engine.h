@@ -88,6 +88,7 @@ public:
   GLuint _vao;
 
   GLuint _program;
+  GLuint _model_uniform;
 
   GLuint _vbo_vertex;
   GLuint _vbo_elements_cube;

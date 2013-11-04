@@ -3,49 +3,50 @@
 #include "components.h"
 
 #include <math.h>
+#include <vector>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
 const char* frag_shader_code[] = {
-  "#version 150",
-  "",
-  "in vec3 Normal;",
-  "in vec2 Texcoord;",
-  "",
-  "out vec4 outColor;",
-  "",
-  "uniform sampler2D tex;",
-  "",
-  "void main() {",
-  "  outColor = texture2D(tex, Texcoord);",
+  "#version 150\n"
+  "\n"
+  "in vec3 Normal;"
+  "in vec2 Texcoord;"
+  ""
+  "out vec4 outColor;"
+  ""
+  "uniform sampler2D tex;"
+  ""
+  "void main() {"
+  "  outColor = texture2D(tex, Texcoord);"
   "}"
 };
 
 const char* vertex_shader_code[] = {
-  "#version 150",
-  "",
-  "in vec3 normal;",
-  "in vec3 position;",
-  "in vec2 texcoord;",
-  "",
-  "out vec2 Texcoord;",
-  "out vec3 Normal;",
-  "out vec3 Position;",
-  "",
-  "uniform mat4 model;",
-  "uniform mat4 view;",
-  "uniform mat4 proj;",
-  "",
-  "uniform vec3 camera;",
-  "",
-  "void main() {",
-  "  Texcoord = texcoord;",
-  "  Normal = (model * vec4(normal, 1.0)).xyz;",
-  "  Position = (model * vec4(position, 1.0)).xyz;",
-  "",
-  "  gl_Position = proj * view * model * vec4(position, 1.0);",
+  "#version 150\n"
+  "\n"
+  "in vec3 normal;"
+  "in vec3 position;"
+  "in vec2 texcoord;"
+  ""
+  "out vec2 Texcoord;"
+  "out vec3 Normal;"
+  "out vec3 Position;"
+  ""
+  "uniform mat4 model;"
+  "uniform mat4 view;"
+  "uniform mat4 proj;"
+  ""
+  "uniform vec3 camera;"
+  ""
+  "void main() {"
+  "  Texcoord = texcoord;"
+  "  Normal = (model * vec4(normal, 1.0)).xyz;"
+  "  Position = (model * vec4(position, 1.0)).xyz;"
+  ""
+  "  gl_Position = proj * view * model * vec4(position, 1.0);"
   "}"
 };
 
@@ -226,8 +227,27 @@ void Engine::Init() {
   glShaderSource(vertex_shader, 1, vertex_shader_code, NULL);
   glCompileShader(vertex_shader);
 
+  GLint result = GL_FALSE;
+  int infoLogLength;
+
+  glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &result);
+  if (result != GL_TRUE) {
+    glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+    std::vector<char> vertex_error_msg(infoLogLength);
+    glGetShaderInfoLog(vertex_shader, infoLogLength, NULL, &vertex_error_msg[0]);
+    fprintf(stdout, "%s\n", &vertex_error_msg[0]);
+  }
+
   glShaderSource(frag_shader, 1, frag_shader_code, NULL);
   glCompileShader(frag_shader);
+
+  glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &result);
+  if (result != GL_TRUE) {
+    glGetShaderiv(frag_shader, GL_INFO_LOG_LENGTH, &infoLogLength);
+    std::vector<char> frag_error_msg(infoLogLength);
+    glGetShaderInfoLog(frag_shader, infoLogLength, NULL, &frag_error_msg[0]);
+    fprintf(stdout, "%s\n", &frag_error_msg[0]);
+  }
 
   _program = glCreateProgram();
   glAttachShader(_program, vertex_shader);
@@ -238,6 +258,43 @@ void Engine::Init() {
   glDeleteShader(frag_shader);
 
   /* Attach/describe uniforms */
+  _model_uniform = glGetUniformLocation(_program, "model");
+  GLuint view_uniform = glGetUniformLocation(_program, "view");
+  GLuint proj_uniform = glGetUniformLocation(_program, "proj");
+
+  GLint posAttrib = glGetAttribLocation(_program, "position");
+  glEnableVertexAttribArray(posAttrib);
+
+  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
+                        (GLsizei)(8 * sizeof(float)),
+                        (const GLvoid*)(size_t)(0 * sizeof(float)));
+
+  posAttrib = glGetAttribLocation(_program, "normal");
+  glEnableVertexAttribArray(posAttrib);
+
+  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
+                        (GLsizei)(8 * sizeof(float)),
+                        (const GLvoid*)(size_t)(3 * sizeof(float)));
+
+  posAttrib = glGetAttribLocation(_program, "texcoord");
+  glEnableVertexAttribArray(posAttrib);
+
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
+                        (GLsizei)(8 * sizeof(float)),
+                        (const GLvoid*)(size_t)(6 * sizeof(float)));
+
+  /* set up perspective */
+  glm::mat4 perspective = glm::perspective(40.0f, 1.0f, 1.0f, 200.0f);
+  glUniformMatrix4fv(proj_uniform, 1, GL_FALSE, &perspective[0][0]);
+
+  /* set up view */
+  glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
+                               glm::vec3(0.0f, 0.0f, 0.0f),
+                               glm::vec3(0.0f, 1.0f, 0.0));
+  glUniformMatrix4fv(view_uniform, 1, GL_FALSE, &view[0][0]);
+
+  glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f,10.0f,10.0f));
+  glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
 
   /* Generate VAOS */
 #ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
@@ -566,20 +623,14 @@ void Engine::Draw() {
   // clear buffer
   glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
 
-  // set up perspective
-  glm::mat4 perspective = glm::perspective(40.0f, 1.0f, 1.0f, 200.0f);
-
   // enable depth testing
   glEnable(GL_DEPTH_TEST);
-
-  glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
-                               glm::vec3(0.0f, 0.0f, 0.0f),
-                               glm::vec3(0.0f, 1.0f, 0.0));
 
   // BACKGROUND!!!
 
   DrawCube();
   return;
+
   EnableTextures();
   UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG1], texture_heights[TEXTURE_BG1]);
 
