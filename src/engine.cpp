@@ -97,42 +97,49 @@ Engine::~Engine() {
 }
 
 static const GLfloat _cube_data[] = {
-  -1.0f,-1.0f,-1.0f,
-  -1.0f,-1.0f, 1.0f,
-  -1.0f, 1.0f, 1.0f,
-  1.0f, 1.0f,-1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f, 1.0f,
-  -1.0f,-1.0f,-1.0f,
-  1.0f,-1.0f,-1.0f,
-  1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f,-1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f, 1.0f, 1.0f,
-  -1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f, 1.0f,
-  -1.0f,-1.0f, 1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f, 1.0f, 1.0f,
-  -1.0f,-1.0f, 1.0f,
-  1.0f,-1.0f, 1.0f,
-  1.0f, 1.0f, 1.0f,
-  1.0f,-1.0f,-1.0f,
-  1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f,-1.0f,
-  1.0f, 1.0f, 1.0f,
-  1.0f,-1.0f, 1.0f,
-  1.0f, 1.0f, 1.0f,
-  1.0f, 1.0f,-1.0f,
-  -1.0f, 1.0f,-1.0f,
-  1.0f, 1.0f, 1.0f,
-  -1.0f, 1.0f,-1.0f,
-  -1.0f, 1.0f, 1.0f,
-  1.0f, 1.0f, 1.0f,
-  -1.0f, 1.0f, 1.0f,
-  1.0f,-1.0f, 1.0f
+  // Face v0-v1-v2-v3
+   1, 1, 1, 0, 0, 1, 0, 0,
+  -1, 1, 1, 0, 0, 1, 0, 1,
+  -1,-1, 1, 0, 0, 1, 1, 1,
+   1,-1, 1, 0, 0, 1, 1, 0,
+  // Face v0-v3-v4-v5
+   1, 1, 1, 1, 0, 0, 0, 0,
+   1,-1, 1, 1, 0, 0, 0, 1,
+   1,-1,-1, 1, 0, 0, 1, 1,
+   1, 1,-1, 1, 0, 0, 1, 0,
+  // Face v0-v5-v6-v1
+   1, 1, 1, 0, 1, 0, 0, 0,
+   1, 1,-1, 0, 1, 0, 0, 1,
+  -1, 1,-1, 0, 1, 0, 1, 1,
+  -1, 1, 1, 0, 1, 0, 1, 0,
+  // Face v1-v6-v7-v2
+  -1, 1, 1,-1, 0, 0, 0, 0,
+  -1, 1,-1,-1, 0, 0, 0, 1,
+  -1,-1,-1,-1, 0, 0, 1, 1,
+  -1,-1, 1,-1, 0, 0, 1, 0,
+  // Face v7-v4-v3-v2
+  -1,-1,-1, 0,-1, 0, 0, 0,
+   1,-1,-1, 0,-1, 0, 0, 1,
+   1,-1, 1, 0,-1, 0, 1, 1,
+  -1,-1, 1, 0,-1, 0, 1, 0,
+  // Face v4-v7-v6-v5
+   1,-1,-1, 0, 0,-1, 0, 0,
+  -1,-1,-1, 0, 0,-1, 0, 1,
+  -1, 1,-1, 0, 0,-1, 1, 1,
+   1, 1,-1, 0, 0,-1, 1, 0
+};
+
+static const GLushort _cube_elements[] = {
+  0, 1, 2, 3,
+  4, 5, 6, 7,
+  8, 9, 10, 11,
+  12, 13, 14, 15,
+  16, 17, 18, 19,
+  20, 21, 22, 23
+};
+
+static const GLushort _quad_elements[] = {
+  0, 1, 2, 4
 };
 
 void Engine::Init() {
@@ -309,6 +316,12 @@ void Engine::Init() {
 
   glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
   glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_quad);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_quad_elements), _quad_elements, GL_STATIC_DRAW);
 
   glUseProgram(_program);
 }
@@ -862,7 +875,9 @@ void Engine::DrawQuad(int a, int b, int c, int d) {
 }
 
 void Engine::DrawCube() {
-  glDrawArrays(GL_TRIANGLES, 0, 12*3);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
+
+  glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);
 }
 
 void Engine::ClearGameData(game_info* player) {
