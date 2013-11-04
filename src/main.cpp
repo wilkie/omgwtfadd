@@ -21,7 +21,6 @@ int main(int argc, char** argv)
 	char* ip=NULL;
 
 	SDL_Init(SDL_INIT_EVERYTHING);
-	glutInit(&argc, argv);
 
 	if (argc > 1)
 	{

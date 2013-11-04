@@ -1,6 +1,6 @@
-CFLAGS = -I/usr/include/SDL
+CFLAGS =
 CC = g++
-CLINK = -lGL -lSDL -lSDL_net -lSDL_mixer -lSDL_image -lglut -lGLU
+CLINK = -lGL -lSDL -lSDL_net -lSDL_mixer -lSDL_image -lGLU
 
 all: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.cpp
 	$(CC) audio.cpp -c $(CFLAGS)

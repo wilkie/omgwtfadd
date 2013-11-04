@@ -16,13 +16,12 @@
 #pragma comment(lib, "SDL_mixer.lib")
 #endif
 
-#include <SDL.h>
-#include <SDL_opengl.h>
-#include <SDL_net.h>
-#include <SDL_image.h>
-#include <SDL_mixer.h>
-
-#include "GL/glut.h"
+#include <SDL/SDL.h>
+#include <SDL/SDL_opengl.h>
+#include <SDL/SDL_net.h>
+#include <SDL/SDL_image.h>
+#include <SDL/SDL_mixer.h>
+#include <GL/glu.h>
 
 extern const char* strings[7];
 

@@ -100,7 +100,7 @@ float BreakOut::CheckBallAgainst(game_info* gi, float t, float x1, float y1, flo
 		// GENERAL
 
 		// do we have any???
-		// no? 
+		// no?
 		// no!
 		// YAY!
 		printf("collision detection error... i'm lazy\n");
@@ -130,7 +130,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
 		{
 			type_t |= 128;
 		}
-		else 
+		else
 		{
 			type_t |= 8;
 		}
@@ -146,12 +146,12 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
 	if (chk <= cur_t && !((1 << (4 + (isPaddle * 4))) & last_type) && gi->ball_dy < 0)
 	{
 		//type_t |= 1 << (4 + (isPaddle * 4));
-		
+
 		if (isPaddle)
 		{
 			type_t |= 256;
 		}
-		else 
+		else
 		{
 			type_t |= 16;
 		}
@@ -167,12 +167,12 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
 	if (chk <= cur_t && !((1 << (5 + (isPaddle * 4))) & last_type) && gi->ball_dx < 0)
 	{
 		//type_t |= 1 << (5 + (isPaddle * 4));
-		
+
 		if (isPaddle)
 		{
 			type_t |= 512;
 		}
-		else 
+		else
 		{
 			type_t |= 32;
 		}
@@ -188,12 +188,12 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
 	if (chk <= cur_t && !((1 << (6 + (isPaddle * 4))) & last_type) && gi->ball_dy > 0)
 	{
 		//type_t |= 1 << (6 + (isPaddle * 4));
-		
+
 		if (isPaddle)
 		{
 			type_t |= 1024;
 		}
-		else 
+		else
 		{
 			type_t |= 64;
 		}
@@ -298,7 +298,7 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type)
 
 	x = gi->fine;
 	y = 0;
-	
+
 	switch (gi->curpiece)
 	{
 	case 0:
@@ -482,8 +482,8 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type)
 
 	if (type_t & 1)
 	{ // top
-		gi->ball_dy = -gi->ball_dy;		
-	} 
+		gi->ball_dy = -gi->ball_dy;
+	}
 	if (type_t & 2)
 	{ // right
 		gi->ball_dx = -gi->ball_dx;
@@ -537,7 +537,7 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type)
 	if (type_t & 64)
 	{ // bottom side block
 		gi->ball_dy = -gi->ball_dy;
-		
+
 		// get rid of block???
 		gi->board[board_i][board_j] = -1;
 
@@ -550,7 +550,7 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type)
 
 		// paddle
 	if (type_t & 128)
-	{ 
+	{
 		if (gi->break_out_consecutives >= 7)
 		{
 			engine.SendAttack(3);
@@ -626,11 +626,11 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type)
 
 		gi->break_out_consecutives = 0;
 
-		gi->ball_dy = -gi->ball_dy;		
+		gi->ball_dy = -gi->ball_dy;
 	}
 
 	//printf("moveball? %f %d\n", t, type_t);
-	
+
 	//SDL_Delay(3000);
 	// call this again
 	MoveBall(gi, t, type_t);
@@ -667,7 +667,7 @@ void BreakOut::Update(game_info* gi, float deltatime)
 
 		move = true;
 	}
-	
+
 	if (engine.keys[SDLK_RIGHT])
 	{
 		gi->fine += BREAKOUT_PADDLE_SPEED * deltatime;
@@ -765,7 +765,7 @@ void BreakOut::Update(game_info* gi, float deltatime)
 }
 
 void BreakOut::DrawBall(game_info* gi)
-{	
+{
 	float aspect = (600.0f/800.0f);
 
 	glPushMatrix();
@@ -783,7 +783,7 @@ void BreakOut::DrawBall(game_info* gi)
 	// scale
 	glScalef(aspect,1,1);
 
-	glutSolidSphere(SPHERE_SIZE,30,30);
+	//glutSolidSphere(SPHERE_SIZE,30,30);
 
 	glPopMatrix();
 }
@@ -804,7 +804,7 @@ void BreakOut::Draw(game_info* gi)
 	DrawBall(gi);
 
 	unsigned int i;
-	
+
 	float aspect = (600.0f/800.0f);
 
 	for (i=0; i<xs.size(); i++)
@@ -829,7 +829,7 @@ void BreakOut::Draw(game_info* gi)
 		// scale
 		glScalef(aspect,1,1);
 
-		glutSolidSphere(SPHERE_SIZE,30,30);
+		//glutSolidSphere(SPHERE_SIZE,30,30);
 
 		glPopMatrix();
 	}
@@ -880,7 +880,7 @@ void BreakOut::KeyRepeat(game_info* gi)
 			gi->curdir--;
 			gi->curdir %= 4;
 		}
-		
+
 		engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
 	}
 }
@@ -929,7 +929,7 @@ float BreakOut::GetLeftBounds(game_info* gi)
 		}
 		break;
 	case 2:
-		if (sx < 1) { return 0.5; }		
+		if (sx < 1) { return 0.5; }
 		break;
 	case 3:
 		if (sx < 0) { return 0; }
@@ -939,7 +939,7 @@ float BreakOut::GetLeftBounds(game_info* gi)
 		{
 			if (sx < 0) { return 0; }
 		}
-		else 
+		else
 		{
 			if (sx < 1) { return 0.5; }
 		}
@@ -971,7 +971,7 @@ float BreakOut::GetLeftBounds(game_info* gi)
 
 float BreakOut::GetRightBounds(game_info* gi)
 {
-	
+
 	int sx;
 	sx = (int)(gi->fine / 0.5);
 
@@ -1008,7 +1008,7 @@ float BreakOut::GetRightBounds(game_info* gi)
 		{
 			return 4.5;
 		}
-		else 
+		else
 		{
 			return 4.0;
 		}

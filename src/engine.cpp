@@ -47,10 +47,6 @@ int thread_func(void *unused)
     return(0);
 }
 
-
-
-
-
 Engine::Engine()
 {
 }
@@ -64,12 +60,12 @@ void Engine::Init()
 	inplay = true;
 
 	// INITIALIZE OPENGL!!!
-	
+
 	// clear color
 	glClearColor(0,0,0,1);
 
 	// toggle to smooth shading
-	glShadeModel(GL_SMOOTH); 
+	glShadeModel(GL_SMOOTH);
 
 
 
@@ -105,7 +101,7 @@ void Engine::Init()
 
 	glLoadIdentity() ;
 
-	gluPerspective(40, 1.0, 1, 200.0);  
+	gluPerspective(40, 1.0, 1, 200.0);
 
 	glMatrixMode(GL_MODELVIEW) ;
 	glLoadIdentity() ;  // init modelview to identity
@@ -185,7 +181,7 @@ void Engine::Init()
 	{
 		space_penguiny = -space_penguiny;
 	}
-	
+
 }
 
 void Engine::SendAttack(int severity)
@@ -259,7 +255,7 @@ void Engine::GameLoop()
 		if (quit) { return; }
 
 		// Draw Frame, tell engine stuff
-		
+
 		curtime = SDL_GetTicks();
 
 		deltatime = (float)(curtime - lasttime) / 1000.0f;
@@ -291,7 +287,7 @@ void Engine::Update(float deltatime)
 	else
 	{
 		titleChangeTime = 0;
-		
+
 		static int cur_caption = 0;
 
 		SDL_WM_SetCaption(stuffs[cur_caption], stuffs[cur_caption]);
@@ -350,7 +346,7 @@ void Engine::Update(float deltatime)
 	// scroll background
 	bg1x += BG1_SPEED_X * deltatime;
 	bg1y += BG1_SPEED_Y * deltatime;
-	
+
 	bg2x += BG2_SPEED_X * deltatime;
 	bg2y += BG2_SPEED_Y * deltatime;
 
@@ -394,7 +390,7 @@ void Engine::Update(float deltatime)
 		bg2y += 30;
 	}
 
-	
+
 
 	// draw current game
 	games[player1.curgame]->Update(&player1, deltatime);
@@ -442,7 +438,7 @@ int Engine::_DrawString(const char* str, int color, float x, float y, int tx)
 
 	int x2;
 	int y2;
-	
+
 	y2 = color * 16;
 
 	while(*str)
@@ -481,7 +477,7 @@ int Engine::_DrawString(const char* str, int color, float x, float y, int tx)
 			if (x2 != -1)
 			{
 				UseTexture(TEXTURE_NUMBERS, (x2*16),y2,16,16);
-				
+
 				glBegin(GL_QUADS);
 
 				glTexCoord2f(tu[0], tv[0]);
@@ -503,8 +499,8 @@ int Engine::_DrawString(const char* str, int color, float x, float y, int tx)
 		}
 
 		if (x2!=-1)
-		{		
-			UseTexture(tx, (x2*16),y2,16,16);	
+		{
+			UseTexture(tx, (x2*16),y2,16,16);
 			glBegin(GL_QUADS);
 
 			glTexCoord2f(tu[0], tv[0]);
@@ -564,7 +560,7 @@ void Engine::Draw()
 	glLoadIdentity() ;
 
 	// set up a perspective
-	gluPerspective(40, 1.0, 1, 200.0);  
+	gluPerspective(40, 1.0, 1, 200.0);
 
 	// go to model view matrix
 	glMatrixMode(GL_MODELVIEW) ;
@@ -574,15 +570,15 @@ void Engine::Draw()
 	glEnable(GL_NORMALIZE);
 	glEnable(GL_DEPTH_TEST);
 
-	// init to identity 
+	// init to identity
 	glLoadIdentity();
 
 	// set up camera
-	gluLookAt(0, 0, 21.5,  // x,y,z coord of the camera 
+	gluLookAt(0, 0, 21.5,  // x,y,z coord of the camera
 		0.0, 0.0, 0.0,  // x,y,z LookAt
 		0.0, 1.0, 0.0); // the direction of Up (default is y-axis)
 
-	
+
 	// BACKGROUND!!!
 
 	EnableTextures();
@@ -594,12 +590,12 @@ void Engine::Draw()
 
 	DrawQuadXY(bg1x - 15, bg1y - 15, -6.3f, 30, 30);
 	DrawQuadXY(bg1x - 45, bg1y - 15, -6.3f, 30, 30);
-	
+
 	DrawQuadXY(bg1x - 15, bg1y-45, -6.3f, 30, 30);
 	DrawQuadXY(bg1x - 45, bg1y-45, -6.3f, 30, 30);
-	
+
 	glEnd();
-	
+
 	glEnable(GL_BLEND);     // Turn blending On
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -611,10 +607,10 @@ void Engine::Draw()
 
 	DrawQuadXY(bg2x - 15, bg2y-15, -6.0f, 30, 30);
 	DrawQuadXY(bg2x - 45, bg2y-15, -6.0f, 30, 30);
-	
+
 	DrawQuadXY(bg2x - 15, bg2y+15, -6.0f, 30, 30);
 	DrawQuadXY(bg2x - 45, bg2y+15, -6.0f, 30, 30);
-	
+
 	glEnd();
 
 	// Draw Space Pirate Gangsta' Penguin!
@@ -626,14 +622,14 @@ void Engine::Draw()
 	glTranslatef(space_penguinx, space_penguiny, -5.9f);
 	glRotatef(space_penguinrot, 0,0,1);
 
-	glBegin(GL_QUADS); 
+	glBegin(GL_QUADS);
 
 	DrawQuadXY(-1.0f, 1.0333, 0, 2, 2.03333f);
 
 	glEnd();
 
 	glPopMatrix();
-	
+
 
 	DisableTextures();
 
@@ -659,21 +655,21 @@ void Engine::Draw()
 	// set up projection (3D)
 	glMatrixMode(GL_PROJECTION) ;
 
-	// init to identity 
+	// init to identity
 	glLoadIdentity();
 
 	// ...
 
-	gluOrtho2D(0.0, 800.0, 600.0, 0); 
+	gluOrtho2D(0.0, 800.0, 600.0, 0);
 
 	// go to model view matrix
 	glMatrixMode(GL_MODELVIEW) ;
-	// init to identity 
+	// init to identity
 	glLoadIdentity();
 
 	DrawString("SCORE:", 0, 32.0f,25.0);
-	DrawInt(player1.score, 1, 32.0f + (16 * 6),25.0);	
-	
+	DrawInt(player1.score, 1, 32.0f + (16 * 6),25.0);
+
 	games[player1.curgame]->DrawOrtho(&player1);
 	games[player2.curgame]->DrawOrtho(&player2);
 
@@ -705,10 +701,10 @@ void Engine::Draw()
 		x2 = 245 - x2;
 		x2 /= 2;
 		x2 += 480;
-		
+
 		// draw message
 		DrawStringWhite(player1.message, 4, x2,99);
-	
+
 	}
 
 	glEnable(GL_BLEND);
@@ -732,7 +728,7 @@ void Engine::Draw()
 	DisableTextures();
 
 	glDisable(GL_BLEND);
-	
+
 
 	glRectf(399,150,401,600);
 	//glRectf(399,0,401,600);
@@ -900,7 +896,7 @@ void Engine::ChangeState(game_info* gi, int newState)
 	// init state (IF PLAYER 1)
 	if (gi->side == -1)
 	{
-		InitState(gi);	
+		InitState(gi);
 	}
 }
 
@@ -937,7 +933,7 @@ void Engine::DisableTextures()
 void Engine::UseTextureUpsideDown(int textureIndex, int startX, int startY, int width, int height)
 {
 	if (textureIndex < 0 || textureIndex >= texture_count) { return; }
-    
+
 	glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
 
 	tu[1] = (float)startX / (float)(texture_widths[textureIndex]-1);
@@ -953,7 +949,7 @@ void Engine::UseTextureUpsideDown(int textureIndex, int startX, int startY, int 
 void Engine::UseTexture(int textureIndex, int startX, int startY, int width, int height)
 {
 	if (textureIndex < 0 || textureIndex >= texture_count) { return; }
-    
+
 	glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
 
 //	startX++;
@@ -977,19 +973,19 @@ int Engine::AddTexture(const char* fname)
 	SDL_Surface *surface; // This surface will tell us the details of the image
 	GLenum texture_format;
 	GLint  nOfColors;
-	 
-	if ( (surface = IMG_Load(fname)) ) { 
-	 
+
+	if ( (surface = IMG_Load(fname)) ) {
+
 		// Check that the image's width is a power of 2
 		if ( (surface->w & (surface->w - 1)) != 0 ) {
 			printf("warning: image.bmp's width is not a power of 2\n");
 		}
-		
+
 		// Also check if the height is a power of 2
 		if ( (surface->h & (surface->h - 1)) != 0 ) {
 			printf("warning: image.bmp's height is not a power of 2\n");
 		}
-	 
+
 			// get the number of channels in the SDL surface
 			nOfColors = surface->format->BytesPerPixel;
 			if (nOfColors == 4)     // contains an alpha channel
@@ -1008,21 +1004,21 @@ int Engine::AddTexture(const char* fname)
 					printf("warning: the image is not truecolor..  this will probably break\n");
 					// this error should not go unhandled
 			}
-	        
+
 		// Have OpenGL generate a texture object handle for us
 		glGenTextures( 1, &texture );
-	 
+
 		// Bind the texture object
 		glBindTexture( GL_TEXTURE_2D, texture );
-	 
+
 		// Set the texture's stretching properties
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
 			glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
-	 
+
 		// Edit the texture object's image data using the information SDL_Surface gives us
 		glTexImage2D( GL_TEXTURE_2D, 0, nOfColors, surface->w, surface->h, 0,
 						  texture_format, GL_UNSIGNED_BYTE, surface->pixels );
-	} 
+	}
 	else {
 		printf("SDL could not load texture: %s\n", SDL_GetError());
 		return -1;
@@ -1049,7 +1045,7 @@ int Engine::AddTexture(const char* fname)
 		textures = new GLuint[texture_capacity];
 		texture_widths = new int[texture_capacity];
 		texture_heights = new int[texture_capacity];
-		
+
 		memcpy(textures, tmp, sizeof(GLuint) * texture_count);
 		memcpy(texture_widths, tmp2, sizeof(int) * texture_count);
 		memcpy(texture_heights, tmp3, sizeof(int) * texture_count);
@@ -1062,10 +1058,10 @@ int Engine::AddTexture(const char* fname)
 	textures[texture_count] = texture;
 	texture_widths[texture_count] = surface->w;
 	texture_heights[texture_count] = surface->h;
-	texture_count++;    
-	 
+	texture_count++;
+
 	// Free the SDL_Surface only if it was successfully created
-	if ( surface ) { 
+	if ( surface ) {
 		SDL_FreeSurface( surface );
 	}
 
@@ -1091,7 +1087,7 @@ void Engine::RunServer(int port)
 	}
 
 	// WAIT FOR CONNECTION
-	printf("waiting for client to connect...\n"); 	
+	printf("waiting for client to connect...\n");
 
 	// accept a connection coming in on tcpsock
 
@@ -1099,14 +1095,14 @@ void Engine::RunServer(int port)
 	{
 		client_tcpsock=SDLNet_TCP_Accept(tcpsock);
 		if(client_tcpsock)
-		{			
+		{
 			break;
 		}
 	}
 
 	network_thread = SDL_CreateThread(thread_func, NULL);
 
-	
+
 
 }
 
@@ -1143,7 +1139,7 @@ void Engine::ProcessMessage(unsigned char msg[4])
 	{
 	case MSG_ADDPIECE: // add piece to tetris board
 	//printf("Msg: ADDPIECE\n");
-		
+
 		tetris.AddPiece(&player2, msg[1], msg[2]);
 		break;
 	case MSG_DROPLINE:
@@ -1195,7 +1191,7 @@ void Engine::ProcessMessage(unsigned char msg[4])
 	case MSG_UPDATEPIECE:
 		player2.pos = msg[1];
 		player2.curdir = msg[2];
-		player2.curpiece = msg[3];		
+		player2.curpiece = msg[3];
 		break;
 
 	case MSG_UPDATEPIECEY:
