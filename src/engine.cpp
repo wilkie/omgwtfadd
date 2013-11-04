@@ -63,6 +63,7 @@ const char* stuffs[] = {
 
 int num_captions = sizeof(stuffs) / sizeof(char*);
 
+#ifndef NO_NETWORK
 // threading code for networking
 int thread_func(void *unused) {
   for (;;) {
@@ -86,6 +87,7 @@ int thread_func(void *unused) {
 
   return(0);
 }
+#endif
 
 Engine::Engine() {
 }
@@ -713,7 +715,12 @@ void Engine::Draw() {
 }
 
 void Engine::KeyDown(Uint32 key) {
-  if (!inplay && !client_tcpsock) {
+  bool gameover = !inplay;
+#ifndef NO_NETWORK
+  gameover = gameover && !client_tcpsock;
+#endif
+
+  if (gameover) {
     ClearGameData(&player1);
     return;
   }
@@ -750,7 +757,12 @@ void Engine::KeyUp(Uint32 key) {
 }
 
 void Engine::MouseDown() {
-  if (!inplay && !client_tcpsock) {
+  bool gameover = !inplay;
+#ifndef NO_NETWORK
+  gameover = gameover && !client_tcpsock;
+#endif
+
+  if (gameover) {
     ClearGameData(&player1);
   }
 }
@@ -1001,6 +1013,7 @@ int Engine::AddTexture(const char* fname) {
 // networking
 
 void Engine::RunServer(int port) {
+#ifndef NO_NETWORK
   // create a listening TCP socket on port 9999 (server)
 
   if(SDLNet_ResolveHost(&ip,NULL,port)==-1) {
@@ -1027,9 +1040,11 @@ void Engine::RunServer(int port) {
   }
 
   network_thread = SDL_CreateThread(thread_func, NULL);
+#endif
 }
 
 void Engine::RunClient(char* ipname, int port) {
+#ifndef NO_NETWORK
   if(SDLNet_ResolveHost(&ip,ipname,port)==-1) {
     printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
     return;
@@ -1047,6 +1062,7 @@ void Engine::RunClient(char* ipname, int port) {
   // which will receive and receive!!
 
   network_thread = SDL_CreateThread(thread_func, NULL);
+#endif
 }
 
 void Engine::ProcessMessage(unsigned char msg[4]) {
@@ -1153,6 +1169,7 @@ void Engine::ProcessMessage(unsigned char msg[4]) {
 }
 
 void Engine::PassMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3) {
+#ifndef NO_NETWORK
   if (!client_tcpsock) { return; }
 
   int len,result;
@@ -1164,6 +1181,7 @@ void Engine::PassMessage(unsigned char msgID, unsigned char p1, unsigned char p2
     //printf("SDLNet_TCP_Send: %s\n", SDLNet_GetError());
     // It may be good to disconnect sock because it is likely invalid now.
   }
+#endif
 }
 
 // classes
@@ -1228,9 +1246,12 @@ float Engine::bg1y = 0;
 float Engine::bg2x = 0;
 float Engine::bg2y = 0;
 
+#ifndef NO_NETWORK
 IPaddress Engine::ip = {0};
 TCPsocket Engine::tcpsock = NULL;
 TCPsocket Engine::client_tcpsock = NULL;
+#endif
+
 SDL_Thread *Engine::network_thread = NULL;
 
 int Engine::inplay = 1;

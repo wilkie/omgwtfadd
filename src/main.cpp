@@ -43,6 +43,7 @@ int main(int argc, char** argv) {
       printf("Invalid Parameters, ignoring ip\n");
     }
 
+#ifndef NO_NETWORK
     if(SDLNet_Init()==-1) {
       printf("SDLNet_Init: %s\n", SDLNet_GetError());
       return -1;
@@ -58,6 +59,7 @@ int main(int argc, char** argv) {
     else {
       engine.RunServer(port);
     }
+#endif
   }
 
   // Create a double-buffered draw context

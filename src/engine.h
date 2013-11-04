@@ -141,9 +141,11 @@ public:
 
   // networking
 
+#ifndef NO_NETWORK
   static IPaddress ip;
   static TCPsocket tcpsock;
   static TCPsocket client_tcpsock;
+#endif
   static SDL_Thread *network_thread;
 };
 #endif //ENGINE_INCLUDED

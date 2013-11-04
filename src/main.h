@@ -20,7 +20,9 @@
 #endif
 
 #include <SDL/SDL.h>
+#ifndef NO_NETWORK
 #include <SDL/SDL_net.h>
+#endif
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_mixer.h>
 #include <GL/glu.h>
