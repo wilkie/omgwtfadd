@@ -8,6 +8,47 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+const char* frag_shader_code[] = {
+  "#version 150",
+  "",
+  "in vec3 Normal;",
+  "in vec2 Texcoord;",
+  "",
+  "out vec4 outColor;",
+  "",
+  "uniform sampler2D tex;",
+  "",
+  "void main() {",
+  "  outColor = texture2D(tex, Texcoord);",
+  "}"
+};
+
+const char* vertex_shader_code[] = {
+  "#version 150",
+  "",
+  "in vec3 normal;",
+  "in vec3 position;",
+  "in vec2 texcoord;",
+  "",
+  "out vec2 Texcoord;",
+  "out vec3 Normal;",
+  "out vec3 Position;",
+  "",
+  "uniform mat4 model;",
+  "uniform mat4 view;",
+  "uniform mat4 proj;",
+  "",
+  "uniform vec3 camera;",
+  "",
+  "void main() {",
+  "  Texcoord = texcoord;",
+  "  Normal = (model * vec4(normal, 1.0)).xyz;",
+  "  Position = (model * vec4(position, 1.0)).xyz;",
+  "",
+  "  gl_Position = proj * view * model * vec4(position, 1.0);",
+  "}"
+};
+
 const char* stuffs[] = {
   "OMGWTFADD!!! It is ultra cool!!! TRUST ME!", "OMGWTFADD!",
   "Do Your Part..Get your penguin spayed or neutered....",
@@ -23,7 +64,6 @@ const char* stuffs[] = {
 int num_captions = sizeof(stuffs) / sizeof(char*);
 
 // threading code for networking
-
 int thread_func(void *unused) {
   for (;;) {
     // receive some text from sock
@@ -53,17 +93,58 @@ Engine::Engine() {
 Engine::~Engine() {
 }
 
+static const GLfloat _cube_data[] = {
+  -1.0f,-1.0f,-1.0f,
+  -1.0f,-1.0f, 1.0f,
+  -1.0f, 1.0f, 1.0f,
+  1.0f, 1.0f,-1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f, 1.0f,
+  -1.0f,-1.0f,-1.0f,
+  1.0f,-1.0f,-1.0f,
+  1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f,-1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f, 1.0f,
+  -1.0f,-1.0f, 1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f, 1.0f, 1.0f,
+  -1.0f,-1.0f, 1.0f,
+  1.0f,-1.0f, 1.0f,
+  1.0f, 1.0f, 1.0f,
+  1.0f,-1.0f,-1.0f,
+  1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f,-1.0f,
+  1.0f, 1.0f, 1.0f,
+  1.0f,-1.0f, 1.0f,
+  1.0f, 1.0f, 1.0f,
+  1.0f, 1.0f,-1.0f,
+  -1.0f, 1.0f,-1.0f,
+  1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f,-1.0f,
+  -1.0f, 1.0f, 1.0f,
+  1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f, 1.0f,
+  1.0f,-1.0f, 1.0f
+};
+
 void Engine::Init() {
   inplay = true;
 
   // INITIALIZE OPENGL!!!
+
+  // Init GLEW
   if (glewInit() != GLEW_OK) {
     fprintf(stderr, "Failed to initialize GLFW\n");
     return;
   }
 
   // clear color
-  glClearColor(0,0,0,1);
+  glClearColor(0,0,0,0);
 
   ClearGameData(&player1);
   ClearGameData(&player2);
@@ -136,8 +217,41 @@ void Engine::Init() {
     space_penguiny = -space_penguiny;
   }
 
+  /* Generate program */
+  GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  GLuint frag_shader   = glCreateShader(GL_FRAGMENT_SHADER);
+
+  glShaderSource(vertex_shader, 1, vertex_shader_code, NULL);
+  glCompileShader(vertex_shader);
+
+  glShaderSource(frag_shader, 1, frag_shader_code, NULL);
+  glCompileShader(frag_shader);
+
+  _program = glCreateProgram();
+  glAttachShader(_program, vertex_shader);
+  glAttachShader(_program, frag_shader);
+  glLinkProgram(_program);
+
+  glDeleteShader(vertex_shader);
+  glDeleteShader(frag_shader);
+
+  /* Attach/describe uniforms */
+
+  /* Generate VAOS */
+#ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
+#endif
+
+  /* Generate VBOS */
+  glGenBuffers(1, &_vbo_vertex);
+  glGenBuffers(1, &_vbo_elements_cube);
+  glGenBuffers(1, &_vbo_elements_quad);
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
+
+  glUseProgram(_program);
 }
 
 void Engine::SendAttack(int severity) {
@@ -215,6 +329,7 @@ void Engine::GameLoop() {
   }
 
 }
+
 void Engine::Update(float deltatime) {
   if (!inplay) { return; }
 
@@ -445,45 +560,6 @@ void Engine::DisplayMessage(int stringIndex) {
   audio.PlaySound(SND_PENGUIN);
 }
 
-static const GLfloat _cube_data[] = {
-  -1.0f,-1.0f,-1.0f,
-  -1.0f,-1.0f, 1.0f,
-  -1.0f, 1.0f, 1.0f,
-  1.0f, 1.0f,-1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f, 1.0f,
-  -1.0f,-1.0f,-1.0f,
-  1.0f,-1.0f,-1.0f,
-  1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f,-1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f, 1.0f, 1.0f,
-  -1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f, 1.0f,
-  -1.0f,-1.0f, 1.0f,
-  -1.0f,-1.0f,-1.0f,
-  -1.0f, 1.0f, 1.0f,
-  -1.0f,-1.0f, 1.0f,
-  1.0f,-1.0f, 1.0f,
-  1.0f, 1.0f, 1.0f,
-  1.0f,-1.0f,-1.0f,
-  1.0f, 1.0f,-1.0f,
-  1.0f,-1.0f,-1.0f,
-  1.0f, 1.0f, 1.0f,
-  1.0f,-1.0f, 1.0f,
-  1.0f, 1.0f, 1.0f,
-  1.0f, 1.0f,-1.0f,
-  -1.0f, 1.0f,-1.0f,
-  1.0f, 1.0f, 1.0f,
-  -1.0f, 1.0f,-1.0f,
-  -1.0f, 1.0f, 1.0f,
-  1.0f, 1.0f, 1.0f,
-  -1.0f, 1.0f, 1.0f,
-  1.0f,-1.0f, 1.0f
-};
-
 void Engine::Draw() {
   // clear buffer
   glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
@@ -500,6 +576,8 @@ void Engine::Draw() {
 
   // BACKGROUND!!!
 
+  DrawCube();
+  return;
   EnableTextures();
   UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG1], texture_heights[TEXTURE_BG1]);
 
