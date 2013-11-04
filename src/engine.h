@@ -1,4 +1,3 @@
-
 #ifndef ENGINE_INCLUDED
 #define ENGINE_INCLUDED
 
@@ -8,145 +7,141 @@
 
 #include "audio.h"
 
-class Engine
-{
+class Engine {
 public:
+  Engine();
+  ~Engine();
 
-	Engine();
-	~Engine();
+  // init, uninit
 
-	// init, uninit
+  void Init();
+  void Quit();
 
-	void Init();
-	void Quit();
+  // network
 
-	// network
+  void RunServer(int port);
+  void RunClient(char* ip, int port);
 
-	void RunServer(int port);
-	void RunClient(char* ip, int port);
+  void ProcessMessage(unsigned char msg[4]);
+  void PassMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3);
 
-	void ProcessMessage(unsigned char msg[4]);
-	void PassMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3);
+  // game loop
 
-	// game loop
+  void GameLoop();
 
-	void GameLoop();
+  void GameOver();
 
-	void GameOver();
- 
-	// frame stuffs
+  // frame stuffs
 
-	int IntLength(int i);
-	int DrawInt(int i, int color, float x, float y);
-	int _DrawString(const char* str, int color, float x, float y, int tx);
-	int DrawString(const char* str, int color, float x, float y);
-	int DrawStringWhite(const char* str, int color, float x, float y);
+  int IntLength(int i);
+  int DrawInt(int i, int color, float x, float y);
+  int _DrawString(const char* str, int color, float x, float y, int tx);
+  int DrawString(const char* str, int color, float x, float y);
+  int DrawStringWhite(const char* str, int color, float x, float y);
 
-	void Update(float deltatime);
-	void Draw();
+  void Update(float deltatime);
+  void Draw();
 
-	// key processing
-	
-	void KeyDown(Uint32 key);
-	void KeyUp(Uint32 key);
+  // key processing
 
-	// mouse
+  void KeyDown(Uint32 key);
+  void KeyUp(Uint32 key);
 
-	void MouseMovement(Uint32 x, Uint32 y);
-	void MouseDown();
+  // mouse
 
-	// graphics
+  void MouseMovement(Uint32 x, Uint32 y);
+  void MouseDown();
 
-	void DrawCube();
-	void DrawQuadXY(float x, float y, float z, float w, float h);
-	void DrawQuad(int a, int b, int c, int d);
+  // graphics
 
-	// state
+  void DrawCube();
+  void DrawQuadXY(float x, float y, float z, float w, float h);
+  void DrawQuad(int a, int b, int c, int d);
 
-	int state;
+  // state
 
-	void ChangeState(game_info* gi, int newState);
-	void InitState(game_info* gi);
-	void UninitState(game_info* gi);
+  int state;
 
-	// common game logic
+  void ChangeState(game_info* gi, int newState);
+  void InitState(game_info* gi);
+  void UninitState(game_info* gi);
 
-	void ClearGameData(game_info* player);
+  // common game logic
 
-	// textures
+  void ClearGameData(game_info* player);
 
-	void UseTexture(int textureIndex, int startx, int starty, int width, int height);
-	void UseTextureUpsideDown(int textureIndex, int startx, int starty, int width, int height);
-	void EnableTextures();
-	void DisableTextures();
-	int AddTexture(const char* fname);
+  // textures
 
-	void SendAttack(int severity);
-	void PerformAttack(int severity);
+  void UseTexture(int textureIndex, int startx, int starty, int width, int height);
+  void UseTextureUpsideDown(int textureIndex, int startx, int starty, int width, int height);
+  void EnableTextures();
+  void DisableTextures();
+  int AddTexture(const char* fname);
 
-	void DisplayMessage(int stringIndex);
+  void SendAttack(int severity);
+  void PerformAttack(int severity);
 
+  void DisplayMessage(int stringIndex);
 
 
 
 
 
 
-	// vars
 
-	static GLfloat cubecoords[8][4];
-	static GLfloat cubenorms[8][4];
-	
-	static int gamecount;
-	static Game* games[];
+  // vars
 
-	static Tetris tetris;
-	static BreakOut breakout;
-	static Audio audio;
+  static GLfloat cubecoords[8][4];
+  static GLfloat cubenorms[8][4];
 
-	static game_info player1;
-	static game_info player2;
+  static int gamecount;
+  static Game* games[];
 
-	static int quit;
+  static Tetris tetris;
+  static BreakOut breakout;
+  static Audio audio;
 
-	static int inplay;
+  static game_info player1;
+  static game_info player2;
 
-	static float space_penguinx;
-	static float space_penguiny;
-	static float space_penguindx;
-	static float space_penguindy;
+  static int quit;
 
-	static float space_penguinrot;
+  static int inplay;
 
-	static GLuint* textures;
-	static int* texture_widths;
-	static int* texture_heights;
-	static int texture_count;
-	static int texture_capacity;
+  static float space_penguinx;
+  static float space_penguiny;
+  static float space_penguindx;
+  static float space_penguindy;
 
-	static GLfloat tu[2];
-	static GLfloat tv[2];
+  static float space_penguinrot;
 
-	static double repeatTime;
-	static double titleChangeTime;
-	static double time;
+  static GLuint* textures;
+  static int* texture_widths;
+  static int* texture_heights;
+  static int texture_count;
+  static int texture_capacity;
 
-	static int keys[0xffff];
+  static GLfloat tu[2];
+  static GLfloat tv[2];
 
-	// background
-	static float bg1x;
-	static float bg1y;
-	
-	static float bg2x;
-	static float bg2y;
+  static double repeatTime;
+  static double titleChangeTime;
+  static double time;
 
-	// networking
-	
-	static IPaddress ip;
-	static TCPsocket tcpsock;
-	static TCPsocket client_tcpsock;
-	static SDL_Thread *network_thread;
+  static int keys[0xffff];
+
+  // background
+  static float bg1x;
+  static float bg1y;
+
+  static float bg2x;
+  static float bg2y;
+
+  // networking
+
+  static IPaddress ip;
+  static TCPsocket tcpsock;
+  static TCPsocket client_tcpsock;
+  static SDL_Thread *network_thread;
 };
-
-
 #endif //ENGINE_INCLUDED
