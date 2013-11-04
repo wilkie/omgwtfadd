@@ -21,5 +21,4 @@ public:
 
 	virtual void InitGame(game_info* gi)=0;
 };
-
 #endif //GAME_INCLUDED
