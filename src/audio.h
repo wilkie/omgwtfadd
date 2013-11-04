@@ -1,3 +1,4 @@
+#ifndef AUDIO_INCLUDED
 #define AUDIO_INCLUDED
 
 #define NUM_SOUNDS 10
