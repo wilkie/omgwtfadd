@@ -13,8 +13,13 @@
 #pragma comment(lib, "SDL_mixer.lib")
 #endif
 
-#include <SDL/SDL.h>
+#ifndef EMSCRIPTEN
+#include <GL/glew.h>
+#else
 #include <SDL/SDL_opengl.h>
+#endif
+
+#include <SDL/SDL.h>
 #include <SDL/SDL_net.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_mixer.h>

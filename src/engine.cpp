@@ -1,9 +1,12 @@
-
 #include "main.h"
 #include "engine.h"
 #include "components.h"
 
 #include <math.h>
+
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
 
 const char* stuffs[] = {
   "OMGWTFADD!!! It is ultra cool!!! TRUST ME!", "OMGWTFADD!",
@@ -54,19 +57,13 @@ void Engine::Init() {
   inplay = true;
 
   // INITIALIZE OPENGL!!!
+  if (glewInit() != GLEW_OK) {
+    fprintf(stderr, "Failed to initialize GLFW\n");
+    return;
+  }
 
   // clear color
   glClearColor(0,0,0,1);
-
-  // set up perspective
-  glMatrixMode(GL_PROJECTION) ;
-
-  glLoadIdentity() ;
-
-  gluPerspective(40, 1.0, 1, 200.0);
-
-  glMatrixMode(GL_MODELVIEW) ;
-  glLoadIdentity() ;  // init modelview to identity
 
   ClearGameData(&player1);
   ClearGameData(&player2);
@@ -139,6 +136,8 @@ void Engine::Init() {
     space_penguiny = -space_penguiny;
   }
 
+  glGenVertexArrays(1, &_vao);
+  glBindVertexArray(_vao);
 }
 
 void Engine::SendAttack(int severity) {
@@ -446,43 +445,66 @@ void Engine::DisplayMessage(int stringIndex) {
   audio.PlaySound(SND_PENGUIN);
 }
 
+static const GLfloat _cube_data[] = {
+  -1.0f,-1.0f,-1.0f,
+  -1.0f,-1.0f, 1.0f,
+  -1.0f, 1.0f, 1.0f,
+  1.0f, 1.0f,-1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f, 1.0f,
+  -1.0f,-1.0f,-1.0f,
+  1.0f,-1.0f,-1.0f,
+  1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f,-1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f, 1.0f,
+  -1.0f,-1.0f, 1.0f,
+  -1.0f,-1.0f,-1.0f,
+  -1.0f, 1.0f, 1.0f,
+  -1.0f,-1.0f, 1.0f,
+  1.0f,-1.0f, 1.0f,
+  1.0f, 1.0f, 1.0f,
+  1.0f,-1.0f,-1.0f,
+  1.0f, 1.0f,-1.0f,
+  1.0f,-1.0f,-1.0f,
+  1.0f, 1.0f, 1.0f,
+  1.0f,-1.0f, 1.0f,
+  1.0f, 1.0f, 1.0f,
+  1.0f, 1.0f,-1.0f,
+  -1.0f, 1.0f,-1.0f,
+  1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f,-1.0f,
+  -1.0f, 1.0f, 1.0f,
+  1.0f, 1.0f, 1.0f,
+  -1.0f, 1.0f, 1.0f,
+  1.0f,-1.0f, 1.0f
+};
+
 void Engine::Draw() {
   // clear buffer
   glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
 
-  // set up projection (3D)
-  glMatrixMode(GL_PROJECTION) ;
+  // set up perspective
+  glm::mat4 perspective = glm::perspective(40.0f, 1.0f, 1.0f, 200.0f);
 
-  // load identity
-  glLoadIdentity() ;
-
-  // set up a perspective
-  gluPerspective(40, 1.0, 1, 200.0);
-
-  // go to model view matrix
-  glMatrixMode(GL_MODELVIEW) ;
-
-  // enable lighting, etc
-  glEnable(GL_LIGHTING);
-  glEnable(GL_NORMALIZE);
+  // enable depth testing
   glEnable(GL_DEPTH_TEST);
 
-  // init to identity
-  glLoadIdentity();
-
-  // set up camera
-  gluLookAt(0, 0, 21.5,  // x,y,z coord of the camera
-      0.0, 0.0, 0.0,  // x,y,z LookAt
-      0.0, 1.0, 0.0); // the direction of Up (default is y-axis)
+  glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
+                               glm::vec3(0.0f, 0.0f, 0.0f),
+                               glm::vec3(0.0f, 1.0f, 0.0));
 
   // BACKGROUND!!!
 
   EnableTextures();
   UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG1], texture_heights[TEXTURE_BG1]);
 
-  glBegin(GL_QUADS);
-
   // Draw First Background (Stars)
+  /*glBegin(GL_QUADS);
 
   DrawQuadXY(bg1x - 15, bg1y - 15, -6.3f, 30, 30);
   DrawQuadXY(bg1x - 45, bg1y - 15, -6.3f, 30, 30);
@@ -490,13 +512,14 @@ void Engine::Draw() {
   DrawQuadXY(bg1x - 15, bg1y-45, -6.3f, 30, 30);
   DrawQuadXY(bg1x - 45, bg1y-45, -6.3f, 30, 30);
 
-  glEnd();
+  glEnd();*/
 
   glEnable(GL_BLEND);     // Turn blending On
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   UseTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
+  /*
   glBegin(GL_QUADS);
 
   // Draw Second Background (Haze)
@@ -508,13 +531,13 @@ void Engine::Draw() {
   DrawQuadXY(bg2x - 45, bg2y+15, -6.0f, 30, 30);
 
   glEnd();
+  */
 
-  // Draw Space Pirate Gangsta' Penguin!
+  // Draw Space Pirate Penguin!
 
   UseTexture(TEXTURE_SPACEPENGUIN, 0, 0, 150, 155);
 
-  glPushMatrix();
-
+  /*
   glTranslatef(space_penguinx, space_penguiny, -5.9f);
   glRotatef(space_penguinrot, 0,0,1);
 
@@ -523,8 +546,7 @@ void Engine::Draw() {
   DrawQuadXY(-1.0f, 1.0333, 0, 2, 2.03333f);
 
   glEnd();
-
-  glPopMatrix();
+  */
 
   DisableTextures();
 
@@ -534,23 +556,15 @@ void Engine::Draw() {
   games[player1.curgame]->Draw(&player1);
   games[player2.curgame]->Draw(&player2);
 
-  // enable lighting, etc
-  glDisable(GL_LIGHTING);
+  // enable depth testing
   glDisable(GL_DEPTH_TEST);
 
   DisableTextures();
 
   // Orthogonal HUD!!!
+  /*
 
-  // set up projection (3D)
-  glMatrixMode(GL_PROJECTION) ;
-
-  // init to identity
-  glLoadIdentity();
-
-  // ...
-
-  gluOrtho2D(0.0, 800.0, 600.0, 0);
+  glm::ortho(0.0f, 800.0f, 600.0f, 0.0f);
 
   // go to model view matrix
   glMatrixMode(GL_MODELVIEW) ;
@@ -615,8 +629,7 @@ void Engine::Draw() {
 
   glDisable(GL_BLEND);
 
-  glRectf(399,150,401,600);
-  //glRectf(399,0,401,600);
+  */
 
   SDL_GL_SwapBuffers();
 }
@@ -708,18 +721,7 @@ void Engine::DrawQuad(int a, int b, int c, int d) {
 }
 
 void Engine::DrawCube() {
-  glBegin(GL_QUADS);
-
-  DrawQuad(0,1,2,3);
-
-  DrawQuad(4,5,6,7);
-
-  DrawQuad(0,1,5,4);
-  DrawQuad(1,2,6,5);
-  DrawQuad(2,3,7,6);
-  DrawQuad(3,0,4,7);
-
-  glEnd();
+  glDrawArrays(GL_TRIANGLES, 0, 12*3);
 }
 
 void Engine::ClearGameData(game_info* player) {

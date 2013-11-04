@@ -83,13 +83,9 @@ public:
 
   void DisplayMessage(int stringIndex);
 
-
-
-
-
-
-
   // vars
+
+  GLuint _vao;
 
   static GLfloat cubecoords[8][4];
   static GLfloat cubenorms[8][4];
