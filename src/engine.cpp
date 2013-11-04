@@ -9,9 +9,17 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+void gl_check_errors(const char* msg) {
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    fprintf(stderr, "GL Error: %s: %s\n", msg, (char*)gluErrorString(error));
+  }
+}
+
 const char* frag_shader_code[] = {
   "#version 150\n"
   "\n"
+  "in vec3 Position;"
   "in vec3 Normal;"
   "in vec2 Texcoord;"
   ""
@@ -138,10 +146,6 @@ static const GLushort _cube_elements[] = {
   20, 21, 22, 23
 };
 
-static const GLushort _quad_elements[] = {
-  0, 1, 2, 4
-};
-
 void Engine::Init() {
   inplay = true;
 
@@ -154,7 +158,8 @@ void Engine::Init() {
   }
 
   // clear color
-  glClearColor(0,0,0,0);
+  glClearColor(0,1,0,1);
+  gl_check_errors("glClearColor");
 
   ClearGameData(&player1);
   ClearGameData(&player2);
@@ -260,70 +265,98 @@ void Engine::Init() {
   glAttachShader(_program, vertex_shader);
   glAttachShader(_program, frag_shader);
   glLinkProgram(_program);
+  gl_check_errors("glLinkProgram");
+
+  glGetProgramiv(_program, GL_LINK_STATUS, &result);
+  if (result != GL_TRUE) {
+    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &infoLogLength);
+    std::vector<char> program_error_msg(infoLogLength);
+    glGetProgramInfoLog(_program, infoLogLength, NULL, &program_error_msg[0]);
+    fprintf(stdout, "%s\n", &program_error_msg[0]);
+  }
+
+  glUseProgram(_program);
+  gl_check_errors("glUseProgram");
 
   glDeleteShader(vertex_shader);
   glDeleteShader(frag_shader);
+  gl_check_errors("glDeleteShader");
 
   /* Attach/describe uniforms */
   _model_uniform = glGetUniformLocation(_program, "model");
   GLuint view_uniform = glGetUniformLocation(_program, "view");
   GLuint proj_uniform = glGetUniformLocation(_program, "proj");
+  gl_check_errors("glGetUniformLocation");
 
   GLint posAttrib = glGetAttribLocation(_program, "position");
+  gl_check_errors("glGetAttribLocation position");
+
   glEnableVertexAttribArray(posAttrib);
+  gl_check_errors("glEnableVertexAttribPointer position");
 
   glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
                         (GLsizei)(8 * sizeof(float)),
                         (const GLvoid*)(size_t)(0 * sizeof(float)));
+  gl_check_errors("glVertexAttribPointer position");
 
   posAttrib = glGetAttribLocation(_program, "normal");
-  glEnableVertexAttribArray(posAttrib);
+  gl_check_errors("glGetAttribLocation normal");
 
-  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
-                        (GLsizei)(8 * sizeof(float)),
-                        (const GLvoid*)(size_t)(3 * sizeof(float)));
+  if (posAttrib >= 0) {
+    glEnableVertexAttribArray(posAttrib);
+    gl_check_errors("glEnableVertexAttribPointer normal");
+
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
+                          (GLsizei)(8 * sizeof(float)),
+                          (const GLvoid*)(size_t)(3 * sizeof(float)));
+    gl_check_errors("glVertexAttribPointer normal");
+  }
 
   posAttrib = glGetAttribLocation(_program, "texcoord");
+  gl_check_errors("glGetAttribLocation texcoord");
+
   glEnableVertexAttribArray(posAttrib);
+  gl_check_errors("glEnableVertexAttribPointer texcoord");
 
   glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
                         (GLsizei)(8 * sizeof(float)),
                         (const GLvoid*)(size_t)(6 * sizeof(float)));
+  gl_check_errors("glVertexAttribPointer texcoord");
 
   /* set up perspective */
   glm::mat4 perspective = glm::perspective(40.0f, 1.0f, 1.0f, 200.0f);
   glUniformMatrix4fv(proj_uniform, 1, GL_FALSE, &perspective[0][0]);
+  gl_check_errors("glUniformMatrix4fv perspective");
 
   /* set up view */
   glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
                                glm::vec3(0.0f, 0.0f, 0.0f),
                                glm::vec3(0.0f, 1.0f, 0.0));
   glUniformMatrix4fv(view_uniform, 1, GL_FALSE, &view[0][0]);
+  gl_check_errors("glUniformMatrix4fv view");
 
   glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f,10.0f,10.0f));
   glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
+  gl_check_errors("glUniformMatrix4fv model");
 
   /* Generate VAOS */
 #ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
   glGenVertexArrays(1, &_vao);
   glBindVertexArray(_vao);
+  gl_check_errors("glBindVertexArray");
 #endif
 
   /* Generate VBOS */
   glGenBuffers(1, &_vbo_vertex);
   glGenBuffers(1, &_vbo_elements_cube);
-  glGenBuffers(1, &_vbo_elements_quad);
 
   glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
   glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData cube_data");
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_quad);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_quad_elements), _quad_elements, GL_STATIC_DRAW);
-
-  glUseProgram(_program);
+  gl_check_errors("glBufferData cube_elements");
 }
 
 void Engine::SendAttack(int severity) {
@@ -640,8 +673,9 @@ void Engine::Draw() {
   glEnable(GL_DEPTH_TEST);
 
   // BACKGROUND!!!
-
   DrawCube();
+
+  SDL_GL_SwapBuffers();
   return;
 
   EnableTextures();
@@ -774,8 +808,6 @@ void Engine::Draw() {
   glDisable(GL_BLEND);
 
   */
-
-  SDL_GL_SwapBuffers();
 }
 
 void Engine::KeyDown(Uint32 key) {
@@ -857,26 +889,10 @@ void Engine::DrawQuadXY(float x, float y, float z, float w, float h) {
 }
 
 void Engine::DrawQuad(int a, int b, int c, int d) {
-  glTexCoord2f(tu[0], tv[0]);
-  glNormal3fv(cubenorms[a]);
-  glVertex4fv(cubecoords[a]);
-
-  glTexCoord2f(tu[1], tv[0]);
-  glNormal3fv(cubenorms[b]);
-  glVertex4fv(cubecoords[b]);
-
-  glTexCoord2f(tu[1], tv[1]);
-  glNormal3fv(cubenorms[c]);
-  glVertex4fv(cubecoords[c]);
-
-  glTexCoord2f(tu[0], tv[1]);
-  glNormal3fv(cubenorms[d]);
-  glVertex4fv(cubecoords[d]);
+  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
 }
 
 void Engine::DrawCube() {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
-
   glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);
 }
 

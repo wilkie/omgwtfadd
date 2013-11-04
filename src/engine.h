@@ -92,7 +92,6 @@ public:
 
   GLuint _vbo_vertex;
   GLuint _vbo_elements_cube;
-  GLuint _vbo_elements_quad;
 
   static GLfloat cubecoords[8][4];
   static GLfloat cubenorms[8][4];
