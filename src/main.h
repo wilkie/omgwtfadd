@@ -1,6 +1,3 @@
-
-
-
 #ifndef MAIN_INCLUDED
 #define MAIN_INCLUDED
 
@@ -136,53 +133,52 @@ extern const char* strings[7];
 #define SND_CHANGEVIEW 4
 #define SND_MUSIC 5
 
-	struct game_info
-	{
-		// board
-		char board[10][24];
+struct game_info {
+  // board
+  char board[10][24];
 
-		int pos; // column/row position
-		float fine; // a floating position
+  int pos; // column/row position
+  float fine; // a floating position
 
-		// side, tells whether to move left, or move right
-		float side;
+  // side, tells whether to move left, or move right
+  float side;
 
-		int attacking;
-		float attack_rot;
+  int attacking;
+  float attack_rot;
 
-		float rot;
-		float rot2;
+  float rot;
+  float rot2;
 
-		int curpiece;
-		int curdir;
+  int curpiece;
+  int curdir;
 
-		int curgame;
+  int curgame;
 
-		int state;
+  int state;
 
-		int score;
+  int score;
 
-		float message_uptime;
-		const char* message;
+  float message_uptime;
+  const char* message;
 
-		float ball_fast;
-		float break_out_time;
+  float ball_fast;
+  float break_out_time;
 
-		int break_out_consecutives;
-
-
-
-		int total_lines;
-		int state_lines;
+  int break_out_consecutives;
 
 
 
-		// oops
+  int total_lines;
+  int state_lines;
 
-		float ball_x;
-		float ball_y;
 
-		float ball_dx;
-		float ball_dy;
-	};
+
+  // oops
+
+  float ball_x;
+  float ball_y;
+
+  float ball_dx;
+  float ball_dy;
+};
 #endif //MAIN_INCLUDED
