@@ -1,11 +1,9 @@
-
 #ifndef GAME_INCLUDED
 #define GAME_INCLUDED
 
 #include "main.h"
 
-class Game
-{
+class Game {
 public:
 	virtual void Update(game_info* gi, float deltatime) = 0;
 	virtual void Draw(game_info* gi) = 0;
