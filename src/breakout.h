@@ -36,5 +36,4 @@ public:
                              int last_type, float x, float y, int isPaddle);
 
 };
-
 #endif //BREAKOUT_INCLUDED
