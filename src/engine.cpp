@@ -58,38 +58,6 @@ void Engine::Init() {
   // clear color
   glClearColor(0,0,0,1);
 
-  // toggle to smooth shading
-  glShadeModel(GL_SMOOTH);
-
-
-
-
-  // LIGHTING?
-
-  GLfloat globalAmb[]     = {0.9f, 0.9f, 0.9f, 0.9f};
-
-  //enable lighting
-  glEnable(GL_LIGHTING);
-  glEnable(GL_NORMALIZE);
-
-  // reflective propoerites -- global ambiant light
-  glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmb);
-
-  GLfloat lightstuff[] = {0.9f, 0.9f, 0.9f};
-  GLfloat lightpos[] = {0,0,20};
-
-  // setup properties of lighting
-  glEnable(GL_LIGHT0);
-  glLightfv(GL_LIGHT0, GL_AMBIENT, lightstuff);
-  glLightfv(GL_LIGHT0, GL_DIFFUSE, lightstuff);
-  glLightfv(GL_LIGHT0, GL_SPECULAR, lightstuff);
-  glLightfv(GL_LIGHT0, GL_POSITION, lightpos);
-
-
-
-
-
-
   // set up perspective
   glMatrixMode(GL_PROJECTION) ;
 
@@ -99,9 +67,6 @@ void Engine::Init() {
 
   glMatrixMode(GL_MODELVIEW) ;
   glLoadIdentity() ;  // init modelview to identity
-
-
-
 
   ClearGameData(&player1);
   ClearGameData(&player2);
@@ -163,16 +128,14 @@ void Engine::Init() {
 
   space_penguindx = 0.5f * (float)(5 - (rand() % 11));
 
-  if (space_penguindx < 0)
-  {
+  if (space_penguindx < 0) {
     space_penguinx = -space_penguinx;
   }
   space_penguiny = -15 - (rand() % 15);
 
   space_penguindy = 0.5f * (float)(5 - (rand() % 11));
 
-  if (space_penguindy < 0)
-  {
+  if (space_penguindy < 0) {
     space_penguiny = -space_penguiny;
   }
 
