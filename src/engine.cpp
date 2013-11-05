@@ -150,12 +150,18 @@ static const GLfloat _cube_data[] = {
 };
 
 static const GLushort _cube_elements[] = {
-  0, 1, 2, 3,
-  4, 5, 6, 7,
-  8, 9, 10, 11,
-  12, 13, 14, 15,
-  16, 17, 18, 19,
-  20, 21, 22, 23
+  0, 1, 2,
+  2, 3, 0,
+  4, 5, 6,
+  6, 7, 4,
+  8, 9, 10,
+  10, 11, 8,
+  12, 13, 14,
+  14, 15, 12,
+  16, 17, 18,
+  18, 19, 16,
+  20, 21, 22,
+  22, 23, 20
 };
 
 void Engine::Init() {
@@ -415,19 +421,19 @@ void Engine::Quit() {
   quit = 1;
 }
 
-#ifdef JS_MODE
+#ifdef EMSCRIPTEN
 // Unsafe singleton pointer for C/js systems
 static Apsis::Engine::System* _c_this;
 #endif
 
 void Engine::_c_iterate() {
-#ifdef JS_MODE
+#ifdef EMSCRIPTEN
   _c_this->_iterate();
 #endif
 }
 
 void Engine::GameLoop() {
-#ifdef JS_MODE
+#ifdef EMSCRIPTEN
   _c_this = this;
   emscripten_set_main_loop(Apsis::Engine::System::_c_iterate, 30, 1);
 #else
@@ -921,17 +927,17 @@ void Engine::DrawQuadXY(float x, float y, float z, float w, float h) {
   glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
   gl_check_errors("glUniformMatrix4fv model");
 
-  glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
 void Engine::DrawQuad(int a, int b, int c, int d) {
-  glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
 void Engine::DrawCube() {
-  glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
