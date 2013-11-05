@@ -115,14 +115,21 @@ void Tetris::InitGame(game_info* gi) {
 }
 
 void Tetris::DropPiece(game_info* gi) {
-  while(!TestCollision(gi)) {
-    gi->fine+=0.25;
-  }
+  gi->fine = DetermineDropPosition(gi);
 
   engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   engine.PassMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
 
   AddPiece(gi);
+}
+
+float Tetris::DetermineDropPosition(game_info* gi) {
+  float phantom_fine = gi->fine;
+  while(!TestCollision(gi, (0.5) * (double)gi->pos, phantom_fine)) {
+    phantom_fine+=0.25;
+  }
+
+  return phantom_fine - fmod(phantom_fine, 0.5f);
 }
 
 // draw 3D
@@ -133,7 +140,11 @@ void Tetris::Draw(game_info* gi) {
 
   DrawBoard(gi);
 
-  DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine);
+  DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
+
+  if (gi->state == STATE_TETRIS) {
+    DrawPiece(gi, (0.5) * (double)gi->pos, DetermineDropPosition(gi), 18);
+  }
 }
 
 void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
@@ -480,134 +491,172 @@ void Tetris::DrawBoard(game_info* gi) {
       }
     }
   }
+
+  for (i=0; i<10; i++) {
+    for (j=0; j<24; j++) {
+      if(gi->board[i][j] == -1) {
+        DrawBackgroundBlock(gi, i, j);
+      }
+    }
+  }
 }
 
-void Tetris::DrawPiece(game_info* gi, double x, double y) {
+void Tetris::DrawBackgroundBlock(game_info* gi, double x, double y) {
+  engine.UseTexture(17,0,0,0,0);
+
+  // translate to world
+  glm::mat4 model = glm::mat4(1.0f);
+
+  //model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
+
+  // rotate
+  model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
+  model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
+
+  model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
+
+  float z = -0.8f;
+  float rot_percent = (float)gi->rot2 / 180.0f;
+
+  z = 1.0f * rot_percent - 0.8f;
+
+  // translate
+  model = glm::translate(model, glm::vec3(-2.25f + (x*0.5), 6.375f - (y*0.5), z));
+
+  // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
+  model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+
+  engine.DrawQuad(0,0,0,0);
+}
+
+void Tetris::DrawPiece(game_info* gi, double x, double y, int texture) {
   switch (gi->curpiece) {
     case 0:
       if (gi->curdir % 2) {
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x-1.0, y);
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x-1.0, y);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
       }
       else {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y+1.0);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y+1.0);
+        DrawBlock(texture, gi, x, y-0.5);
       }
       break;
     case 1:
       if (gi->curdir % 2) {
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y-0.5);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y-0.5);
       }
       else {
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y-0.5);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x-0.5, y-0.5);
       }
       break;
     case 2:
       if (gi->curdir % 2) {
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y-0.5);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x-0.5, y-0.5);
       }
       else {
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y-0.5);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y-0.5);
       }
       break;
     case 3:
-      DrawBlock(gi->curpiece, gi, x+0.5, y);
-      DrawBlock(gi->curpiece, gi, x, y+0.5);
-      DrawBlock(gi->curpiece, gi, x, y);
-      DrawBlock(gi->curpiece, gi, x+0.5, y+0.5);
+      DrawBlock(texture, gi, x+0.5, y);
+      DrawBlock(texture, gi, x, y+0.5);
+      DrawBlock(texture, gi, x, y);
+      DrawBlock(texture, gi, x+0.5, y+0.5);
       break;
     case 4:
       if (gi->curdir == 0) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
-        DrawBlock(gi->curpiece, gi, x+0.5, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y-0.5);
+        DrawBlock(texture, gi, x+0.5, y+0.5);
       }
       else if (gi->curdir == 1) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x-0.5, y+0.5);
       }
       else if (gi->curdir == 2) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
-        DrawBlock(gi->curpiece, gi, x-0.5, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y-0.5);
+        DrawBlock(texture, gi, x-0.5, y-0.5);
       }
       else {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x+0.5, y-0.5);
       }
       break;
     case 5:
       if (gi->curdir == 0) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
-        DrawBlock(gi->curpiece, gi, x-0.5, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y-0.5);
+        DrawBlock(texture, gi, x-0.5, y+0.5);
       }
       else if (gi->curdir == 1) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x-0.5, y-0.5);
       }
       else if (gi->curdir == 2) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
-        DrawBlock(gi->curpiece, gi, x+0.5, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y-0.5);
+        DrawBlock(texture, gi, x+0.5, y-0.5);
       }
       else {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x+0.5, y+0.5);
       }
       break;
     case 6:
       if (gi->curdir == 0) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x, y-0.5);
       }
       else if (gi->curdir == 1) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y-0.5);
       }
       else if (gi->curdir == 2) {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x+0.5, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x+0.5, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x, y+0.5);
       }
       else {
-        DrawBlock(gi->curpiece, gi, x, y);
-        DrawBlock(gi->curpiece, gi, x-0.5, y);
-        DrawBlock(gi->curpiece, gi, x, y+0.5);
-        DrawBlock(gi->curpiece, gi, x, y-0.5);
+        DrawBlock(texture, gi, x, y);
+        DrawBlock(texture, gi, x-0.5, y);
+        DrawBlock(texture, gi, x, y+0.5);
+        DrawBlock(texture, gi, x, y-0.5);
       }
       break;
   }

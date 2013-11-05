@@ -22,7 +22,6 @@ void gl_check_errors(const char* msg) {
       case GL_OUT_OF_MEMORY: errorString = "out of memory"; break;
       case GL_TABLE_TOO_LARGE: errorString = "table too large"; break;
       case GL_INVALID_FRAMEBUFFER_OPERATION: errorString = "invalid framebuffer operation"; break;
-//      case GL_TEXTURE_TOO_LARGE: errorString = "texture too large"; break;
       default: errorString = "unknown GL error"; break;
     }
     fprintf(stderr, "GL Error: %s: %s\n", msg, errorString);
@@ -219,6 +218,8 @@ void Engine::Init() {
   AddTexture("images/letters_w.png");
 
   AddTexture("images/block08.png");
+  AddTexture("images/block09.png");
+  AddTexture("images/block10.png");
 
   audio.Init();
 

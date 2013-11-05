@@ -671,10 +671,10 @@ void BreakOut::Draw(game_info* gi) {
   engine.tetris.DrawBoard(gi);
 
   if (gi->state == STATE_BREAKOUT_TRANS) {
-    engine.tetris.DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine);
+    engine.tetris.DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
   }
   else {
-    engine.tetris.DrawPiece(gi, gi->fine, 1.0f);
+    engine.tetris.DrawPiece(gi, gi->fine, 1.0f, gi->curpiece);
   }
 
   DrawBall(gi);

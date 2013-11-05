@@ -27,8 +27,11 @@ public:
   void GetNewPiece(game_info* gi);
 
   void DrawBoard(game_info* gi);
-  void DrawPiece(game_info* gi, double x, double y);
+  void DrawPiece(game_info* gi, double x, double y, int texture);
+  void DrawBackgroundBlock(game_info* gi, double x, double y);
   void DrawBlock(int type, game_info* gi, double x, double y);
+
+  float DetermineDropPosition(game_info* gi);
 
   void AddPiece(game_info* gi);
   void AddPiece(game_info* gi, int start_x, int start_y);
