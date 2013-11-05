@@ -12,49 +12,61 @@
 void gl_check_errors(const char* msg) {
   GLenum error = glGetError();
   if (error != GL_NO_ERROR) {
-    fprintf(stderr, "GL Error: %s: %s\n", msg, (char*)gluErrorString(error));
+    const char* errorString;
+    switch ( error ) {
+      case GL_INVALID_ENUM: errorString = "invalid enumerant"; break;
+      case GL_INVALID_VALUE: errorString = "invalid value"; break;
+      case GL_INVALID_OPERATION: errorString = "invalid operation"; break;
+      case GL_STACK_OVERFLOW: errorString = "stack overflow"; break;
+      case GL_STACK_UNDERFLOW: errorString = "stack underflow"; break;
+      case GL_OUT_OF_MEMORY: errorString = "out of memory"; break;
+      case GL_TABLE_TOO_LARGE: errorString = "table too large"; break;
+      case GL_INVALID_FRAMEBUFFER_OPERATION: errorString = "invalid framebuffer operation"; break;
+//      case GL_TEXTURE_TOO_LARGE: errorString = "texture too large"; break;
+      default: errorString = "unknown GL error"; break;
+    }
+    fprintf(stderr, "GL Error: %s: %s\n", msg, errorString);
   }
 }
 
 const char* frag_shader_code[] = {
-  "#version 150\n"
+  "#ifdef GL_ES\n"
+  "precision highp float;\n"
+  "#endif\n"
   "\n"
-  "in vec3 Position;"
-  "in vec3 Normal;"
-  "in vec2 Texcoord;"
-  ""
-  "out vec4 outColor;"
-  ""
-  "uniform sampler2D tex;"
-  ""
-  "void main() {"
-  "  outColor = texture2D(tex, Texcoord);"
+  "varying vec3 Normal;\n"
+  "varying vec2 Texcoord;\n"
+  "\n"
+  "uniform sampler2D tex;\n"
+  "\n"
+  "void main() {\n"
+  "  gl_FragColor = texture2D(tex, Texcoord);\n"
   "}"
 };
 
 const char* vertex_shader_code[] = {
-  "#version 150\n"
+  "#version 100\n"
   "\n"
-  "in vec3 normal;"
-  "in vec3 position;"
-  "in vec2 texcoord;"
-  ""
-  "out vec2 Texcoord;"
-  "out vec3 Normal;"
-  "out vec3 Position;"
-  ""
-  "uniform mat4 model;"
-  "uniform mat4 view;"
-  "uniform mat4 proj;"
-  ""
-  "uniform vec3 camera;"
-  ""
-  "void main() {"
-  "  Texcoord = texcoord;"
-  "  Normal = (model * vec4(normal, 1.0)).xyz;"
-  "  Position = (model * vec4(position, 1.0)).xyz;"
-  ""
-  "  gl_Position = proj * view * model * vec4(position, 1.0);"
+  "attribute vec3 normal;\n"
+  "attribute vec3 position;\n"
+  "attribute vec2 texcoord;\n"
+  "\n"
+  "varying vec2 Texcoord;\n"
+  "varying vec3 Normal;\n"
+  "varying vec3 Position;\n"
+  "\n"
+  "uniform mat4 model;\n"
+  "uniform mat4 view;\n"
+  "uniform mat4 proj;\n"
+  "\n"
+  "uniform vec3 camera;\n"
+  "\n"
+  "void main() {\n"
+  "  Texcoord = texcoord;\n"
+  "  Normal = (model * vec4(normal, 1.0)).xyz;\n"
+  "  Position = (model * vec4(position, 1.0)).xyz;\n"
+  "\n"
+  "  gl_Position = proj * view * model * vec4(position, 1.0);\n"
   "}"
 };
 
@@ -152,10 +164,12 @@ void Engine::Init() {
   // INITIALIZE OPENGL!!!
 
   // Init GLEW
+#ifndef EMSCRIPTEN
   if (glewInit() != GLEW_OK) {
     fprintf(stderr, "Failed to initialize GLFW\n");
     return;
   }
+#endif
 
   // clear color
   glClearColor(0,1,0,1);
@@ -208,8 +222,10 @@ void Engine::Init() {
   audio.LoadSound("sounds/bounce.wav");
   audio.LoadSound("sounds/changeview.wav");
 
+#ifndef EMSCRIPTEN
   audio.LoadMusic("music/bsh.ogg");
   audio.PlayMusic();
+#endif
 
   player1.state = STATE_TETRIS;
   InitState(&player1);
@@ -290,7 +306,6 @@ void Engine::Init() {
   _program = glCreateProgram();
   glAttachShader(_program, vertex_shader);
   glAttachShader(_program, frag_shader);
-  glBindFragDataLocation(_program, 0, "outColor");
   glLinkProgram(_program);
   gl_check_errors("glLinkProgram");
 
@@ -369,10 +384,8 @@ void Engine::Init() {
   glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
   gl_check_errors("glUniformMatrix4fv model");
 
-  if (tex_uniform >= 0) {
-    glUniform1i(tex_uniform, 0);
-    gl_check_errors("glUniform1i tex");
-  }
+  glUniform1i(tex_uniform, 0);
+  gl_check_errors("glUniform1i tex");
 }
 
 void Engine::SendAttack(int severity) {
@@ -402,13 +415,33 @@ void Engine::Quit() {
   quit = 1;
 }
 
+#ifdef JS_MODE
+// Unsafe singleton pointer for C/js systems
+static Apsis::Engine::System* _c_this;
+#endif
+
+void Engine::_c_iterate() {
+#ifdef JS_MODE
+  _c_this->_iterate();
+#endif
+}
+
 void Engine::GameLoop() {
-  SDL_Event event;
+#ifdef JS_MODE
+  _c_this = this;
+  emscripten_set_main_loop(Apsis::Engine::System::_c_iterate, 30, 1);
+#else
+  while(_iterate()) {}
+#endif
+}
 
-  Uint32 lasttime = SDL_GetTicks();
-  Uint32 curtime;
+bool Engine::_iterate() {
+  static SDL_Event event;
 
-  float deltatime;
+  static Uint32 lasttime = SDL_GetTicks();
+  static Uint32 curtime;
+
+  static float deltatime;
 
   // Game Loop
   while (!quit) {
@@ -430,11 +463,11 @@ void Engine::GameLoop() {
           break;
         case SDL_QUIT:
           Quit();
-          return;
+          return false;
       }
     }
 
-    if (quit) { return; }
+    if (quit) { return false; }
 
     // Draw Frame, tell engine stuff
 
@@ -449,6 +482,7 @@ void Engine::GameLoop() {
     lasttime = curtime;
   }
 
+  return true;
 }
 
 void Engine::Update(float deltatime) {
@@ -588,6 +622,7 @@ int Engine::DrawString(const char* str, int color, float x, float y) {
 }
 
 int Engine::_DrawString(const char* str, int color, float x, float y, int tx) {
+  /*
   int a = 0;
 
   int x2;
@@ -669,8 +704,9 @@ int Engine::_DrawString(const char* str, int color, float x, float y, int tx) {
 
   glDisable(GL_BLEND);
   DisableTextures();
-
   return a;
+*/
+  return 0;
 }
 
 void Engine::DisplayMessage(int stringIndex) {
@@ -885,17 +921,17 @@ void Engine::DrawQuadXY(float x, float y, float z, float w, float h) {
   glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
   gl_check_errors("glUniformMatrix4fv model");
 
-  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
 void Engine::DrawQuad(int a, int b, int c, int d) {
-  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, 4, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
 void Engine::DrawCube() {
-  glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);
+  glDrawElements(GL_TRIANGLES, 24, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
@@ -958,12 +994,9 @@ void Engine::UninitState(game_info* gi) {
 }
 
 void Engine::EnableTextures() {
-  glEnable(GL_TEXTURE_2D);
-  glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 }
 
 void Engine::DisableTextures() {
-  glDisable(GL_TEXTURE_2D);
 }
 
 void Engine::UseTextureUpsideDown(int textureIndex, int startX, int startY, int width, int height) {

@@ -31,6 +31,9 @@ public:
 
   void GameOver();
 
+  bool _iterate();
+  static void _c_iterate();
+
   // frame stuffs
 
   int IntLength(int i);

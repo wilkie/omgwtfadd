@@ -1,6 +1,7 @@
 CFLAGS =
 CC = g++
-CLINK = -lGL -lSDL -lSDL_net -lSDL_mixer -lSDL_image -lGLU
+CLINK = -lGL -lSDL -lSDL_mixer -lSDL_image -lGLU
+CLINK_NET = -lSDL_net
 
 all: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.cpp
 	$(CC) audio.cpp -c $(CFLAGS) -I.
@@ -11,7 +12,17 @@ all: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.c
 	$(CC) main.cpp -c $(CFLAGS) -I.
 	$(CC) tetris.cpp -c $(CFLAGS) -I.
 	$(CC) glew/glew.c -c $(CFLAGS) -I.
-	$(CC) -o ../omgwtfadd audio.o glew.o breakout.o components.o engine.o game.o main.o tetris.o $(CLINK)
+	$(CC) -o ../omgwtfadd audio.o glew.o breakout.o components.o engine.o game.o main.o tetris.o $(CLINK) $(CLINK_NET)
+
+js: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.cpp
+	em++ audio.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ breakout.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ components.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ engine.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ game.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ main.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ tetris.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	emcc -o ../omgwtfadd.js audio.o breakout.o components.o engine.o game.o main.o tetris.o -s TOTAL_MEMORY=10000000 --embed-file ../sounds@/sounds --embed-file ../images@/images $(CLINK)
 
 clean:
 	rm *.o

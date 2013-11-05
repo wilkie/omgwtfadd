@@ -16,8 +16,13 @@
 #ifndef EMSCRIPTEN
 #include <GL/glew.h>
 #else
+#include <emscripten.h>
 #include <SDL/SDL_opengl.h>
 #endif
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include <SDL/SDL.h>
 #ifndef NO_NETWORK
