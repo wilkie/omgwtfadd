@@ -6,7 +6,17 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
+#define GAMEOVER_SPREAD_RATE 0.1
+#define GAMEOVER_VELOCITY    1.0
+
 void Tetris::Update(game_info* gi, float deltatime) {
+  if (gi->state == STATE_GAMEOVER) {
+    // Shoot out the blocks
+    gi->gameover_position += GAMEOVER_VELOCITY * deltatime;
+
+    return;
+  }
+
   if (gi->state == STATE_TETRIS_TRANS) {
     gi->rot2 += TRANSITION_SPEED * deltatime;
 
@@ -138,12 +148,17 @@ void Tetris::Draw(game_info* gi) {
     return;
   }
 
-  DrawBoard(gi);
+  if (gi->state == STATE_GAMEOVER) {
+    DrawBoard(gi);
+  }
+  else {
+    DrawBoard(gi);
 
-  DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
+    DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
 
-  if (gi->state == STATE_TETRIS) {
-    DrawPiece(gi, (0.5) * (double)gi->pos, DetermineDropPosition(gi), 18);
+    if (gi->state == STATE_TETRIS) {
+      DrawPiece(gi, (0.5) * (double)gi->pos, DetermineDropPosition(gi), 18);
+    }
   }
 }
 
@@ -483,11 +498,28 @@ void Tetris::DrawBoard(game_info* gi) {
   engine.DrawCube();
 
   int i,j;
-
-  for (i=0; i<10; i++) {
-    for (j=0; j<24; j++) {
-      if(gi->board[i][j] != -1) {
-        DrawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j);
+  if (gi->state != STATE_GAMEOVER) {
+    for (i=0; i<10; i++) {
+      for (j=0; j<24; j++) {
+        if(gi->board[i][j] != -1) {
+          DrawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j);
+        }
+      }
+    }
+  }
+  else {
+    for (i=0; i<10; i++) {
+      for (j=0; j<24; j++) {
+        if(gi->board[i][j] != -1) {
+          float offset_x = (float)(i - 5) * gi->gameover_position * GAMEOVER_SPREAD_RATE;
+          float offset_y = (float)(11 - j) * gi->gameover_position * GAMEOVER_SPREAD_RATE;
+          model = base;
+          model = glm::translate(model, glm::vec3(-2.25f + (0.5f*i) + offset_x, 6.375f - (0.5f*j) + offset_y, gi->gameover_position));
+          model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+          glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+          engine.UseTexture(gi->board[i][j],0,0,0,0);
+          engine.DrawCube();
+        }
       }
     }
   }

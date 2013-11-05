@@ -50,6 +50,7 @@ extern const char* strings[7];
 #define STATE_TETRIS_TRANS 1
 #define STATE_BREAKOUT 2
 #define STATE_BREAKOUT_TRANS 3
+#define STATE_GAMEOVER 4
 
 // Textures
 #define TEXTURE_BLOCK1 0
@@ -178,12 +179,8 @@ struct game_info {
 
   int break_out_consecutives;
 
-
-
   int total_lines;
   int state_lines;
-
-
 
   // oops
 
@@ -192,5 +189,7 @@ struct game_info {
 
   float ball_dx;
   float ball_dy;
+
+  float gameover_position;
 };
 #endif //MAIN_INCLUDED

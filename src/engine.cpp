@@ -560,8 +560,6 @@ void Engine::Update(float deltatime) {
     bg2y += 30;
   }
 
-  if (!inplay) { return; }
-
   player1.message_uptime -= deltatime;
   if (player1.message_uptime < 0) {
     player1.message_uptime = 0;
@@ -852,7 +850,9 @@ void Engine::KeyDown(Uint32 key) {
 #endif
 
   if (gameover) {
-    ClearGameData(&player1);
+    if (player1.gameover_position > 1.0f) {
+      ClearGameData(&player1);
+    }
     return;
   }
 
@@ -894,7 +894,9 @@ void Engine::MouseDown() {
 #endif
 
   if (gameover) {
-    ClearGameData(&player1);
+    if (player1.gameover_position > 1.0f) {
+      ClearGameData(&player1);
+    }
   }
 }
 
@@ -903,8 +905,7 @@ void Engine::MouseMovement(Uint32 x, Uint32 y) {
 }
 
 void Engine::GameOver() {
-  printf("Game Over!\n");
-
+  player1.state = STATE_GAMEOVER;
   inplay = false;
 
   DisplayMessage(STR_YOULOSE);
@@ -944,6 +945,8 @@ void Engine::ClearGameData(game_info* player) {
       player->board[i][j] = -1;
     }
   }
+
+  player->gameover_position = 0.0f;
 
   ChangeState(player, STATE_TETRIS);
 
