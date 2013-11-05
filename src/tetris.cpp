@@ -2,6 +2,10 @@
 #include "tetris.h"
 #include "components.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 void Tetris::Update(game_info* gi, float deltatime) {
   if (gi->state == STATE_TETRIS_TRANS) {
     gi->rot2 += TRANSITION_SPEED * deltatime;
@@ -110,17 +114,6 @@ int Tetris::ClearLines(game_info* gi) {
 void Tetris::InitGame(game_info* gi) {
 }
 
-// draw 3D
-void Tetris::Draw(game_info* gi) {
-  if (!engine.network_thread && gi->side == 1) {
-    return;
-  }
-
-  DrawBoard(gi);
-
-  DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine);
-}
-
 void Tetris::DropPiece(game_info* gi) {
   while(!TestCollision(gi)) {
     gi->fine+=0.25;
@@ -132,39 +125,40 @@ void Tetris::DropPiece(game_info* gi) {
   AddPiece(gi);
 }
 
+// draw 3D
+void Tetris::Draw(game_info* gi) {
+  if (!engine.network_thread && gi->side == 1) {
+    return;
+  }
+
+  DrawBoard(gi);
+
+  DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine);
+}
 
 void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
-  if (gi->rot2 > 90) {
-    engine.UseTextureUpsideDown(type, 0, 0, 32,32);
-  }
-  else {
-    engine.UseTexture(type, 0, 0, 32,32);
-  }
-
-  glPushMatrix();
-
-  glMaterialfv(GL_FRONT, GL_AMBIENT, tet_piece_amb);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, tet_piece_spec);
-  glMaterialfv(GL_FRONT, GL_SHININESS, &tet_piece_shine);
-  glMaterialfv(GL_FRONT, GL_EMISSION, tet_piece_emi);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, tet_piece_diff[type]);
+  engine.UseTexture(type, 0, 0, 32,32);
 
   // translate to world
-  glTranslatef(gi->side * 3.75f,0,0);
+  glm::mat4 model = glm::mat4(1.0f);
+
+  model = glm::translate(model, glm::vec3(gi->side * 4.50f, 0.0f, 0.0f));
 
   // rotate
-  glRotatef(gi->side * gi->rot,0,1,0);
-  glRotatef(-gi->rot2,1,0,0);
+  model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
+  model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
+
+  model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
 
   // translate
-  glTranslatef(-2.25 + (x), 5.875 - (y),0);
+  model = glm::translate(model, glm::vec3(-2.25f + (x), 5.875f - (y), 0.0f));
 
-  // scale
-  glScalef(0.5,0.5,0.5);
+  // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
+  model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
+
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
   engine.DrawCube();
-
-  glPopMatrix();
 }
 
 // draw interface
@@ -436,62 +430,46 @@ void Tetris::AddBlock(game_info* gi, int i, int j, int type) {
 }
 
 void Tetris::DrawBoard(game_info* gi) {
-  // set up materials for the board posts:
-
-  glMaterialfv(GL_FRONT, GL_AMBIENT, board_piece_amb);
-  glMaterialfv(GL_FRONT, GL_DIFFUSE, board_piece_diff);
-  glMaterialfv(GL_FRONT, GL_SPECULAR, board_piece_spec);
-  glMaterialfv(GL_FRONT, GL_SHININESS, &board_piece_shine);
-  glMaterialfv(GL_FRONT, GL_EMISSION, board_piece_emi);
-
   // left
-  glPushMatrix();
+  glm::mat4 model;
 
-  glTranslatef(gi->side * 3.75,0,0);
+  model = glm::mat4(1.0f);
+  model = glm::translate(model, glm::vec3(gi->side * 4.50f, 0.0f, 0.0f));
 
-  glRotatef(gi->side * gi->rot,0,1,0);
-  glRotatef(-gi->rot2,1,0,0);
+  // rotate
+  model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
+  model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
 
-  glTranslatef(-2.625,-0.125,0);
-  glScalef(0.25,12,0.5);
+  model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
 
+  glm::mat4 base = model;
+
+  model = glm::translate(model, glm::vec3(-2.625,-0.125,0));
+  model = glm::scale(model, glm::vec3(0.25,12,0.5));
+  model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
   engine.DrawCube();
-
-  glPopMatrix();
 
   // right
-  glPushMatrix();
+  model = base;
+  model = glm::translate(model, glm::vec3(2.625,-0.125,0));
+  model = glm::scale(model, glm::vec3(0.25,12,0.5));
+  model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-  glTranslatef(gi->side * 3.75,0,0);
-
-  glRotatef(gi->side * gi->rot,0,1,0);
-  glRotatef(-gi->rot2,1,0,0);
-
-  glTranslatef(2.625,-0.125,0);
-  glScalef(0.25,12,0.5);
-
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
   engine.DrawCube();
-
-  glPopMatrix();
 
   // bottom
-  glPushMatrix();
+  model = base;
+  model = glm::translate(model, glm::vec3(0,-6,0));
+  model = glm::scale(model, glm::vec3(5,0.25,0.5));
+  model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-  glTranslatef(gi->side * 3.75,0,0);
-
-  glRotatef(gi->side * gi->rot,0,1,0);
-  glRotatef(-gi->rot2,1,0,0);
-
-  glTranslatef(0,-6,0);
-  glScalef(5,0.25,0.5);
-
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
   engine.DrawCube();
 
-  glPopMatrix();
-
   int i,j;
-
-  engine.EnableTextures();
 
   for (i=0; i<10; i++) {
     for (j=0; j<24; j++) {
@@ -500,8 +478,6 @@ void Tetris::DrawBoard(game_info* gi) {
       }
     }
   }
-
-  engine.DisableTextures();
 }
 
 void Tetris::DrawPiece(game_info* gi, double x, double y) {

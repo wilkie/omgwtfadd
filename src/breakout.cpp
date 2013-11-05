@@ -1,6 +1,10 @@
 #include "components.h"
 #include "breakout.h"
 
+#include "glm/glm.hpp"
+#include "glm/gtc/matrix_transform.hpp"
+#include "glm/gtc/type_ptr.hpp"
+
 #include <vector>
 
 using namespace std;
@@ -642,26 +646,25 @@ void BreakOut::Update(game_info* gi, float deltatime) {
 }
 
 void BreakOut::DrawBall(game_info* gi) {
-  float aspect = (600.0f/800.0f);
+  // translate
+  glm::mat4 model;
 
-  glPushMatrix();
-
-  // translate to world
-  glTranslatef(gi->side * 3.75f,0,0);
+  model = glm::mat4(1.0f);
+  model = glm::translate(model, glm::vec3(gi->side * 4.00f, 0.0f, 0.0f));
 
   // rotate
-  glRotatef(gi->side * gi->rot,0,1,0);
-  glRotatef(-gi->rot2,1,0,0);
+  model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
+  model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
 
-  // translate
-  glTranslatef(-2.25 + (gi->ball_x), 5.875 - (gi->ball_y),0);
+  model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
 
-  // scale
-  glScalef(aspect,1,1);
+  glm::mat4 base = model;
 
-  //glutSolidSphere(SPHERE_SIZE,30,30);
+  model = glm::translate(model, glm::vec3(-2.25f + (gi->ball_x), 5.875f - (gi->ball_y), 0.0f));
+  model = glm::scale(model, glm::vec3(0.125f, 0.125f, 0.125f));
 
-  glPopMatrix();
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+  engine.DrawCube();
 }
 
 void BreakOut::Draw(game_info* gi) {

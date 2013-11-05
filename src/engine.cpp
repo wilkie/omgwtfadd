@@ -107,9 +107,9 @@ Engine::~Engine() {
 static const GLfloat _cube_data[] = {
   // Face v0-v1-v2-v3
    1, 1, 1, 0, 0, 1, 0, 0,
-  -1, 1, 1, 0, 0, 1, 0, 1,
+  -1, 1, 1, 0, 0, 1, 1, 0,
   -1,-1, 1, 0, 0, 1, 1, 1,
-   1,-1, 1, 0, 0, 1, 1, 0,
+   1,-1, 1, 0, 0, 1, 0, 1,
   // Face v0-v3-v4-v5
    1, 1, 1, 1, 0, 0, 0, 0,
    1,-1, 1, 1, 0, 0, 0, 1,
@@ -206,7 +206,7 @@ void Engine::Init() {
   audio.LoadSound("sounds/bounce.wav");
   audio.LoadSound("sounds/changeview.wav");
 
-  audio.LoadMusic("sounds/stabilizer_piraterap.ogg");
+  audio.LoadMusic("music/bsh.ogg");
   audio.PlayMusic();
 
   player1.state = STATE_TETRIS;
@@ -231,6 +231,30 @@ void Engine::Init() {
   if (space_penguindy < 0) {
     space_penguiny = -space_penguiny;
   }
+
+  /* Generate VAOS */
+#ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
+  glGenVertexArrays(1, &_vao);
+  glBindVertexArray(_vao);
+  gl_check_errors("glBindVertexArray");
+#endif
+
+  /* Generate VBOS */
+  glGenBuffers(1, &_vbo_vertex);
+  glGenBuffers(1, &_vbo_elements_cube);
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData cube_data");
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData cube_elements");
+
+  glEnable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE0 + 0);
+  glBindTexture(GL_TEXTURE_2D, textures[0]);
+  gl_check_errors("glBindTexture");
 
   /* Generate program */
   GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
@@ -264,6 +288,7 @@ void Engine::Init() {
   _program = glCreateProgram();
   glAttachShader(_program, vertex_shader);
   glAttachShader(_program, frag_shader);
+  glBindFragDataLocation(_program, 0, "outColor");
   glLinkProgram(_program);
   gl_check_errors("glLinkProgram");
 
@@ -286,6 +311,7 @@ void Engine::Init() {
   _model_uniform = glGetUniformLocation(_program, "model");
   GLuint view_uniform = glGetUniformLocation(_program, "view");
   GLuint proj_uniform = glGetUniformLocation(_program, "proj");
+  GLuint tex_uniform = glGetUniformLocation(_program, "tex");
   gl_check_errors("glGetUniformLocation");
 
   GLint posAttrib = glGetAttribLocation(_program, "position");
@@ -315,16 +341,18 @@ void Engine::Init() {
   posAttrib = glGetAttribLocation(_program, "texcoord");
   gl_check_errors("glGetAttribLocation texcoord");
 
-  glEnableVertexAttribArray(posAttrib);
-  gl_check_errors("glEnableVertexAttribPointer texcoord");
+  if (posAttrib >= 0) {
+    glEnableVertexAttribArray(posAttrib);
+    gl_check_errors("glEnableVertexAttribPointer texcoord");
 
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
-                        (GLsizei)(8 * sizeof(float)),
-                        (const GLvoid*)(size_t)(6 * sizeof(float)));
-  gl_check_errors("glVertexAttribPointer texcoord");
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
+                          (GLsizei)(8 * sizeof(float)),
+                          (const GLvoid*)(size_t)(6 * sizeof(float)));
+    gl_check_errors("glVertexAttribPointer texcoord");
+  }
 
   /* set up perspective */
-  glm::mat4 perspective = glm::perspective(40.0f, 1.0f, 1.0f, 200.0f);
+  glm::mat4 perspective = glm::perspective(40.0f, 4.0f/3.0f, 1.0f, 200.0f);
   glUniformMatrix4fv(proj_uniform, 1, GL_FALSE, &perspective[0][0]);
   gl_check_errors("glUniformMatrix4fv perspective");
 
@@ -335,28 +363,14 @@ void Engine::Init() {
   glUniformMatrix4fv(view_uniform, 1, GL_FALSE, &view[0][0]);
   gl_check_errors("glUniformMatrix4fv view");
 
-  glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(10.0f,10.0f,10.0f));
+  glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
   glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
   gl_check_errors("glUniformMatrix4fv model");
 
-  /* Generate VAOS */
-#ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
-  glGenVertexArrays(1, &_vao);
-  glBindVertexArray(_vao);
-  gl_check_errors("glBindVertexArray");
-#endif
-
-  /* Generate VBOS */
-  glGenBuffers(1, &_vbo_vertex);
-  glGenBuffers(1, &_vbo_elements_cube);
-
-  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData cube_data");
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData cube_elements");
+  if (tex_uniform >= 0) {
+    glUniform1i(tex_uniform, 0);
+    gl_check_errors("glUniform1i tex");
+  }
 }
 
 void Engine::SendAttack(int severity) {
@@ -667,53 +681,33 @@ void Engine::DisplayMessage(int stringIndex) {
 
 void Engine::Draw() {
   // clear buffer
-  glClear(GL_COLOR_BUFFER_BIT |GL_DEPTH_BUFFER_BIT );
+  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   // enable depth testing
   glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 
   // BACKGROUND!!!
-  DrawCube();
+  UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
-  SDL_GL_SwapBuffers();
-  return;
+  DrawQuadXY(bg1x, bg1y, -6.3f, 15, 15);
+  DrawQuadXY(bg1x - 30, bg1y, -6.3f, 15, 15);
+  DrawQuadXY(bg1x, bg1y-30, -6.3f, 15, 15);
+  DrawQuadXY(bg1x - 30, bg1y-30, -6.3f, 15, 15);
 
-  EnableTextures();
-  UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG1], texture_heights[TEXTURE_BG1]);
-
-  // Draw First Background (Stars)
-  /*glBegin(GL_QUADS);
-
-  DrawQuadXY(bg1x - 15, bg1y - 15, -6.3f, 30, 30);
-  DrawQuadXY(bg1x - 45, bg1y - 15, -6.3f, 30, 30);
-
-  DrawQuadXY(bg1x - 15, bg1y-45, -6.3f, 30, 30);
-  DrawQuadXY(bg1x - 45, bg1y-45, -6.3f, 30, 30);
-
-  glEnd();*/
-
-  glEnable(GL_BLEND);     // Turn blending On
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   UseTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
-  /*
-  glBegin(GL_QUADS);
-
-  // Draw Second Background (Haze)
-
-  DrawQuadXY(bg2x - 15, bg2y-15, -6.0f, 30, 30);
-  DrawQuadXY(bg2x - 45, bg2y-15, -6.0f, 30, 30);
-
-  DrawQuadXY(bg2x - 15, bg2y+15, -6.0f, 30, 30);
-  DrawQuadXY(bg2x - 45, bg2y+15, -6.0f, 30, 30);
-
-  glEnd();
-  */
+  DrawQuadXY(bg2x, bg2y, -6.0f, 20, 20);
+  DrawQuadXY(bg2x - 30, bg2y, -6.0f, 20, 20);
+  DrawQuadXY(bg2x, bg2y-30, -6.0f, 20, 20);
+  DrawQuadXY(bg2x - 30, bg2y-30, -6.0f, 20, 20);
 
   // Draw Space Pirate Penguin!
 
-  UseTexture(TEXTURE_SPACEPENGUIN, 0, 0, 150, 155);
+  //UseTexture(TEXTURE_SPACEPENGUIN, 0, 0, 150, 155);
 
   /*
   glTranslatef(space_penguinx, space_penguiny, -5.9f);
@@ -736,8 +730,10 @@ void Engine::Draw() {
 
   // enable depth testing
   glDisable(GL_DEPTH_TEST);
-
   DisableTextures();
+
+  SDL_GL_SwapBuffers();
+  return;
 
   // Orthogonal HUD!!!
   /*
@@ -878,22 +874,27 @@ void Engine::GameOver() {
 }
 
 void Engine::DrawQuadXY(float x, float y, float z, float w, float h) {
-  glTexCoord2f(0,0);
-  glVertex3f(x,y,z);
-  glTexCoord2f(0,1);
-  glVertex3f(x + w,y,z);
-  glTexCoord2f(1,1);
-  glVertex3f(x + w,y + h,z);
-  glTexCoord2f(1,0);
-  glVertex3f(x,y+h,z);
+  glm::mat4 model = glm::scale(
+                      glm::translate(
+                        glm::mat4(1.0f),
+                        glm::vec3(x, y, z)),
+                      glm::vec3(w, h, 1.0f));
+
+  glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
+  gl_check_errors("glUniformMatrix4fv model");
+
+  glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
+  gl_check_errors("glDrawElements");
 }
 
 void Engine::DrawQuad(int a, int b, int c, int d) {
   glDrawElements(GL_QUADS, 4, GL_UNSIGNED_SHORT, 0);
+  gl_check_errors("glDrawElements");
 }
 
 void Engine::DrawCube() {
   glDrawElements(GL_QUADS, 24, GL_UNSIGNED_SHORT, 0);
+  gl_check_errors("glDrawElements");
 }
 
 void Engine::ClearGameData(game_info* player) {
@@ -982,15 +983,7 @@ void Engine::UseTexture(int textureIndex, int startX, int startY, int width, int
   if (textureIndex < 0 || textureIndex >= texture_count) { return; }
 
   glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
-
-  tu[0] = (float)startX / (float)(texture_widths[textureIndex]-1);
-  tv[0] = (float)startY / (float)(texture_heights[textureIndex]-1);
-
-  startX += width;
-  startY += height;
-
-  tu[1] = (float)startX / (float)(texture_widths[textureIndex]-1);
-  tv[1] = (float)startY / (float)(texture_heights[textureIndex]-1);
+  gl_check_errors("glBindTexture");
 }
 
 // from tutorial on interwebz:
