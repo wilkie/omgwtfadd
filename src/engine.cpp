@@ -423,7 +423,7 @@ void Engine::Quit() {
 
 #ifdef EMSCRIPTEN
 // Unsafe singleton pointer for C/js systems
-static Apsis::Engine::System* _c_this;
+static Engine* _c_this;
 #endif
 
 void Engine::_c_iterate() {
@@ -435,7 +435,7 @@ void Engine::_c_iterate() {
 void Engine::GameLoop() {
 #ifdef EMSCRIPTEN
   _c_this = this;
-  emscripten_set_main_loop(Apsis::Engine::System::_c_iterate, 30, 1);
+  emscripten_set_main_loop(Engine::_c_iterate, 30, 0);
 #else
   while(_iterate()) {}
 #endif

@@ -71,7 +71,9 @@ int main(int argc, char** argv) {
 
   engine.GameLoop();
 
+#ifndef EMSCRIPTEN
   SDL_Quit();
+#endif
 
   return 0;
 }
