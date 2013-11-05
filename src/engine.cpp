@@ -198,6 +198,8 @@ void Engine::Init() {
 
   AddTexture("images/letters_w.png");
 
+  AddTexture("images/block08.png");
+
   audio.Init();
 
   audio.LoadSound("sounds/addline.wav");

@@ -430,6 +430,8 @@ void Tetris::AddBlock(game_info* gi, int i, int j, int type) {
 }
 
 void Tetris::DrawBoard(game_info* gi) {
+  engine.UseTexture(16, 0, 0, 32,32);
+
   // left
   glm::mat4 model;
 

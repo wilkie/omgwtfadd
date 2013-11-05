@@ -650,13 +650,13 @@ void BreakOut::DrawBall(game_info* gi) {
   glm::mat4 model;
 
   model = glm::mat4(1.0f);
-  model = glm::translate(model, glm::vec3(gi->side * 4.00f, 0.0f, 0.0f));
+  model = glm::translate(model, glm::vec3(gi->side * 4.50f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
 
-  model = glm::scale(model, glm::vec3(1.1f, 1.1f, 1.1f));
+  model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
 
   glm::mat4 base = model;
 
