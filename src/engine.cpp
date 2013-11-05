@@ -743,10 +743,11 @@ void Engine::Draw() {
 
   UseTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
+  /*
   DrawQuadXY(bg2x, bg2y, -6.0f, 20, 20);
   DrawQuadXY(bg2x - 30, bg2y, -6.0f, 20, 20);
   DrawQuadXY(bg2x, bg2y-30, -6.0f, 20, 20);
-  DrawQuadXY(bg2x - 30, bg2y-30, -6.0f, 20, 20);
+  DrawQuadXY(bg2x - 30, bg2y-30, -6.0f, 20, 20);*/
 
   // Draw Space Pirate Penguin!
 

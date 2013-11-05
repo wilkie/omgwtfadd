@@ -493,7 +493,7 @@ void Tetris::DrawBoard(game_info* gi) {
   }
 
   for (i=0; i<10; i++) {
-    for (j=0; j<24; j++) {
+    for (j=2; j<24; j++) {
       if(gi->board[i][j] == -1) {
         DrawBackgroundBlock(gi, i, j);
       }
