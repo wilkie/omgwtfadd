@@ -1072,8 +1072,13 @@ int Engine::AddTexture(const char* fname) {
     gl_check_errors("glTexParameteri");
 
     // Edit the texture object's image data using the information SDL_Surface gives us
+#ifdef EMSCRIPTEN
     glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0,
         GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels );
+#else
+    glTexImage2D( GL_TEXTURE_2D, 0, nOfColors, surface->w, surface->h, 0,
+        texture_format, GL_UNSIGNED_BYTE, surface->pixels );
+#endif
     gl_check_errors("glTexImage2D");
   }
   else {
