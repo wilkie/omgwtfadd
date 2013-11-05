@@ -110,7 +110,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
   // to be solved against these easy horizontal and vertical lines
 
   if (isPaddle) {
-    y += 0.5;
+    y += 1.5;
   }
 
   // check left edge
@@ -650,17 +650,17 @@ void BreakOut::DrawBall(game_info* gi) {
   glm::mat4 model;
 
   model = glm::mat4(1.0f);
-  model = glm::translate(model, glm::vec3(gi->side * 4.50f, 0.0f, 0.0f));
+//  model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
 
-  model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+  model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
 
   glm::mat4 base = model;
 
-  model = glm::translate(model, glm::vec3(-2.25f + (gi->ball_x), 5.875f - (gi->ball_y), 0.0f));
+  model = glm::translate(model, glm::vec3(-2.25f + (gi->ball_x), 6.375f - (gi->ball_y), 0.0f));
   model = glm::scale(model, glm::vec3(0.125f, 0.125f, 0.125f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
@@ -674,7 +674,7 @@ void BreakOut::Draw(game_info* gi) {
     engine.tetris.DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine);
   }
   else {
-    engine.tetris.DrawPiece(gi, gi->fine, 0);
+    engine.tetris.DrawPiece(gi, gi->fine, 1.0f);
   }
 
   DrawBall(gi);

@@ -142,16 +142,16 @@ void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);
 
-  model = glm::translate(model, glm::vec3(gi->side * 4.50f, 0.0f, 0.0f));
+  //model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
 
-  model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+  model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
 
   // translate
-  model = glm::translate(model, glm::vec3(-2.25f + (x), 5.875f - (y), 0.0f));
+  model = glm::translate(model, glm::vec3(-2.25f + (x), 6.375f - (y), 0.0f));
 
   // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
   model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
@@ -208,7 +208,7 @@ void Tetris::DrawOrtho(game_info* gi) {
 bool Tetris::TestGameOver(game_info* gi) {
   int starty;
 
-  starty = (gi->fine) / (0.5);
+  starty = (gi->fine - 1.0f) / (0.5);
 
   switch (gi->curpiece) {
     case 0:
@@ -436,18 +436,18 @@ void Tetris::DrawBoard(game_info* gi) {
   glm::mat4 model;
 
   model = glm::mat4(1.0f);
-  model = glm::translate(model, glm::vec3(gi->side * 4.50f, 0.0f, 0.0f));
+//  model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::rotate(model, -gi->rot2, glm::vec3(1.0f,0.0f,0.0f));
 
-  model = glm::scale(model, glm::vec3(1.2f, 1.2f, 1.2f));
+  model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
 
   glm::mat4 base = model;
 
   model = glm::translate(model, glm::vec3(-2.625,-0.125,0));
-  model = glm::scale(model, glm::vec3(0.25,12,0.5));
+  model = glm::scale(model, glm::vec3(0.25,11,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
@@ -456,7 +456,7 @@ void Tetris::DrawBoard(game_info* gi) {
   // right
   model = base;
   model = glm::translate(model, glm::vec3(2.625,-0.125,0));
-  model = glm::scale(model, glm::vec3(0.25,12,0.5));
+  model = glm::scale(model, glm::vec3(0.25,11,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
@@ -464,7 +464,7 @@ void Tetris::DrawBoard(game_info* gi) {
 
   // bottom
   model = base;
-  model = glm::translate(model, glm::vec3(0,-6,0));
+  model = glm::translate(model, glm::vec3(0,-5.5,0));
   model = glm::scale(model, glm::vec3(5,0.25,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
@@ -1011,7 +1011,7 @@ void Tetris::GetNewPiece(game_info* gi) {
   gi->curdir = 1;
 
   gi->pos = 5;
-  gi->fine = 0;
+  gi->fine = 1.0;
 
   engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   engine.PassMessage(MSG_UPDATEPIECEY, 0, 0, 0);
