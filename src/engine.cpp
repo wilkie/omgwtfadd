@@ -228,10 +228,12 @@ void Engine::Init() {
   audio.LoadSound("sounds/bounce.wav");
   audio.LoadSound("sounds/changeview.wav");
 
-#ifndef EMSCRIPTEN
   audio.LoadMusic("music/bsh.ogg");
   audio.PlayMusic();
-#endif
+
+  // enable depth testing
+  glEnable(GL_DEPTH_TEST);
+  glDepthFunc(GL_LESS);
 
   player1.state = STATE_TETRIS;
   InitState(&player1);
@@ -266,6 +268,7 @@ void Engine::Init() {
   /* Generate VBOS */
   glGenBuffers(1, &_vbo_vertex);
   glGenBuffers(1, &_vbo_elements_cube);
+  gl_check_errors("glGenBuffers");
 
   glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
   glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
@@ -275,7 +278,6 @@ void Engine::Init() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
   gl_check_errors("glBufferData cube_elements");
 
-  glEnable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   gl_check_errors("glBindTexture");
@@ -312,6 +314,7 @@ void Engine::Init() {
   _program = glCreateProgram();
   glAttachShader(_program, vertex_shader);
   glAttachShader(_program, frag_shader);
+  glBindAttribLocation(_program, 0, "position");
   glLinkProgram(_program);
   gl_check_errors("glLinkProgram");
 
@@ -449,8 +452,7 @@ bool Engine::_iterate() {
 
   static float deltatime;
 
-  // Game Loop
-  while (!quit) {
+  if (!quit) {
     while(SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_KEYDOWN:
@@ -492,40 +494,6 @@ bool Engine::_iterate() {
 }
 
 void Engine::Update(float deltatime) {
-  if (!inplay) { return; }
-
-  player1.message_uptime -= deltatime;
-  if (player1.message_uptime < 0) {
-    player1.message_uptime = 0;
-  }
-
-  if (titleChangeTime < 30.0) {
-    titleChangeTime += deltatime;
-  }
-  else {
-    titleChangeTime = 0;
-
-    static int cur_caption = 0;
-
-    SDL_WM_SetCaption(stuffs[cur_caption], stuffs[cur_caption]);
-
-    cur_caption++;
-    cur_caption %= num_captions;
-  }
-
-  if (repeatTime < 0.35) {
-    repeatTime += deltatime;
-  }
-  else {
-    time += deltatime;
-
-    if (time >= 0.05) {
-      time = 0;
-
-      games[player1.curgame]->KeyRepeat(&player1);
-    }
-  }
-
   space_penguinx += space_penguindx * deltatime;
   space_penguiny += space_penguindy * deltatime;
 
@@ -591,6 +559,40 @@ void Engine::Update(float deltatime) {
     bg2y += 30;
   }
 
+  if (!inplay) { return; }
+
+  player1.message_uptime -= deltatime;
+  if (player1.message_uptime < 0) {
+    player1.message_uptime = 0;
+  }
+
+  if (titleChangeTime < 30.0) {
+    titleChangeTime += deltatime;
+  }
+  else {
+    titleChangeTime = 0;
+
+    static int cur_caption = 0;
+
+    SDL_WM_SetCaption(stuffs[cur_caption], stuffs[cur_caption]);
+
+    cur_caption++;
+    cur_caption %= num_captions;
+  }
+
+  if (repeatTime < 0.35) {
+    repeatTime += deltatime;
+  }
+  else {
+    time += deltatime;
+
+    if (time >= 0.05) {
+      time = 0;
+
+      games[player1.curgame]->KeyRepeat(&player1);
+    }
+  }
+
   // draw current game
   games[player1.curgame]->Update(&player1, deltatime);
 }
@@ -612,14 +614,12 @@ int Engine::DrawInt(int i, int color, float x, float y) {
 }
 
 int Engine::DrawStringWhite(const char* str, int color, float x, float y) {
-  EnableTextures();
   glDisable(GL_BLEND);
 
   return _DrawString(str,color,x,y, TEXTURE_LETTERS_WHITE);
 }
 
 int Engine::DrawString(const char* str, int color, float x, float y) {
-  EnableTextures();
   glEnable(GL_BLEND);
   glBlendFunc(GL_DST_ALPHA,GL_ZERO);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
@@ -727,9 +727,7 @@ void Engine::Draw() {
   // clear buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-  // enable depth testing
   glEnable(GL_DEPTH_TEST);
-  glDepthFunc(GL_LESS);
 
   // BACKGROUND!!!
   UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
@@ -764,17 +762,12 @@ void Engine::Draw() {
   glEnd();
   */
 
-  DisableTextures();
-
-  glDisable(GL_BLEND);     // Turn blending Off
-
   // draw current game
   games[player1.curgame]->Draw(&player1);
   games[player2.curgame]->Draw(&player2);
 
   // enable depth testing
   glDisable(GL_DEPTH_TEST);
-  DisableTextures();
 
   SDL_GL_SwapBuffers();
   return;
@@ -1066,17 +1059,22 @@ int Engine::AddTexture(const char* fname) {
 
     // Have OpenGL generate a texture object handle for us
     glGenTextures( 1, &texture );
+    gl_check_errors("glGenTextures");
 
     // Bind the texture object
+    glActiveTexture(GL_TEXTURE0);
     glBindTexture( GL_TEXTURE_2D, texture );
+    gl_check_errors("glBindTexture");
 
     // Set the texture's stretching properties
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR );
+    gl_check_errors("glTexParameteri");
 
     // Edit the texture object's image data using the information SDL_Surface gives us
-    glTexImage2D( GL_TEXTURE_2D, 0, nOfColors, surface->w, surface->h, 0,
-        texture_format, GL_UNSIGNED_BYTE, surface->pixels );
+    glTexImage2D( GL_TEXTURE_2D, 0, GL_RGBA, surface->w, surface->h, 0,
+        GL_RGBA, GL_UNSIGNED_BYTE, surface->pixels );
+    gl_check_errors("glTexImage2D");
   }
   else {
     printf("SDL could not load texture: %s\n", SDL_GetError());

@@ -483,8 +483,6 @@ void Tetris::DrawBoard(game_info* gi) {
 }
 
 void Tetris::DrawPiece(game_info* gi, double x, double y) {
-  engine.EnableTextures();
-
   switch (gi->curpiece) {
     case 0:
       if (gi->curdir % 2) {
@@ -613,8 +611,6 @@ void Tetris::DrawPiece(game_info* gi, double x, double y) {
       }
       break;
   }
-
-  engine.DisableTextures();
 }
 
 bool Tetris::TestCollisionBlock(game_info* gi, double x, double y) {

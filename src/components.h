@@ -4,6 +4,6 @@
 #include "main.h"
 #include "engine.h"
 
-static Engine engine;
+extern Engine engine;
 
 #endif //COMPONENT_INCLUDED
