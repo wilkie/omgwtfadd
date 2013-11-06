@@ -640,7 +640,7 @@ void BreakOut::update(game_info* gi, float deltatime) {
 
 
   if (gi->ball_y < -1.5) {
-    engine.gameOver();
+    engine.tetris.attack(gi, 1);
   }
 }
 
