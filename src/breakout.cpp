@@ -12,7 +12,7 @@ vector <float> xs;
 vector <float> ys;
 
 // conventions:
-void BreakOut::InitGame(game_info* gi) {
+void BreakOut::initGame(game_info* gi) {
   gi->fine = 2.5;
 
   gi->ball_x = 0;
@@ -26,7 +26,7 @@ void BreakOut::InitGame(game_info* gi) {
   gi->break_out_consecutives = 0;
 }
 
-float BreakOut::CheckBallAgainst(game_info* gi, float t, float x1, float y1, float x2, float y2) {
+float BreakOut::checkBallAgainst(game_info* gi, float t, float x1, float y1, float x2, float y2) {
   // OK !!!
   // COLLISION DETECTION
   // RAYBASED?!
@@ -43,12 +43,10 @@ float BreakOut::CheckBallAgainst(game_info* gi, float t, float x1, float y1, flo
   if (x1 == x2) {
     // VERTICAL LINE
 
-    if (gi->ball_dx > 0)
-    {
+    if (gi->ball_dx > 0) {
       sp = -SPHERE;
     }
-    else
-    {
+    else {
       sp = SPHERE;
     }
 
@@ -102,7 +100,7 @@ float BreakOut::CheckBallAgainst(game_info* gi, float t, float x1, float y1, flo
   return 1001.0;
 }
 
-bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &type_t, int last_type, float x, float y, int isPaddle) {
+bool BreakOut::checkBallAgainstBlock(game_info* gi, float t, float &cur_t, int &type_t, int last_type, float x, float y, int isPaddle) {
   float chk;
 
   // p = t * d
@@ -114,7 +112,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
   }
 
   // check left edge
-  chk = CheckBallAgainst(gi, t, (float)(x - 0.5), (float)(y - 0.25), (float)(x - 0.5), (float)(y-0.5) - 0.25);
+  chk = checkBallAgainst(gi, t, (float)(x - 0.5), (float)(y - 0.25), (float)(x - 0.5), (float)(y-0.5) - 0.25);
   if (chk <= cur_t && !((1 << (3 + (isPaddle * 4))) & last_type) && gi->ball_dx > 0) {
     if (isPaddle) {
       type_t |= 128;
@@ -129,7 +127,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
   }
 
   // check top edge
-  chk = CheckBallAgainst(gi, t, (float)(x - 0.5), (float)(y - 0.25), (float)(x + 0.45), (float)(y - 0.25));
+  chk = checkBallAgainst(gi, t, (float)(x - 0.5), (float)(y - 0.25), (float)(x + 0.45), (float)(y - 0.25));
   if (chk <= cur_t && !((1 << (4 + (isPaddle * 4))) & last_type) && gi->ball_dy < 0) {
     //type_t |= 1 << (4 + (isPaddle * 4));
 
@@ -146,7 +144,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
   }
 
   // check right edge
-  chk = CheckBallAgainst(gi, t, (float)(x + 0.45), (float)(y - 0.25), (float)(x + 0.45), (float)(y-0.5) - 0.25);
+  chk = checkBallAgainst(gi, t, (float)(x + 0.45), (float)(y - 0.25), (float)(x + 0.45), (float)(y-0.5) - 0.25);
   if (chk <= cur_t && !((1 << (5 + (isPaddle * 4))) & last_type) && gi->ball_dx < 0) {
     //type_t |= 1 << (5 + (isPaddle * 4));
 
@@ -163,7 +161,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
   }
 
   // check bottom edge
-  chk = CheckBallAgainst(gi, t, (float)(x - 0.5), (float)(y-0.5) - 0.25, (float)(x + 0.45), (float)(y-0.5) - 0.25);
+  chk = checkBallAgainst(gi, t, (float)(x - 0.5), (float)(y-0.5) - 0.25, (float)(x + 0.45), (float)(y-0.5) - 0.25);
   if (chk <= cur_t && !((1 << (6 + (isPaddle * 4))) & last_type) && gi->ball_dy > 0) {
     //type_t |= 1 << (6 + (isPaddle * 4));
 
@@ -193,7 +191,7 @@ bool BreakOut::CheckBallAgainstBlock(game_info* gi, float t, float &cur_t, int &
   return false;
 }
 
-void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
+void BreakOut::moveBall(game_info* gi, float t, int last_type) {
   //printf("moveball start! %f %d\n", t, last_type);
 
   float cur_t = 1000.0;
@@ -201,9 +199,9 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
   int board_i = -1;
   int board_j = -1;
 
-  float up_t = CheckBallAgainst(gi, t, -5, 11.75, 10, 11.75);
-  float left_t = CheckBallAgainst(gi, t, 0, 20, 0, -5);
-  float right_t = CheckBallAgainst(gi, t, 4.5, 20, 4.5, -5);
+  float up_t = checkBallAgainst(gi, t, -5, 11.75, 10, 11.75);
+  float left_t = checkBallAgainst(gi, t, 0, 20, 0, -5);
+  float right_t = checkBallAgainst(gi, t, 4.5, 20, 4.5, -5);
 
   // check against borders
 
@@ -229,7 +227,7 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
   for (i=0; i<10; i++) {
     for (j=0; j<24; j++) {
       if (gi->board[i][j] != -1) {
-        if (CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, (float)(i * 0.5f), (float)(j+1) * 0.5f, 0)) {
+        if (checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, (float)(i * 0.5f), (float)(j+1) * 0.5f, 0)) {
           board_i = i;
           board_j = j;
 
@@ -252,128 +250,128 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
   switch (gi->curpiece) {
     case 0:
       if (gi->curdir % 2) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-1.0, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-1.0, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
       }
       else {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+1.0, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+1.0, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
       }
       break;
     case 1:
       if (gi->curdir % 2) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
       }
       else {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
       }
       break;
     case 2:
       if (gi->curdir % 2) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
       }
       else {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
       }
       break;
     case 3:
-      CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-      CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-      CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-      CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y+0.5, 1);
+      checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+      checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+      checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+      checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y+0.5, 1);
       break;
     case 4:
       if (gi->curdir == 0) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y+0.5, 1);
       }
       else if (gi->curdir == 1) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y+0.5, 1);
       }
       else if (gi->curdir == 2) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
       }
       else {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
       }
       break;
     case 5:
       if (gi->curdir == 0) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y+0.5, 1);
       }
       else if (gi->curdir == 1) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y-0.5, 1);
       }
       else if (gi->curdir == 2) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y-0.5, 1);
       }
       else {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y+0.5, 1);
       }
       break;
     case 6:
       if (gi->curdir == 0) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
       }
       else if (gi->curdir == 1) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
       }
       else if (gi->curdir == 2) {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x+0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
       }
       else {
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
-        CheckBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x-0.5, y, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y+0.5, 1);
+        checkBallAgainstBlock(gi, t, cur_t, type_t, last_type, x, y-0.5, 1);
       }
       break;
   }
@@ -535,10 +533,10 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
 
   //SDL_Delay(3000);
   // call this again
-  MoveBall(gi, t, type_t);
+  moveBall(gi, t, type_t);
 }
 
-void BreakOut::Update(game_info* gi, float deltatime) {
+void BreakOut::update(game_info* gi, float deltatime) {
   bool move = false;
 
   if (gi->state == STATE_BREAKOUT_TRANS) {
@@ -556,7 +554,7 @@ void BreakOut::Update(game_info* gi, float deltatime) {
   if (engine.keys[SDLK_LEFT]) {
     gi->fine -= BREAKOUT_PADDLE_SPEED * deltatime;
 
-    float amt = GetLeftBounds(gi);
+    float amt = getLeftBounds(gi);
 
     if (gi->fine < amt) {
       gi->fine = amt;
@@ -568,7 +566,7 @@ void BreakOut::Update(game_info* gi, float deltatime) {
   if (engine.keys[SDLK_RIGHT]) {
     gi->fine += BREAKOUT_PADDLE_SPEED * deltatime;
 
-    float amt = GetRightBounds(gi);
+    float amt = getRightBounds(gi);
 
     if (gi->fine > amt) {
       gi->fine = amt;
@@ -636,7 +634,7 @@ void BreakOut::Update(game_info* gi, float deltatime) {
     }
   }
 
-  MoveBall(gi,deltatime,0);
+  moveBall(gi,deltatime,0);
 
   engine.passMessage(MSG_UPDATEBALL, ((float)(gi->ball_x) / 20.0f) * 255.0f, ((float)(gi->ball_y) / 20.0f) * 255.0f, 0);
 
@@ -646,7 +644,7 @@ void BreakOut::Update(game_info* gi, float deltatime) {
   }
 }
 
-void BreakOut::DrawBall(game_info* gi) {
+void BreakOut::drawBall(game_info* gi) {
   // translate
   glm::mat4 model;
 
@@ -668,17 +666,17 @@ void BreakOut::DrawBall(game_info* gi) {
   engine.drawCube();
 }
 
-void BreakOut::Draw(game_info* gi) {
-  engine.tetris.DrawBoard(gi);
+void BreakOut::draw(game_info* gi) {
+  engine.tetris.drawBoard(gi);
 
   if (gi->state == STATE_BREAKOUT_TRANS) {
-    engine.tetris.DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
+    engine.tetris.drawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
   }
   else {
-    engine.tetris.DrawPiece(gi, gi->fine, 1.0f, gi->curpiece);
+    engine.tetris.drawPiece(gi, gi->fine, 1.0f, gi->curpiece);
   }
 
-  DrawBall(gi);
+  drawBall(gi);
 
   unsigned int i;
 
@@ -711,7 +709,7 @@ void BreakOut::Draw(game_info* gi) {
   }
 }
 
-void BreakOut::DrawOrtho(game_info* gi) {
+void BreakOut::drawOrtho(game_info* gi) {
   if (gi->side == -1) {
     engine.drawString(":CONS", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
 
@@ -731,19 +729,19 @@ void BreakOut::DrawOrtho(game_info* gi) {
   }
 }
 
-void BreakOut::KeyRepeat(game_info* gi) {
+void BreakOut::keyRepeat(game_info* gi) {
   if (engine.keys[SDLK_UP]) {
     gi->curdir++;
     gi->curdir %= 4;
 
-    double amt = GetRightBounds(gi);
+    double amt = getRightBounds(gi);
 
     if (gi->fine > amt) {
       gi->curdir--;
       gi->curdir %= 4;
     }
 
-    amt = GetLeftBounds(gi);
+    amt = getLeftBounds(gi);
 
     if (gi->fine < amt) {
       gi->curdir--;
@@ -754,19 +752,19 @@ void BreakOut::KeyRepeat(game_info* gi) {
   }
 }
 
-void BreakOut::KeyDown(game_info* gi, Uint32 key) {
+void BreakOut::keyDown(game_info* gi, Uint32 key) {
 }
 
-void BreakOut::KeyUp(game_info* gi, Uint32 key) {
+void BreakOut::keyUp(game_info* gi, Uint32 key) {
 }
 
-void BreakOut::MouseDown(game_info* gi) {
+void BreakOut::mouseDown(game_info* gi) {
 }
 
-void BreakOut::MouseMovement(game_info* gi, Uint32 x, Uint32 y) {
+void BreakOut::mouseMovement(game_info* gi, Uint32 x, Uint32 y) {
 }
 
-float BreakOut::GetLeftBounds(game_info* gi) {
+float BreakOut::getLeftBounds(game_info* gi) {
   int sx;
   sx = (int)(gi->fine / 0.5);
 
@@ -822,7 +820,7 @@ float BreakOut::GetLeftBounds(game_info* gi) {
   return 0;
 }
 
-float BreakOut::GetRightBounds(game_info* gi) {
+float BreakOut::getRightBounds(game_info* gi) {
   int sx;
   sx = (int)(gi->fine / 0.5);
 
@@ -878,23 +876,23 @@ float BreakOut::GetRightBounds(game_info* gi) {
   return 10;
 }
 
-void BreakOut::Attack(game_info* gi, int severity) {
+void BreakOut::attack(game_info* gi, int severity) {
   if (severity == 1) {
     int pos = gi->pos;
     float fine = gi->fine;
 
-    engine.tetris.GetNewPiece(gi);
+    engine.tetris.getNewPiece(gi);
 
     gi->pos = pos;
     gi->fine = fine;
 
-    float amt = GetLeftBounds(gi);
+    float amt = getLeftBounds(gi);
 
     if (gi->fine < amt) {
       gi->fine = amt;
     }
 
-    amt = GetRightBounds(gi);
+    amt = getRightBounds(gi);
 
     if (gi->fine > amt) {
       gi->fine = amt;
@@ -903,7 +901,7 @@ void BreakOut::Attack(game_info* gi, int severity) {
     engine.passMessage(MSG_UPDATEPADDLE, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
   }
   else if (severity == 2) {
-    engine.tetris.Attack(gi, 1);
+    engine.tetris.attack(gi, 1);
   }
   else if (severity == 3) {
     gi->ball_fast = 7;

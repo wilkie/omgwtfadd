@@ -6,51 +6,51 @@
 class Tetris : public Game {
 public:
   // conventions:
-  void Update(game_info* gi, float deltatime);
-  void Draw(game_info* gi);
-  void DrawOrtho(game_info* gi);
+  void update(game_info* gi, float deltatime);
+  void draw(game_info* gi);
+  void drawOrtho(game_info* gi);
 
-  void KeyDown(game_info* gi, Uint32 key);
-  void KeyUp(game_info* gi, Uint32 key);
-  void KeyRepeat(game_info* gi);
+  void keyDown(game_info* gi, Uint32 key);
+  void keyUp(game_info* gi, Uint32 key);
+  void keyRepeat(game_info* gi);
 
-  void Attack(game_info* gi, int severity);
+  void attack(game_info* gi, int severity);
 
-  void MouseMovement(game_info* gi, Uint32 x, Uint32 y);
-  void MouseDown(game_info* gi);
+  void mouseMovement(game_info* gi, Uint32 x, Uint32 y);
+  void mouseDown(game_info* gi);
 
-  void InitGame(game_info* gi);
+  void initGame(game_info* gi);
 
 
   // stuffs:
 
-  void GetNewPiece(game_info* gi);
+  void getNewPiece(game_info* gi);
 
-  void DrawBoard(game_info* gi);
-  void DrawPiece(game_info* gi, double x, double y, int texture);
-  void DrawBackgroundBlock(game_info* gi, double x, double y);
-  void DrawBlock(int type, game_info* gi, double x, double y);
+  void drawBoard(game_info* gi);
+  void drawPiece(game_info* gi, double x, double y, int texture);
+  void drawBackgroundBlock(game_info* gi, double x, double y);
+  void drawBlock(int type, game_info* gi, double x, double y);
 
-  float DetermineDropPosition(game_info* gi);
+  float determineDropPosition(game_info* gi);
 
-  void AddPiece(game_info* gi);
-  void AddPiece(game_info* gi, int start_x, int start_y);
-  void AddBlock(game_info* gi, int i, int j, int type);
+  void addPiece(game_info* gi);
+  void addPiece(game_info* gi, int start_x, int start_y);
+  void addBlock(game_info* gi, int i, int j, int type);
 
-  void DropPiece(game_info* gi);
+  void dropPiece(game_info* gi);
 
-  int ClearLines(game_info* gi);
+  int clearLines(game_info* gi);
 
-  void PushUp(game_info* gi, int num);
-  void DropLine(game_info* gi, int lineIndex);
+  void pushUp(game_info* gi, int num);
+  void dropLine(game_info* gi, int lineIndex);
 
-  bool TestGameOver(game_info* gi);
+  bool testGameOver(game_info* gi);
 
-  bool TestCollisionBlock(game_info* gi, double x, double y);
-  bool TestCollision(game_info* gi);
-  bool TestCollision(game_info* gi, double x, double y);
+  bool testCollisionBlock(game_info* gi, double x, double y);
+  bool testCollision(game_info* gi);
+  bool testCollision(game_info* gi, double x, double y);
 
-  double TestSideCollision(game_info* gi, double x, double y);
+  double testSideCollision(game_info* gi, double x, double y);
 
   // materials:
 

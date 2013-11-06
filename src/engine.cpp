@@ -242,7 +242,7 @@ void Engine::init() {
   player1.pos = 5;
   player1.fine = 0;
 
-  tetris.GetNewPiece(&player1);
+  tetris.getNewPiece(&player1);
 
   space_penguinx = -15 - (rand() % 10);
 
@@ -416,7 +416,7 @@ void Engine::performAttack(int severity) {
 
   displayMessage(STR_ATTACK);
 
-  games[player1.curgame]->Attack(&player1, severity);
+  games[player1.curgame]->attack(&player1, severity);
 
 }
 
@@ -588,12 +588,12 @@ void Engine::update(float deltatime) {
     if (time >= 0.05) {
       time = 0;
 
-      games[player1.curgame]->KeyRepeat(&player1);
+      games[player1.curgame]->keyRepeat(&player1);
     }
   }
 
   // draw current game
-  games[player1.curgame]->Update(&player1, deltatime);
+  games[player1.curgame]->update(&player1, deltatime);
 }
 
 int Engine::intLength(int i) {
@@ -763,8 +763,8 @@ void Engine::draw() {
   */
 
   // draw current game
-  games[player1.curgame]->Draw(&player1);
-  games[player2.curgame]->Draw(&player2);
+  games[player1.curgame]->draw(&player1);
+  games[player2.curgame]->draw(&player2);
 
   // enable depth testing
   glDisable(GL_DEPTH_TEST);
@@ -873,8 +873,8 @@ void Engine::keyDown(Uint32 key) {
 
   if (!inplay) { return; }
 
-  games[player1.curgame]->KeyDown(&player1, key);
-  games[player1.curgame]->KeyRepeat(&player1);
+  games[player1.curgame]->keyDown(&player1, key);
+  games[player1.curgame]->keyRepeat(&player1);
 }
 
 void Engine::keyUp(Uint32 key) {
@@ -884,7 +884,7 @@ void Engine::keyUp(Uint32 key) {
 
   if (!inplay) { return; }
 
-  games[player1.curgame]->KeyUp(&player1, key);
+  games[player1.curgame]->keyUp(&player1, key);
 }
 
 void Engine::mouseDown() {
@@ -901,7 +901,7 @@ void Engine::mouseDown() {
 }
 
 void Engine::mouseMovement(Uint32 x, Uint32 y) {
-  games[player1.curgame]->MouseMovement(&player1, x,y);
+  games[player1.curgame]->mouseMovement(&player1, x,y);
 }
 
 void Engine::gameOver() {
@@ -960,7 +960,7 @@ void Engine::clearGameData(game_info* player) {
   player1.pos = 5;
   player1.fine = 0;
 
-  tetris.GetNewPiece(&player1);
+  tetris.getNewPiece(&player1);
 
   inplay = true;
 }
@@ -985,11 +985,11 @@ void Engine::initState(game_info* gi) {
   switch (gi->state) {
     case STATE_BREAKOUT:
       gi->curgame = 1;
-      breakout.InitGame(&player1);
+      breakout.initGame(&player1);
       break;
     case STATE_TETRIS:
       gi->curgame = 0;
-      tetris.InitGame(&player1);
+      tetris.initGame(&player1);
       break;
   }
 }
@@ -1189,56 +1189,56 @@ void Engine::processMessage(unsigned char msg[4]) {
   //printf("Msg Recv: %d, %d, %d, %d\n", msgID, msg[1], msg[2], msg[3]);
 
   switch (msgID) {
-    case MSG_ADDPIECE: // add piece to tetris board
+    case MSG_ADDPIECE: // add piece to tetris Board
       //printf("Msg: ADDPIECE\n");
 
-      tetris.AddPiece(&player2, msg[1], msg[2]);
+      tetris.addPiece(&player2, msg[1], msg[2]);
       break;
     case MSG_DROPLINE:
-      tetris.DropLine(&player2, msg[1]);
+      tetris.dropLine(&player2, msg[1]);
       break;
     case MSG_ATTACK:
       // ATTACK!!!
       performAttack(msg[1]);
       break;
     case MSG_PUSHUP:
-      tetris.PushUp(&player2, msg[1]);
+      tetris.pushUp(&player2, msg[1]);
       break;
     case MSG_ADDBLOCKS_A:
-      tetris.AddBlock(&player2, 0, 23, msg[1]);
-      tetris.AddBlock(&player2, 1, 23, msg[2]);
-      tetris.AddBlock(&player2, 2, 23, msg[3]);
+      tetris.addBlock(&player2, 0, 23, msg[1]);
+      tetris.addBlock(&player2, 1, 23, msg[2]);
+      tetris.addBlock(&player2, 2, 23, msg[3]);
       break;
     case MSG_ADDBLOCKS_B:
-      tetris.AddBlock(&player2, 3, 23, msg[1]);
-      tetris.AddBlock(&player2, 4, 23, msg[2]);
-      tetris.AddBlock(&player2, 5, 23, msg[3]);
+      tetris.addBlock(&player2, 3, 23, msg[1]);
+      tetris.addBlock(&player2, 4, 23, msg[2]);
+      tetris.addBlock(&player2, 5, 23, msg[3]);
       break;
     case MSG_ADDBLOCKS_C:
-      tetris.AddBlock(&player2, 6, 23, msg[1]);
-      tetris.AddBlock(&player2, 7, 23, msg[2]);
-      tetris.AddBlock(&player2, 8, 23, msg[3]);
+      tetris.addBlock(&player2, 6, 23, msg[1]);
+      tetris.addBlock(&player2, 7, 23, msg[2]);
+      tetris.addBlock(&player2, 8, 23, msg[3]);
       break;
     case MSG_ADDBLOCKS_D:
-      tetris.AddBlock(&player2, 9, 23, msg[1]);
+      tetris.addBlock(&player2, 9, 23, msg[1]);
       break;
     case MSG_ADDBLOCKS2_A:
-      tetris.AddBlock(&player2, 0, 22, msg[1]);
-      tetris.AddBlock(&player2, 1, 22, msg[2]);
-      tetris.AddBlock(&player2, 2, 22, msg[3]);
+      tetris.addBlock(&player2, 0, 22, msg[1]);
+      tetris.addBlock(&player2, 1, 22, msg[2]);
+      tetris.addBlock(&player2, 2, 22, msg[3]);
       break;
     case MSG_ADDBLOCKS2_B:
-      tetris.AddBlock(&player2, 3, 22, msg[1]);
-      tetris.AddBlock(&player2, 4, 22, msg[2]);
-      tetris.AddBlock(&player2, 5, 22, msg[3]);
+      tetris.addBlock(&player2, 3, 22, msg[1]);
+      tetris.addBlock(&player2, 4, 22, msg[2]);
+      tetris.addBlock(&player2, 5, 22, msg[3]);
       break;
     case MSG_ADDBLOCKS2_C:
-      tetris.AddBlock(&player2, 6, 22, msg[1]);
-      tetris.AddBlock(&player2, 7, 22, msg[2]);
-      tetris.AddBlock(&player2, 8, 22, msg[3]);
+      tetris.addBlock(&player2, 6, 22, msg[1]);
+      tetris.addBlock(&player2, 7, 22, msg[2]);
+      tetris.addBlock(&player2, 8, 22, msg[3]);
       break;
     case MSG_ADDBLOCKS2_D:
-      tetris.AddBlock(&player2, 9, 22, msg[1]);
+      tetris.addBlock(&player2, 9, 22, msg[1]);
       break;
     case MSG_UPDATEPIECE:
       player2.pos = msg[1];

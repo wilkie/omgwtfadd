@@ -9,7 +9,7 @@
 #define GAMEOVER_SPREAD_RATE 0.1
 #define GAMEOVER_VELOCITY    1.0
 
-void Tetris::Update(game_info* gi, float deltatime) {
+void Tetris::update(game_info* gi, float deltatime) {
   if (gi->state == STATE_GAMEOVER) {
     // Shoot out the blocks
     gi->gameover_position += GAMEOVER_VELOCITY * deltatime;
@@ -65,20 +65,20 @@ void Tetris::Update(game_info* gi, float deltatime) {
 
   //gi->rot2+=50.0 * deltatime;
 
-  if (TestCollision(gi)) {
+  if (testCollision(gi)) {
     // we collided! oh no!
-    if (TestGameOver(gi)) {
+    if (testGameOver(gi)) {
       engine.gameOver();
     }
     else {
-      AddPiece(gi);
+      addPiece(gi);
     }
   }
 
   engine.passMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
 }
 
-void Tetris::DropLine(game_info* gi, int lineIndex) {
+void Tetris::dropLine(game_info* gi, int lineIndex) {
   int j,i;
   for (i=0; i<10; i++) {
     for (j=lineIndex; j>1;j--) {
@@ -91,7 +91,7 @@ void Tetris::DropLine(game_info* gi, int lineIndex) {
   }
 }
 
-int Tetris::ClearLines(game_info* gi) {
+int Tetris::clearLines(game_info* gi) {
   // check each row
 
   int i,j;
@@ -111,7 +111,7 @@ int Tetris::ClearLines(game_info* gi) {
       lines++;
       gi->score += (lines * 100);
       engine.passMessage(MSG_APPENDSCORE, 100, lines, 0);
-      DropLine(gi,j);
+      dropLine(gi,j);
 
       engine.audio.PlaySound(SND_TINK);
     }
@@ -121,21 +121,21 @@ int Tetris::ClearLines(game_info* gi) {
 }
 
 // init!
-void Tetris::InitGame(game_info* gi) {
+void Tetris::initGame(game_info* gi) {
 }
 
-void Tetris::DropPiece(game_info* gi) {
-  gi->fine = DetermineDropPosition(gi);
+void Tetris::dropPiece(game_info* gi) {
+  gi->fine = determineDropPosition(gi);
 
   engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   engine.passMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
 
-  AddPiece(gi);
+  addPiece(gi);
 }
 
-float Tetris::DetermineDropPosition(game_info* gi) {
+float Tetris::determineDropPosition(game_info* gi) {
   float phantom_fine = gi->fine;
-  while(!TestCollision(gi, (0.5) * (double)gi->pos, phantom_fine)) {
+  while(!testCollision(gi, (0.5) * (double)gi->pos, phantom_fine)) {
     phantom_fine+=0.25;
   }
 
@@ -143,26 +143,26 @@ float Tetris::DetermineDropPosition(game_info* gi) {
 }
 
 // draw 3D
-void Tetris::Draw(game_info* gi) {
+void Tetris::draw(game_info* gi) {
   if (!engine.network_thread && gi->side == 1) {
     return;
   }
 
   if (gi->state == STATE_GAMEOVER) {
-    DrawBoard(gi);
+    drawBoard(gi);
   }
   else {
-    DrawBoard(gi);
+    drawBoard(gi);
 
-    DrawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
+    drawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
 
     if (gi->state == STATE_TETRIS) {
-      DrawPiece(gi, (0.5) * (double)gi->pos, DetermineDropPosition(gi), 18);
+      drawPiece(gi, (0.5) * (double)gi->pos, determineDropPosition(gi), 18);
     }
   }
 }
 
-void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
+void Tetris::drawBlock(int type, game_info* gi, double x, double y) {
   engine.useTexture(type, 0, 0, 32,32);
 
   // translate to world
@@ -188,7 +188,7 @@ void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
 }
 
 // draw interface
-void Tetris::DrawOrtho(game_info* gi) {
+void Tetris::drawOrtho(game_info* gi) {
   if (!engine.network_thread && gi->side == 1) {
     int y = 200;
     engine.drawString("SINGLE PLAYER GAME", 1, 440, y);
@@ -231,7 +231,7 @@ void Tetris::DrawOrtho(game_info* gi) {
   }
 }
 
-bool Tetris::TestGameOver(game_info* gi) {
+bool Tetris::testGameOver(game_info* gi) {
   int starty;
 
   starty = (gi->fine - 1.0f) / (0.5);
@@ -285,141 +285,141 @@ bool Tetris::TestGameOver(game_info* gi) {
   return 0;
 }
 
-void Tetris::AddPiece(game_info* gi) {
+void Tetris::addPiece(game_info* gi) {
   int start_y;
   int start_x =  gi->pos;
 
   start_y = (gi->fine) / (0.5);
 
-  AddPiece(gi, start_x, start_y);
+  addPiece(gi, start_x, start_y);
 }
 
-void Tetris::AddPiece(game_info* gi, int start_x, int start_y) {
+void Tetris::addPiece(game_info* gi, int start_x, int start_y) {
   switch (gi->curpiece) {
     case 0:
       if (gi->curdir % 2) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-2, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x-2, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
       }
       else {
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x, start_y+2, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y+2, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
       }
       break;
     case 1:
       if (gi->curdir % 2) {
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
       }
       else {
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y-1, gi->curpiece);
       }
       break;
     case 2:
       if (gi->curdir % 2) {
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y-1, gi->curpiece);
       }
       else {
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y-1, gi->curpiece);
       }
       break;
     case 3:
-      AddBlock(gi, start_x+1, start_y, gi->curpiece);
-      AddBlock(gi, start_x, start_y+1, gi->curpiece);
-      AddBlock(gi, start_x, start_y, gi->curpiece);
-      AddBlock(gi, start_x+1, start_y+1, gi->curpiece);
+      addBlock(gi, start_x+1, start_y, gi->curpiece);
+      addBlock(gi, start_x, start_y+1, gi->curpiece);
+      addBlock(gi, start_x, start_y, gi->curpiece);
+      addBlock(gi, start_x+1, start_y+1, gi->curpiece);
       break;
     case 4:
       if (gi->curdir == 0) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x+1, start_y+1, gi->curpiece);
       }
       else if (gi->curdir == 1) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y+1, gi->curpiece);
       }
       else if (gi->curdir == 2) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x-1, start_y-1, gi->curpiece);
       }
       else {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y-1, gi->curpiece);
       }
       break;
     case 5:
       if (gi->curdir == 0) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x-1, start_y+1, gi->curpiece);
       }
       else if (gi->curdir == 1) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y-1, gi->curpiece);
       }
       else if (gi->curdir == 2) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x+1, start_y-1, gi->curpiece);
       }
       else {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y+1, gi->curpiece);
       }
       break;
     case 6:
       if (gi->curdir == 0) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
       }
       else if (gi->curdir == 1) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
       }
       else if (gi->curdir == 2) {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x+1, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x+1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
       }
       else {
-        AddBlock(gi, start_x, start_y, gi->curpiece);
-        AddBlock(gi, start_x-1, start_y, gi->curpiece);
-        AddBlock(gi, start_x, start_y-1, gi->curpiece);
-        AddBlock(gi, start_x, start_y+1, gi->curpiece);
+        addBlock(gi, start_x, start_y, gi->curpiece);
+        addBlock(gi, start_x-1, start_y, gi->curpiece);
+        addBlock(gi, start_x, start_y-1, gi->curpiece);
+        addBlock(gi, start_x, start_y+1, gi->curpiece);
       }
       break;
 
@@ -430,12 +430,12 @@ void Tetris::AddPiece(game_info* gi, int start_x, int start_y) {
     //engine.passMessage(MSG_UPDATEPIECEY, , 0, 0);
     engine.passMessage(MSG_ADDPIECE, start_x, start_y,0);
 
-    int lines = ClearLines(gi);
+    int lines = clearLines(gi);
 
     gi->state_lines += lines;
     gi->total_lines += lines;
 
-    GetNewPiece(gi);
+    getNewPiece(gi);
 
     if (lines > 1) {
       engine.sendAttack(lines-1);
@@ -451,11 +451,11 @@ void Tetris::AddPiece(game_info* gi, int start_x, int start_y) {
   }
 }
 
-void Tetris::AddBlock(game_info* gi, int i, int j, int type) {
+void Tetris::addBlock(game_info* gi, int i, int j, int type) {
   gi->board[i][j] = type;
 }
 
-void Tetris::DrawBoard(game_info* gi) {
+void Tetris::drawBoard(game_info* gi) {
   engine.useTexture(16, 0, 0, 32,32);
 
   // left
@@ -502,7 +502,7 @@ void Tetris::DrawBoard(game_info* gi) {
     for (i=0; i<10; i++) {
       for (j=0; j<24; j++) {
         if(gi->board[i][j] != -1) {
-          DrawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j);
+          drawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j);
         }
       }
     }
@@ -527,13 +527,13 @@ void Tetris::DrawBoard(game_info* gi) {
   for (i=0; i<10; i++) {
     for (j=2; j<24; j++) {
       if(gi->board[i][j] == -1) {
-        DrawBackgroundBlock(gi, i, j);
+        drawBackgroundBlock(gi, i, j);
       }
     }
   }
 }
 
-void Tetris::DrawBackgroundBlock(game_info* gi, double x, double y) {
+void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
   engine.useTexture(17,0,0,0,0);
 
   // translate to world
@@ -563,138 +563,138 @@ void Tetris::DrawBackgroundBlock(game_info* gi, double x, double y) {
   engine.drawQuad(0,0,0,0);
 }
 
-void Tetris::DrawPiece(game_info* gi, double x, double y, int texture) {
+void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
   switch (gi->curpiece) {
     case 0:
       if (gi->curdir % 2) {
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x-1.0, y);
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x-1.0, y);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
       }
       else {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y+1.0);
-        DrawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y+1.0);
+        drawBlock(texture, gi, x, y-0.5);
       }
       break;
     case 1:
       if (gi->curdir % 2) {
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y-0.5);
       }
       else {
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x, y-0.5);
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x-0.5, y-0.5);
       }
       break;
     case 2:
       if (gi->curdir % 2) {
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x-0.5, y-0.5);
       }
       else {
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x, y-0.5);
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y-0.5);
       }
       break;
     case 3:
-      DrawBlock(texture, gi, x+0.5, y);
-      DrawBlock(texture, gi, x, y+0.5);
-      DrawBlock(texture, gi, x, y);
-      DrawBlock(texture, gi, x+0.5, y+0.5);
+      drawBlock(texture, gi, x+0.5, y);
+      drawBlock(texture, gi, x, y+0.5);
+      drawBlock(texture, gi, x, y);
+      drawBlock(texture, gi, x+0.5, y+0.5);
       break;
     case 4:
       if (gi->curdir == 0) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y-0.5);
-        DrawBlock(texture, gi, x+0.5, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x+0.5, y+0.5);
       }
       else if (gi->curdir == 1) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x-0.5, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x-0.5, y+0.5);
       }
       else if (gi->curdir == 2) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y-0.5);
-        DrawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x-0.5, y-0.5);
       }
       else {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x+0.5, y-0.5);
       }
       break;
     case 5:
       if (gi->curdir == 0) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y-0.5);
-        DrawBlock(texture, gi, x-0.5, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x-0.5, y+0.5);
       }
       else if (gi->curdir == 1) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x-0.5, y-0.5);
       }
       else if (gi->curdir == 2) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y-0.5);
-        DrawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x+0.5, y-0.5);
       }
       else {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x+0.5, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x+0.5, y+0.5);
       }
       break;
     case 6:
       if (gi->curdir == 0) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x, y-0.5);
       }
       else if (gi->curdir == 1) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y-0.5);
       }
       else if (gi->curdir == 2) {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x+0.5, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x, y+0.5);
       }
       else {
-        DrawBlock(texture, gi, x, y);
-        DrawBlock(texture, gi, x-0.5, y);
-        DrawBlock(texture, gi, x, y+0.5);
-        DrawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y);
+        drawBlock(texture, gi, x-0.5, y);
+        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y-0.5);
       }
       break;
   }
 }
 
-bool Tetris::TestCollisionBlock(game_info* gi, double x, double y) {
+bool Tetris::testCollisionBlock(game_info* gi, double x, double y) {
   int s_x;
   int s_y;
 
@@ -709,11 +709,11 @@ bool Tetris::TestCollisionBlock(game_info* gi, double x, double y) {
   return 0;
 }
 
-bool Tetris::TestCollision(game_info *gi) {
-  return TestCollision(gi, (0.5) * (double)gi->pos, gi->fine);
+bool Tetris::testCollision(game_info *gi) {
+  return testCollision(gi, (0.5) * (double)gi->pos, gi->fine);
 }
 
-double Tetris::TestSideCollision(game_info* gi, double x, double y) {
+double Tetris::testSideCollision(game_info* gi, double x, double y) {
   int sx = x / 0.5;
 
   switch (gi->curpiece) {
@@ -818,7 +818,7 @@ double Tetris::TestSideCollision(game_info* gi, double x, double y) {
   return -10;
 }
 
-bool Tetris::TestCollision(game_info* gi, double x, double y) {
+bool Tetris::testCollision(game_info* gi, double x, double y) {
   // check collision with bottom
 
   static double bottom_y = (0.5) * 24;
@@ -885,7 +885,7 @@ bool Tetris::TestCollision(game_info* gi, double x, double y) {
 
   // check collision with sides
 
-  double ret = TestSideCollision(gi, x, y);
+  double ret = testSideCollision(gi, x, y);
 
   if (ret!=-10) {
     return 1;
@@ -899,128 +899,128 @@ bool Tetris::TestCollision(game_info* gi, double x, double y) {
   {
     case 0:
       if (gi->curdir % 2) {
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x-1.0, y);
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x-1.0, y);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
       }
       else {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y+1.0);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y+1.0);
+        coll |= testCollisionBlock(gi, x, y-0.5);
       }
       break;
     case 1:
       if (gi->curdir % 2) {
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y-0.5);
       }
       else {
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x-0.5, y-0.5);
       }
       break;
     case 2:
       if (gi->curdir % 2) {
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x-0.5, y-0.5);
       }
       else {
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y-0.5);
       }
       break;
     case 3:
-      coll |= TestCollisionBlock(gi, x+0.5, y);
-      coll |= TestCollisionBlock(gi, x, y+0.5);
-      coll |= TestCollisionBlock(gi, x, y);
-      coll |= TestCollisionBlock(gi, x+0.5, y+0.5);
+      coll |= testCollisionBlock(gi, x+0.5, y);
+      coll |= testCollisionBlock(gi, x, y+0.5);
+      coll |= testCollisionBlock(gi, x, y);
+      coll |= testCollisionBlock(gi, x+0.5, y+0.5);
       break;
     case 4:
       if (gi->curdir == 0) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
-        coll |= TestCollisionBlock(gi, x+0.5, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x+0.5, y+0.5);
       }
       else if (gi->curdir == 1) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y+0.5);
       }
       else if (gi->curdir == 2) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
-        coll |= TestCollisionBlock(gi, x-0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x-0.5, y-0.5);
       }
       else {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x+0.5, y-0.5);
       }
       break;
     case 5:
       if (gi->curdir == 0) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
-        coll |= TestCollisionBlock(gi, x-0.5, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x-0.5, y+0.5);
       }
       else if (gi->curdir == 1) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y-0.5);
       }
       else if (gi->curdir == 2) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
-        coll |= TestCollisionBlock(gi, x+0.5, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x+0.5, y-0.5);
       }
       else {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x+0.5, y+0.5);
       }
       break;
     case 6:
       if (gi->curdir == 0) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x, y-0.5);
       }
       else if (gi->curdir == 1) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y-0.5);
       }
       else if (gi->curdir == 2) {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x+0.5, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x+0.5, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
       }
       else {
-        coll |= TestCollisionBlock(gi, x, y);
-        coll |= TestCollisionBlock(gi, x-0.5, y);
-        coll |= TestCollisionBlock(gi, x, y+0.5);
-        coll |= TestCollisionBlock(gi, x, y-0.5);
+        coll |= testCollisionBlock(gi, x, y);
+        coll |= testCollisionBlock(gi, x-0.5, y);
+        coll |= testCollisionBlock(gi, x, y+0.5);
+        coll |= testCollisionBlock(gi, x, y-0.5);
       }
       break;
   }
@@ -1028,7 +1028,7 @@ bool Tetris::TestCollision(game_info* gi, double x, double y) {
   return coll;
 }
 
-void Tetris::KeyRepeat(game_info* gi) {
+void Tetris::keyRepeat(game_info* gi) {
   if (gi->state != STATE_TETRIS) {
     return;
   }
@@ -1037,7 +1037,7 @@ void Tetris::KeyRepeat(game_info* gi) {
     gi->curdir++;
     gi->curdir %= 4;
 
-    if (TestCollision(gi)) {
+    if (testCollision(gi)) {
       gi->curdir--;
       gi->curdir += 4;
       gi->curdir %= 4;
@@ -1049,7 +1049,7 @@ void Tetris::KeyRepeat(game_info* gi) {
     gi->pos--;
 
     // test collisions!
-    if (TestCollision(gi)) {
+    if (testCollision(gi)) {
       gi->pos++;
     }
 
@@ -1060,7 +1060,7 @@ void Tetris::KeyRepeat(game_info* gi) {
 
 
     // test collisions!
-    if (TestCollision(gi)) {
+    if (testCollision(gi)) {
       gi->pos--;
     }
 
@@ -1068,26 +1068,26 @@ void Tetris::KeyRepeat(game_info* gi) {
   }
 }
 
-void Tetris::KeyDown(game_info* gi, Uint32 key) {
+void Tetris::keyDown(game_info* gi, Uint32 key) {
   if (gi->state != STATE_TETRIS) {
     return;
   }
 
   if (key == SDLK_SPACE) {
-    DropPiece(gi);
+    dropPiece(gi);
   }
 }
 
-void Tetris::KeyUp(game_info* gi, Uint32 key) {
+void Tetris::keyUp(game_info* gi, Uint32 key) {
 }
 
-void Tetris::MouseMovement(game_info* gi, Uint32 x, Uint32 y) {
+void Tetris::mouseMovement(game_info* gi, Uint32 x, Uint32 y) {
 }
 
-void Tetris::MouseDown(game_info* gi) {
+void Tetris::mouseDown(game_info* gi) {
 }
 
-void Tetris::GetNewPiece(game_info* gi) {
+void Tetris::getNewPiece(game_info* gi) {
   gi->curpiece = rand() % 7;
   gi->curdir = 1;
 
@@ -1098,7 +1098,7 @@ void Tetris::GetNewPiece(game_info* gi) {
   engine.passMessage(MSG_UPDATEPIECEY, 0, 0, 0);
 }
 
-void Tetris::PushUp(game_info* gi, int num) {
+void Tetris::pushUp(game_info* gi, int num) {
   int i,j;
   for (j=0; j<(24-num); j++) {
     for (i=0; i<10; i++) {
@@ -1107,7 +1107,7 @@ void Tetris::PushUp(game_info* gi, int num) {
   }
 }
 
-void Tetris::Attack(game_info* gi, int severity) {
+void Tetris::attack(game_info* gi, int severity) {
   // add a line!
   // add two lines!!
   // rotate board!!!
@@ -1129,7 +1129,7 @@ void Tetris::Attack(game_info* gi, int severity) {
       }
     }
 
-    PushUp(gi, 1);
+    pushUp(gi, 1);
 
     for (i=0; i<10; i++) {
       gi->board[i][23] = rand() % 7;
@@ -1168,7 +1168,7 @@ void Tetris::Attack(game_info* gi, int severity) {
       }
     }
 
-    PushUp(gi, 2);
+    pushUp(gi, 2);
 
     for (i=0; i<10; i++) {
       gi->board[i][23] = rand() % 7;
