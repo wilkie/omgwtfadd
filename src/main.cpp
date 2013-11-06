@@ -54,10 +54,10 @@ int main(int argc, char** argv) {
       printf("connecting to %s\n", ip);
 
       // Try to make a connection
-      engine.RunClient(ip, port);
+      engine.runClient(ip, port);
     }
     else {
-      engine.RunServer(port);
+      engine.runServer(port);
     }
 #endif
   }
@@ -67,9 +67,9 @@ int main(int argc, char** argv) {
 
   SDL_SetVideoMode(800, 600, 0, SDL_OPENGL);// | SDL_FULLSCREEN);
 
-  engine.Init();
+  engine.init();
 
-  engine.GameLoop();
+  engine.gameLoop();
 
 #ifndef EMSCRIPTEN
   SDL_Quit();

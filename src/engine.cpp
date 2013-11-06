@@ -101,7 +101,7 @@ int thread_func(void *unused) {
     }
     else {
       //printf("recv: %d\n", result);
-      engine.ProcessMessage(msg);
+      engine.processMessage(msg);
     }
   }
 
@@ -163,7 +163,7 @@ static const GLushort _cube_elements[] = {
   22, 23, 20
 };
 
-void Engine::Init() {
+void Engine::init() {
   inplay = true;
 
   // INITIALIZE OPENGL!!!
@@ -180,8 +180,8 @@ void Engine::Init() {
   glClearColor(0,1,0,1);
   gl_check_errors("glClearColor");
 
-  ClearGameData(&player1);
-  ClearGameData(&player2);
+  clearGameData(&player1);
+  clearGameData(&player2);
 
   player1.side = -1;
   player2.side = 1;
@@ -194,32 +194,32 @@ void Engine::Init() {
 
   srand(SDL_GetTicks());
 
-  AddTexture("images/block01.png");
-  AddTexture("images/block02.png");
-  AddTexture("images/block03.png");
-  AddTexture("images/block04.png");
-  AddTexture("images/block05.png");
-  AddTexture("images/block06.png");
-  AddTexture("images/block07.png");
+  addTexture("images/block01.png");
+  addTexture("images/block02.png");
+  addTexture("images/block03.png");
+  addTexture("images/block04.png");
+  addTexture("images/block05.png");
+  addTexture("images/block06.png");
+  addTexture("images/block07.png");
 
-  AddTexture("images/stars-layer.png");
-  AddTexture("images/nebula-layer.png");
+  addTexture("images/stars-layer.png");
+  addTexture("images/nebula-layer.png");
 
-  AddTexture("images/ball.png");
+  addTexture("images/ball.png");
 
-  AddTexture("images/space-penguinsmall.png");
+  addTexture("images/space-penguinsmall.png");
 
-  AddTexture("images/numbers.png");
-  AddTexture("images/letters.png");
+  addTexture("images/numbers.png");
+  addTexture("images/letters.png");
 
-  AddTexture("images/penguinsmall.png");
-  AddTexture("images/speech-right.png");
+  addTexture("images/penguinsmall.png");
+  addTexture("images/speech-right.png");
 
-  AddTexture("images/letters_w.png");
+  addTexture("images/letters_w.png");
 
-  AddTexture("images/block08.png");
-  AddTexture("images/block09.png");
-  AddTexture("images/block10.png");
+  addTexture("images/block08.png");
+  addTexture("images/block09.png");
+  addTexture("images/block10.png");
 
   audio.Init();
 
@@ -237,7 +237,7 @@ void Engine::Init() {
   glDepthFunc(GL_LESS);
 
   player1.state = STATE_TETRIS;
-  InitState(&player1);
+  initState(&player1);
 
   player1.pos = 5;
   player1.fine = 0;
@@ -398,31 +398,31 @@ void Engine::Init() {
   gl_check_errors("glUniform1i tex");
 }
 
-void Engine::SendAttack(int severity) {
+void Engine::sendAttack(int severity) {
   if (severity == 3 && player1.state == STATE_TETRIS) {
-    DisplayMessage(STR_TETRIS);
+    displayMessage(STR_TETRIS);
   }
   else if (severity == 3) {
-    DisplayMessage(STR_SUPER);
+    displayMessage(STR_SUPER);
   }
 
   //printf("ATTACK! %d\n", severity);
 
-  PassMessage(MSG_ATTACK, (unsigned char)severity, 0, 0);
+  passMessage(MSG_ATTACK, (unsigned char)severity, 0, 0);
 }
 
-void Engine::PerformAttack(int severity) {
+void Engine::performAttack(int severity) {
   printf("PERFORM ATTACK! %d\n", severity);
 
-  DisplayMessage(STR_ATTACK);
+  displayMessage(STR_ATTACK);
 
   games[player1.curgame]->Attack(&player1, severity);
 
 }
 
-void Engine::Quit() {
+void Engine::quit() {
   SDL_Quit();
-  quit = 1;
+  _quit = 1;
 }
 
 #ifdef EMSCRIPTEN
@@ -436,7 +436,7 @@ void Engine::_c_iterate() {
 #endif
 }
 
-void Engine::GameLoop() {
+void Engine::gameLoop() {
 #ifdef EMSCRIPTEN
   _c_this = this;
   emscripten_set_main_loop(Engine::_c_iterate, 30, 0);
@@ -453,30 +453,30 @@ bool Engine::_iterate() {
 
   static float deltatime;
 
-  if (!quit) {
+  if (!_quit) {
     while(SDL_PollEvent(&event)) {
       switch(event.type) {
         case SDL_KEYDOWN:
-          KeyDown(event.key.keysym.sym);
+          keyDown(event.key.keysym.sym);
           break;
         case SDL_KEYUP:
-          KeyUp(event.key.keysym.sym);
+          keyUp(event.key.keysym.sym);
           break;
         case SDL_MOUSEMOTION:
-          MouseMovement(event.motion.x, event.motion.y);
+          mouseMovement(event.motion.x, event.motion.y);
           break;
         case SDL_MOUSEBUTTONDOWN:
-          MouseDown();
+          mouseDown();
           break;
         case SDL_MOUSEBUTTONUP:
           break;
         case SDL_QUIT:
-          Quit();
+          quit();
           return false;
       }
     }
 
-    if (quit) { return false; }
+    if (_quit) { return false; }
 
     // Draw Frame, tell engine stuff
 
@@ -485,8 +485,8 @@ bool Engine::_iterate() {
     deltatime = (float)(curtime - lasttime) / 1000.0f;
 
     // CALL ENGINE
-    Update(deltatime);
-    Draw();
+    update(deltatime);
+    draw();
 
     lasttime = curtime;
   }
@@ -494,7 +494,7 @@ bool Engine::_iterate() {
   return true;
 }
 
-void Engine::Update(float deltatime) {
+void Engine::update(float deltatime) {
   space_penguinx += space_penguindx * deltatime;
   space_penguiny += space_penguindy * deltatime;
 
@@ -596,7 +596,7 @@ void Engine::Update(float deltatime) {
   games[player1.curgame]->Update(&player1, deltatime);
 }
 
-int Engine::IntLength(int i) {
+int Engine::intLength(int i) {
   char buffer[255];
 
   sprintf(buffer, "%d", i);
@@ -604,29 +604,29 @@ int Engine::IntLength(int i) {
   return (int)strlen(buffer);
 }
 
-int Engine::DrawInt(int i, int color, float x, float y) {
+int Engine::drawInt(int i, int color, float x, float y) {
   char buffer[255];
 
   sprintf(buffer, "%d", i);
 
-  return DrawString((const char*)buffer, color, x, y);
+  return drawString((const char*)buffer, color, x, y);
 }
 
-int Engine::DrawStringWhite(const char* str, int color, float x, float y) {
+int Engine::drawStringWhite(const char* str, int color, float x, float y) {
   glDisable(GL_BLEND);
 
-  return _DrawString(str,color,x,y, TEXTURE_LETTERS_WHITE);
+  return _drawString(str,color,x,y, TEXTURE_LETTERS_WHITE);
 }
 
-int Engine::DrawString(const char* str, int color, float x, float y) {
+int Engine::drawString(const char* str, int color, float x, float y) {
   glEnable(GL_BLEND);
   glBlendFunc(GL_DST_ALPHA,GL_ZERO);
   glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 
-  return _DrawString(str,color,x,y, TEXTURE_LETTERS);
+  return _drawString(str,color,x,y, TEXTURE_LETTERS);
 }
 
-int Engine::_DrawString(const char* str, int color, float x, float y, int tx) {
+int Engine::_drawString(const char* str, int color, float x, float y, int tx) {
   /*
   int a = 0;
 
@@ -714,7 +714,7 @@ int Engine::_DrawString(const char* str, int color, float x, float y, int tx) {
   return 0;
 }
 
-void Engine::DisplayMessage(int stringIndex) {
+void Engine::displayMessage(int stringIndex) {
   player1.message = strings[stringIndex];
 
   player1.message_uptime = 3;
@@ -722,30 +722,30 @@ void Engine::DisplayMessage(int stringIndex) {
   audio.PlaySound(SND_PENGUIN);
 }
 
-void Engine::Draw() {
+void Engine::draw() {
   // clear buffer
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   glEnable(GL_DEPTH_TEST);
 
   // BACKGROUND!!!
-  UseTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
+  useTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
-  DrawQuadXY(bg1x, bg1y, -6.3f, 15, 15);
-  DrawQuadXY(bg1x - 30, bg1y, -6.3f, 15, 15);
-  DrawQuadXY(bg1x, bg1y-30, -6.3f, 15, 15);
-  DrawQuadXY(bg1x - 30, bg1y-30, -6.3f, 15, 15);
+  drawQuadXY(bg1x, bg1y, -6.3f, 15, 15);
+  drawQuadXY(bg1x - 30, bg1y, -6.3f, 15, 15);
+  drawQuadXY(bg1x, bg1y-30, -6.3f, 15, 15);
+  drawQuadXY(bg1x - 30, bg1y-30, -6.3f, 15, 15);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  UseTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
+  useTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
   /*
-  DrawQuadXY(bg2x, bg2y, -6.0f, 20, 20);
-  DrawQuadXY(bg2x - 30, bg2y, -6.0f, 20, 20);
-  DrawQuadXY(bg2x, bg2y-30, -6.0f, 20, 20);
-  DrawQuadXY(bg2x - 30, bg2y-30, -6.0f, 20, 20);*/
+  drawQuadXY(bg2x, bg2y, -6.0f, 20, 20);
+  drawQuadXY(bg2x - 30, bg2y, -6.0f, 20, 20);
+  drawQuadXY(bg2x, bg2y-30, -6.0f, 20, 20);
+  drawQuadXY(bg2x - 30, bg2y-30, -6.0f, 20, 20);*/
 
   // Draw Space Pirate Penguin!
 
@@ -843,7 +843,7 @@ void Engine::Draw() {
   */
 }
 
-void Engine::KeyDown(Uint32 key) {
+void Engine::keyDown(Uint32 key) {
   bool gameover = !inplay;
 #ifndef NO_NETWORK
   gameover = gameover && !client_tcpsock;
@@ -851,17 +851,17 @@ void Engine::KeyDown(Uint32 key) {
 
   if (gameover) {
     if (player1.gameover_position > 1.0f) {
-      ClearGameData(&player1);
+      clearGameData(&player1);
     }
     return;
   }
 
   if (key == SDLK_4) {
-    PerformAttack(2);
+    performAttack(2);
   }
 
   if (key == SDLK_ESCAPE) {
-    Quit();
+    quit();
     return;
   }
 
@@ -877,7 +877,7 @@ void Engine::KeyDown(Uint32 key) {
   games[player1.curgame]->KeyRepeat(&player1);
 }
 
-void Engine::KeyUp(Uint32 key) {
+void Engine::keyUp(Uint32 key) {
   if (key < 0xffff) {
     keys[key] = 0;
   }
@@ -887,7 +887,7 @@ void Engine::KeyUp(Uint32 key) {
   games[player1.curgame]->KeyUp(&player1, key);
 }
 
-void Engine::MouseDown() {
+void Engine::mouseDown() {
   bool gameover = !inplay;
 #ifndef NO_NETWORK
   gameover = gameover && !client_tcpsock;
@@ -895,25 +895,25 @@ void Engine::MouseDown() {
 
   if (gameover) {
     if (player1.gameover_position > 1.0f) {
-      ClearGameData(&player1);
+      clearGameData(&player1);
     }
   }
 }
 
-void Engine::MouseMovement(Uint32 x, Uint32 y) {
+void Engine::mouseMovement(Uint32 x, Uint32 y) {
   games[player1.curgame]->MouseMovement(&player1, x,y);
 }
 
-void Engine::GameOver() {
+void Engine::gameOver() {
   player1.state = STATE_GAMEOVER;
   inplay = false;
 
-  DisplayMessage(STR_YOULOSE);
+  displayMessage(STR_YOULOSE);
 
-  PassMessage(MSG_GAMEOVER, 0,0,0);
+  passMessage(MSG_GAMEOVER, 0,0,0);
 }
 
-void Engine::DrawQuadXY(float x, float y, float z, float w, float h) {
+void Engine::drawQuadXY(float x, float y, float z, float w, float h) {
   glm::mat4 model = glm::scale(
                       glm::translate(
                         glm::mat4(1.0f),
@@ -927,17 +927,17 @@ void Engine::DrawQuadXY(float x, float y, float z, float w, float h) {
   gl_check_errors("glDrawElements");
 }
 
-void Engine::DrawQuad(int a, int b, int c, int d) {
+void Engine::drawQuad(int a, int b, int c, int d) {
   glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
-void Engine::DrawCube() {
+void Engine::drawCube() {
   glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
   gl_check_errors("glDrawElements");
 }
 
-void Engine::ClearGameData(game_info* player) {
+void Engine::clearGameData(game_info* player) {
   int i, j;
 
   for (i=0; i<10; i++) {
@@ -948,7 +948,7 @@ void Engine::ClearGameData(game_info* player) {
 
   player->gameover_position = 0.0f;
 
-  ChangeState(player, STATE_TETRIS);
+  changeState(player, STATE_TETRIS);
 
   player->score = 0;
   player->state_lines = 0;
@@ -965,23 +965,23 @@ void Engine::ClearGameData(game_info* player) {
   inplay = true;
 }
 
-void Engine::ChangeState(game_info* gi, int newState) {
-  UninitState(gi);
+void Engine::changeState(game_info* gi, int newState) {
+  uninitState(gi);
 
   // tell networked opponent (IF PLAYER 1)
   if (gi->side == -1) {
-    PassMessage(MSG_CHANGE_STATE, newState,0,0);
+    passMessage(MSG_CHANGE_STATE, newState,0,0);
   }
 
   gi->state = newState;
 
   // init state (IF PLAYER 1)
   if (gi->side == -1) {
-    InitState(gi);
+    initState(gi);
   }
 }
 
-void Engine::InitState(game_info* gi) {
+void Engine::initState(game_info* gi) {
   switch (gi->state) {
     case STATE_BREAKOUT:
       gi->curgame = 1;
@@ -994,16 +994,10 @@ void Engine::InitState(game_info* gi) {
   }
 }
 
-void Engine::UninitState(game_info* gi) {
+void Engine::uninitState(game_info* gi) {
 }
 
-void Engine::EnableTextures() {
-}
-
-void Engine::DisableTextures() {
-}
-
-void Engine::UseTextureUpsideDown(int textureIndex, int startX, int startY, int width, int height) {
+void Engine::useTextureUpsideDown(int textureIndex, int startX, int startY, int width, int height) {
   if (textureIndex < 0 || textureIndex >= texture_count) { return; }
 
   glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
@@ -1018,7 +1012,7 @@ void Engine::UseTextureUpsideDown(int textureIndex, int startX, int startY, int 
   tv[0] = (float)startY / (float)(texture_heights[textureIndex]-1);
 }
 
-void Engine::UseTexture(int textureIndex, int startX, int startY, int width, int height) {
+void Engine::useTexture(int textureIndex, int startX, int startY, int width, int height) {
   if (textureIndex < 0 || textureIndex >= texture_count) { return; }
 
   glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
@@ -1026,7 +1020,7 @@ void Engine::UseTexture(int textureIndex, int startX, int startY, int width, int
 }
 
 // from tutorial on interwebz:
-int Engine::AddTexture(const char* fname) {
+int Engine::addTexture(const char* fname) {
   GLuint texture;  // This is a handle to our texture object
   SDL_Surface *surface; // This surface will tell us the details of the image
   GLenum texture_format;
@@ -1136,7 +1130,7 @@ int Engine::AddTexture(const char* fname) {
 
 // networking
 
-void Engine::RunServer(int port) {
+void Engine::runServer(int port) {
 #ifndef NO_NETWORK
   // create a listening TCP socket on port 9999 (server)
 
@@ -1167,7 +1161,7 @@ void Engine::RunServer(int port) {
 #endif
 }
 
-void Engine::RunClient(char* ipname, int port) {
+void Engine::runClient(char* ipname, int port) {
 #ifndef NO_NETWORK
   if(SDLNet_ResolveHost(&ip,ipname,port)==-1) {
     printf("SDLNet_ResolveHost: %s\n", SDLNet_GetError());
@@ -1189,7 +1183,7 @@ void Engine::RunClient(char* ipname, int port) {
 #endif
 }
 
-void Engine::ProcessMessage(unsigned char msg[4]) {
+void Engine::processMessage(unsigned char msg[4]) {
   unsigned char msgID = msg[0];
 
   //printf("Msg Recv: %d, %d, %d, %d\n", msgID, msg[1], msg[2], msg[3]);
@@ -1205,7 +1199,7 @@ void Engine::ProcessMessage(unsigned char msg[4]) {
       break;
     case MSG_ATTACK:
       // ATTACK!!!
-      PerformAttack(msg[1]);
+      performAttack(msg[1]);
       break;
     case MSG_PUSHUP:
       tetris.PushUp(&player2, msg[1]);
@@ -1261,7 +1255,7 @@ void Engine::ProcessMessage(unsigned char msg[4]) {
       break;
 
     case MSG_CHANGE_STATE:
-      ChangeState(&player2, msg[1]);
+      changeState(&player2, msg[1]);
       break;
 
     case MSG_ROT_BOARD2:
@@ -1283,7 +1277,7 @@ void Engine::ProcessMessage(unsigned char msg[4]) {
 
     case MSG_GAMEOVER:
       inplay = false;
-      DisplayMessage(STR_YOUWIN);
+      displayMessage(STR_YOUWIN);
       break;
 
     case MSG_APPENDSCORE:
@@ -1292,7 +1286,7 @@ void Engine::ProcessMessage(unsigned char msg[4]) {
   }
 }
 
-void Engine::PassMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3) {
+void Engine::passMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3) {
 #ifndef NO_NETWORK
   if (!client_tcpsock) { return; }
 
@@ -1346,8 +1340,7 @@ GLfloat Engine::cubenorms[8][4] = {
 game_info Engine::player2 = {0};
 game_info Engine::player1 = {0};
 
-int Engine::quit = 0;
-
+int Engine::_quit = 0;
 
 GLuint* Engine::textures = NULL;
 int* Engine::texture_widths = NULL;

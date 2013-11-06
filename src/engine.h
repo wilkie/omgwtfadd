@@ -14,77 +14,77 @@ public:
 
   // init, uninit
 
-  void Init();
-  void Quit();
+  void init();
+  void quit();
 
   // network
 
-  void RunServer(int port);
-  void RunClient(char* ip, int port);
+  void runServer(int port);
+  void runClient(char* ip, int port);
 
-  void ProcessMessage(unsigned char msg[4]);
-  void PassMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3);
+  void processMessage(unsigned char msg[4]);
+  void passMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3);
 
   // game loop
 
-  void GameLoop();
+  void gameLoop();
 
-  void GameOver();
+  void gameOver();
 
   bool _iterate();
   static void _c_iterate();
 
   // frame stuffs
 
-  int IntLength(int i);
-  int DrawInt(int i, int color, float x, float y);
-  int _DrawString(const char* str, int color, float x, float y, int tx);
-  int DrawString(const char* str, int color, float x, float y);
-  int DrawStringWhite(const char* str, int color, float x, float y);
+  int intLength(int i);
+  int drawInt(int i, int color, float x, float y);
+  int _drawString(const char* str, int color, float x, float y, int tx);
+  int drawString(const char* str, int color, float x, float y);
+  int drawStringWhite(const char* str, int color, float x, float y);
 
-  void Update(float deltatime);
-  void Draw();
+  void update(float deltatime);
+  void draw();
 
   // key processing
 
-  void KeyDown(Uint32 key);
-  void KeyUp(Uint32 key);
+  void keyDown(Uint32 key);
+  void keyUp(Uint32 key);
 
   // mouse
 
-  void MouseMovement(Uint32 x, Uint32 y);
-  void MouseDown();
+  void mouseMovement(Uint32 x, Uint32 y);
+  void mouseDown();
 
   // graphics
 
-  void DrawCube();
-  void DrawQuadXY(float x, float y, float z, float w, float h);
-  void DrawQuad(int a, int b, int c, int d);
+  void drawCube();
+  void drawQuadXY(float x, float y, float z, float w, float h);
+  void drawQuad(int a, int b, int c, int d);
 
   // state
 
   int state;
 
-  void ChangeState(game_info* gi, int newState);
-  void InitState(game_info* gi);
-  void UninitState(game_info* gi);
+  void changeState(game_info* gi, int newState);
+  void initState(game_info* gi);
+  void uninitState(game_info* gi);
 
   // common game logic
 
-  void ClearGameData(game_info* player);
+  void clearGameData(game_info* player);
 
   // textures
 
-  void UseTexture(int textureIndex, int startx, int starty, int width, int height);
-  void UseTextureUpsideDown(int textureIndex, int startx, int starty, int width, int height);
-  void EnableTextures();
-  void DisableTextures();
-  int AddTexture(const char* fname);
+  void useTexture(int textureIndex, int startx, int starty, int width, int height);
+  void useTextureUpsideDown(int textureIndex, int startx, int starty, int width, int height);
+  void enableTextures();
+  void disableTextures();
+  int addTexture(const char* fname);
 
-  void SendAttack(int severity);
-  void PerformAttack(int severity);
+  void sendAttack(int severity);
+  void performAttack(int severity);
 
-  void DisplayMessage(int stringIndex);
+  void displayMessage(int stringIndex);
 
   // vars
 
@@ -109,7 +109,7 @@ public:
   static game_info player1;
   static game_info player2;
 
-  static int quit;
+  static int _quit;
 
   static int inplay;
 

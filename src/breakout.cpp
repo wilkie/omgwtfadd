@@ -422,10 +422,10 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
     // get rid of block???
     gi->board[board_i][board_j] = -1;
 
-    engine.PassMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
+    engine.passMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
 
     gi->score += (2 * 100);
-    engine.PassMessage(MSG_APPENDSCORE, 100, 2, 0);
+    engine.passMessage(MSG_APPENDSCORE, 100, 2, 0);
   }
   if (type_t & 16) { // top side block
     gi->ball_dy = -gi->ball_dy;
@@ -435,10 +435,10 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
     // get rid of block???
     gi->board[board_i][board_j] = -1;
 
-    engine.PassMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
+    engine.passMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
 
     gi->score += (2 * 100);
-    engine.PassMessage(MSG_APPENDSCORE, 100, 2, 0);
+    engine.passMessage(MSG_APPENDSCORE, 100, 2, 0);
   }
   if (type_t & 32) { // right side block
     gi->ball_dx = -gi->ball_dx;
@@ -448,10 +448,10 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
     // get rid of block???
     gi->board[board_i][board_j] = -1;
 
-    engine.PassMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
+    engine.passMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
 
     gi->score += (2 * 100);
-    engine.PassMessage(MSG_APPENDSCORE, 100, 2, 0);
+    engine.passMessage(MSG_APPENDSCORE, 100, 2, 0);
   }
   if (type_t & 64) { // bottom side block
     gi->ball_dy = -gi->ball_dy;
@@ -459,23 +459,23 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
     // get rid of block???
     gi->board[board_i][board_j] = -1;
 
-    engine.PassMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
+    engine.passMessage(MSG_REMOVEBLOCK, board_i, board_j, 0);
 
     gi->score += (2 * 100);
-    engine.PassMessage(MSG_APPENDSCORE, 100, 2, 0);
+    engine.passMessage(MSG_APPENDSCORE, 100, 2, 0);
   }
 
 
   // paddle
   if (type_t & 128) {
     if (gi->break_out_consecutives >= 7) {
-      engine.SendAttack(3);
+      engine.sendAttack(3);
     }
     else if (gi->break_out_consecutives >= 5) {
-      engine.SendAttack(2);
+      engine.sendAttack(2);
     }
     else if (gi->break_out_consecutives >= 4) {
-      engine.SendAttack(1);
+      engine.sendAttack(1);
     }
 
     gi->break_out_consecutives = 0;
@@ -485,13 +485,13 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
 
   if (type_t & 256) {
     if (gi->break_out_consecutives >= 7) {
-      engine.SendAttack(3);
+      engine.sendAttack(3);
     }
     else if (gi->break_out_consecutives >= 5) {
-      engine.SendAttack(2);
+      engine.sendAttack(2);
     }
     else if (gi->break_out_consecutives >= 4) {
-      engine.SendAttack(1);
+      engine.sendAttack(1);
     }
 
     gi->break_out_consecutives = 0;
@@ -501,13 +501,13 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
 
   if (type_t & 512) {
     if (gi->break_out_consecutives >= 7) {
-      engine.SendAttack(3);
+      engine.sendAttack(3);
     }
     else if (gi->break_out_consecutives >= 5) {
-      engine.SendAttack(2);
+      engine.sendAttack(2);
     }
     else if (gi->break_out_consecutives >= 4) {
-      engine.SendAttack(1);
+      engine.sendAttack(1);
     }
 
     gi->break_out_consecutives = 0;
@@ -517,13 +517,13 @@ void BreakOut::MoveBall(game_info* gi, float t, int last_type) {
 
   if (type_t & 1024) {
     if (gi->break_out_consecutives >= 7) {
-      engine.SendAttack(3);
+      engine.sendAttack(3);
     }
     else if (gi->break_out_consecutives >= 5) {
-      engine.SendAttack(2);
+      engine.sendAttack(2);
     }
     else if (gi->break_out_consecutives >= 4) {
-      engine.SendAttack(1);
+      engine.sendAttack(1);
     }
 
     gi->break_out_consecutives = 0;
@@ -546,10 +546,10 @@ void BreakOut::Update(game_info* gi, float deltatime) {
 
     if (gi->rot2 <= 0) {
       gi->rot2 = 0;
-      engine.ChangeState(gi, STATE_TETRIS);
+      engine.changeState(gi, STATE_TETRIS);
     }
 
-    engine.PassMessage(MSG_ROT_BOARD2, (gi->rot2 / 180.0f) * 255.0f, 0,0);
+    engine.passMessage(MSG_ROT_BOARD2, (gi->rot2 / 180.0f) * 255.0f, 0,0);
     return;
   }
 
@@ -582,9 +582,9 @@ void BreakOut::Update(game_info* gi, float deltatime) {
   if (gi->break_out_time <= 0) {
     gi->break_out_time = 0;
 
-    engine.DisplayMessage(STR_YOUSURVIVED);
+    engine.displayMessage(STR_YOUSURVIVED);
     engine.audio.PlaySound(SND_CHANGEVIEW);
-    engine.ChangeState(gi, STATE_BREAKOUT_TRANS);
+    engine.changeState(gi, STATE_BREAKOUT_TRANS);
 
     gi->pos = (int)(gi->fine / 0.5f);
     gi->fine = 0;
@@ -612,7 +612,7 @@ void BreakOut::Update(game_info* gi, float deltatime) {
   }
 
   if (move) {
-    engine.PassMessage(MSG_UPDATEPADDLE, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
+    engine.passMessage(MSG_UPDATEPADDLE, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
   }
 
   // move ball
@@ -638,10 +638,11 @@ void BreakOut::Update(game_info* gi, float deltatime) {
 
   MoveBall(gi,deltatime,0);
 
-  engine.PassMessage(MSG_UPDATEBALL, ((float)(gi->ball_x) / 20.0f) * 255.0f, ((float)(gi->ball_y) / 20.0f) * 255.0f, 0);
+  engine.passMessage(MSG_UPDATEBALL, ((float)(gi->ball_x) / 20.0f) * 255.0f, ((float)(gi->ball_y) / 20.0f) * 255.0f, 0);
+
 
   if (gi->ball_y < -1.5) {
-    engine.GameOver();
+    engine.gameOver();
   }
 }
 
@@ -664,7 +665,7 @@ void BreakOut::DrawBall(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.125f, 0.125f, 0.125f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.DrawCube();
+  engine.drawCube();
 }
 
 void BreakOut::Draw(game_info* gi) {
@@ -712,21 +713,21 @@ void BreakOut::Draw(game_info* gi) {
 
 void BreakOut::DrawOrtho(game_info* gi) {
   if (gi->side == -1) {
-    engine.DrawString(":CONS", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
+    engine.drawString(":CONS", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
 
-    int x  = engine.IntLength(gi->break_out_consecutives);
+    int x  = engine.intLength(gi->break_out_consecutives);
 
-    engine.DrawInt(gi->break_out_consecutives, 1, (400.0f - 32.0f) - ((6 + x) * 16), 25.0f);
+    engine.drawInt(gi->break_out_consecutives, 1, (400.0f - 32.0f) - ((6 + x) * 16), 25.0f);
 
     int x2;
 
     x2 = (400 - (14 * 16)) / 2;
 
-    engine.DrawString("SURVIVE:", 2, x2, 600.0f - 25.0f);
+    engine.drawString("SURVIVE:", 2, x2, 600.0f - 25.0f);
     x2 += (8 * 16);
-    engine.DrawInt(gi->break_out_time, 3, x2, 600.0f - 25.0f);
-    x2 += (engine.IntLength(gi->break_out_time + 0.5) * 16);
-    engine.DrawString(" SEC", 2, x2, 600.0f - 25.0f);
+    engine.drawInt(gi->break_out_time, 3, x2, 600.0f - 25.0f);
+    x2 += (engine.intLength(gi->break_out_time + 0.5) * 16);
+    engine.drawString(" SEC", 2, x2, 600.0f - 25.0f);
   }
 }
 
@@ -749,7 +750,7 @@ void BreakOut::KeyRepeat(game_info* gi) {
       gi->curdir %= 4;
     }
 
-    engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+    engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   }
 }
 
@@ -899,7 +900,7 @@ void BreakOut::Attack(game_info* gi, int severity) {
       gi->fine = amt;
     }
 
-    engine.PassMessage(MSG_UPDATEPADDLE, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
+    engine.passMessage(MSG_UPDATEPADDLE, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
   }
   else if (severity == 2) {
     engine.tetris.Attack(gi, 1);

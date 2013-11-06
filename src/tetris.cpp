@@ -22,10 +22,10 @@ void Tetris::Update(game_info* gi, float deltatime) {
 
     if (gi->rot2 >= 180) {
       gi->rot2 = 180;
-      engine.ChangeState(gi, STATE_BREAKOUT);
+      engine.changeState(gi, STATE_BREAKOUT);
     }
 
-    engine.PassMessage(MSG_ROT_BOARD2, (gi->rot2 / 180.0f) * 255.0f, 0,0);
+    engine.passMessage(MSG_ROT_BOARD2, (gi->rot2 / 180.0f) * 255.0f, 0,0);
     return;
   }
 
@@ -40,10 +40,10 @@ void Tetris::Update(game_info* gi, float deltatime) {
       gi->attacking = 0;
 
       gi->score += (10 * 100);
-      engine.PassMessage(MSG_APPENDSCORE, 100, 10, 0);
+      engine.passMessage(MSG_APPENDSCORE, 100, 10, 0);
     }
 
-    engine.PassMessage(MSG_ROT_BOARD, (gi->rot / 360.0f) * 255.0f, 0,0);
+    engine.passMessage(MSG_ROT_BOARD, (gi->rot / 360.0f) * 255.0f, 0,0);
   }
 
   if (!engine.network_thread) {
@@ -68,14 +68,14 @@ void Tetris::Update(game_info* gi, float deltatime) {
   if (TestCollision(gi)) {
     // we collided! oh no!
     if (TestGameOver(gi)) {
-      engine.GameOver();
+      engine.gameOver();
     }
     else {
       AddPiece(gi);
     }
   }
 
-  engine.PassMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
+  engine.passMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
 }
 
 void Tetris::DropLine(game_info* gi, int lineIndex) {
@@ -87,7 +87,7 @@ void Tetris::DropLine(game_info* gi, int lineIndex) {
   }
 
   if (gi->side == -1) {
-    engine.PassMessage(MSG_DROPLINE, (unsigned char)lineIndex, 0,0);
+    engine.passMessage(MSG_DROPLINE, (unsigned char)lineIndex, 0,0);
   }
 }
 
@@ -110,7 +110,7 @@ int Tetris::ClearLines(game_info* gi) {
       // move everything above it down
       lines++;
       gi->score += (lines * 100);
-      engine.PassMessage(MSG_APPENDSCORE, 100, lines, 0);
+      engine.passMessage(MSG_APPENDSCORE, 100, lines, 0);
       DropLine(gi,j);
 
       engine.audio.PlaySound(SND_TINK);
@@ -127,8 +127,8 @@ void Tetris::InitGame(game_info* gi) {
 void Tetris::DropPiece(game_info* gi) {
   gi->fine = DetermineDropPosition(gi);
 
-  engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
-  engine.PassMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
+  engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+  engine.passMessage(MSG_UPDATEPIECEY, (unsigned char)((gi->fine / 11.0f) * 255.0f), 0, 0);
 
   AddPiece(gi);
 }
@@ -163,7 +163,7 @@ void Tetris::Draw(game_info* gi) {
 }
 
 void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
-  engine.UseTexture(type, 0, 0, 32,32);
+  engine.useTexture(type, 0, 0, 32,32);
 
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);
@@ -184,50 +184,50 @@ void Tetris::DrawBlock(int type, game_info* gi, double x, double y) {
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
-  engine.DrawCube();
+  engine.drawCube();
 }
 
 // draw interface
 void Tetris::DrawOrtho(game_info* gi) {
   if (!engine.network_thread && gi->side == 1) {
     int y = 200;
-    engine.DrawString("SINGLE PLAYER GAME", 1, 440, y);
+    engine.drawString("SINGLE PLAYER GAME", 1, 440, y);
     y+= 40;
-    engine.DrawString("FOR MULTIPLAYER", 2, 440, y);
+    engine.drawString("FOR MULTIPLAYER", 2, 440, y);
     y+= 40;
-    engine.DrawString("HOST USING COMMAND", 2, 440, y);
+    engine.drawString("HOST USING COMMAND", 2, 440, y);
     y+= 20;
-    engine.DrawString("OMGWTFADD -S -P 2000", 4, 440, y);
+    engine.drawString("OMGWTFADD -S -P 2000", 4, 440, y);
     y+= 40;
-    engine.DrawString("CONNECT USING COMMAND", 2, 440, y);
+    engine.drawString("CONNECT USING COMMAND", 2, 440, y);
     y+= 20;
-    engine.DrawString("OMGWTFADD -P 2000", 4, 440, y);
+    engine.drawString("OMGWTFADD -P 2000", 4, 440, y);
     y+= 20;
-    engine.DrawString("127.0.0.1", 4, 475, y);
+    engine.drawString("127.0.0.1", 4, 475, y);
 
     y += 60;
-    engine.DrawString("LEVEL: ", 5, 440, y);
-    engine.DrawInt(LEVEL, 1, 440 + (16 * 6), y);
+    engine.drawString("LEVEL: ", 5, 440, y);
+    engine.drawInt(LEVEL, 1, 440 + (16 * 6), y);
 
     return;
   }
 
   if (gi->side == -1) {
-    engine.DrawString(":LINES", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
+    engine.drawString(":LINES", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
 
-    int x  = engine.IntLength(gi->total_lines);
+    int x  = engine.intLength(gi->total_lines);
 
-    engine.DrawInt(gi->total_lines, 1, (400.0f - 32.0f) - ((6 + x) * 16), 25.0f);
+    engine.drawInt(gi->total_lines, 1, (400.0f - 32.0f) - ((6 + x) * 16), 25.0f);
 
     int x2;
 
     x2 = (400 - (16 * 16)) / 2;
 
-    engine.DrawString("COMPLETE", 2, x2, 600.0f - 25.0f);
+    engine.drawString("COMPLETE", 2, x2, 600.0f - 25.0f);
     x2 += (8 * 16);
-    engine.DrawInt(TETRIS_LINES_NEEDED - gi->state_lines, 3, x2, 600.0f - 25.0f);
-    x2 += (engine.IntLength(TETRIS_LINES_NEEDED - gi->state_lines) * 16);
-    engine.DrawString("LINES", 2, x2, 600.0f - 25.0f);
+    engine.drawInt(TETRIS_LINES_NEEDED - gi->state_lines, 3, x2, 600.0f - 25.0f);
+    x2 += (engine.intLength(TETRIS_LINES_NEEDED - gi->state_lines) * 16);
+    engine.drawString("LINES", 2, x2, 600.0f - 25.0f);
   }
 }
 
@@ -426,9 +426,9 @@ void Tetris::AddPiece(game_info* gi, int start_x, int start_y) {
   }
 
   if (gi->side == -1) {
-    engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
-    //engine.PassMessage(MSG_UPDATEPIECEY, , 0, 0);
-    engine.PassMessage(MSG_ADDPIECE, start_x, start_y,0);
+    engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+    //engine.passMessage(MSG_UPDATEPIECEY, , 0, 0);
+    engine.passMessage(MSG_ADDPIECE, start_x, start_y,0);
 
     int lines = ClearLines(gi);
 
@@ -438,15 +438,15 @@ void Tetris::AddPiece(game_info* gi, int start_x, int start_y) {
     GetNewPiece(gi);
 
     if (lines > 1) {
-      engine.SendAttack(lines-1);
+      engine.sendAttack(lines-1);
     }
 
     if (gi->state_lines >= TETRIS_LINES_NEEDED) {
       gi->state_lines = 0;
 
-      engine.DisplayMessage(STR_TRANSITION);
+      engine.displayMessage(STR_TRANSITION);
       engine.audio.PlaySound(SND_CHANGEVIEW);
-      engine.ChangeState(gi, STATE_TETRIS_TRANS);
+      engine.changeState(gi, STATE_TETRIS_TRANS);
     }
   }
 }
@@ -456,7 +456,7 @@ void Tetris::AddBlock(game_info* gi, int i, int j, int type) {
 }
 
 void Tetris::DrawBoard(game_info* gi) {
-  engine.UseTexture(16, 0, 0, 32,32);
+  engine.useTexture(16, 0, 0, 32,32);
 
   // left
   glm::mat4 model;
@@ -477,7 +477,7 @@ void Tetris::DrawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.DrawCube();
+  engine.drawCube();
 
   // right
   model = base;
@@ -486,7 +486,7 @@ void Tetris::DrawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.DrawCube();
+  engine.drawCube();
 
   // bottom
   model = base;
@@ -495,7 +495,7 @@ void Tetris::DrawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.DrawCube();
+  engine.drawCube();
 
   int i,j;
   if (gi->state != STATE_GAMEOVER) {
@@ -517,8 +517,8 @@ void Tetris::DrawBoard(game_info* gi) {
           model = glm::translate(model, glm::vec3(-2.25f + (0.5f*i) + offset_x, 6.375f - (0.5f*j) + offset_y, gi->gameover_position));
           model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
           glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-          engine.UseTexture(gi->board[i][j],0,0,0,0);
-          engine.DrawCube();
+          engine.useTexture(gi->board[i][j],0,0,0,0);
+          engine.drawCube();
         }
       }
     }
@@ -534,7 +534,7 @@ void Tetris::DrawBoard(game_info* gi) {
 }
 
 void Tetris::DrawBackgroundBlock(game_info* gi, double x, double y) {
-  engine.UseTexture(17,0,0,0,0);
+  engine.useTexture(17,0,0,0,0);
 
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);
@@ -560,7 +560,7 @@ void Tetris::DrawBackgroundBlock(game_info* gi, double x, double y) {
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
-  engine.DrawQuad(0,0,0,0);
+  engine.drawQuad(0,0,0,0);
 }
 
 void Tetris::DrawPiece(game_info* gi, double x, double y, int texture) {
@@ -1043,7 +1043,7 @@ void Tetris::KeyRepeat(game_info* gi) {
       gi->curdir %= 4;
     }
 
-    engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+    engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   }
   else if (engine.keys[SDLK_LEFT]) {
     gi->pos--;
@@ -1053,7 +1053,7 @@ void Tetris::KeyRepeat(game_info* gi) {
       gi->pos++;
     }
 
-    engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+    engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   }
   else if (engine.keys[SDLK_RIGHT]) {
     gi->pos++;
@@ -1064,7 +1064,7 @@ void Tetris::KeyRepeat(game_info* gi) {
       gi->pos--;
     }
 
-    engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+    engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
   }
 }
 
@@ -1094,8 +1094,8 @@ void Tetris::GetNewPiece(game_info* gi) {
   gi->pos = 5;
   gi->fine = 1.0;
 
-  engine.PassMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
-  engine.PassMessage(MSG_UPDATEPIECEY, 0, 0, 0);
+  engine.passMessage(MSG_UPDATEPIECE, gi->pos, gi->curdir, gi->curpiece);
+  engine.passMessage(MSG_UPDATEPIECEY, 0, 0, 0);
 }
 
 void Tetris::PushUp(game_info* gi, int num) {
@@ -1144,11 +1144,11 @@ void Tetris::Attack(game_info* gi, int severity) {
     }
 
     // send this line!
-    engine.PassMessage(MSG_PUSHUP, 1,0,0);
-    engine.PassMessage(MSG_ADDBLOCKS_A,gi->board[0][23], gi->board[1][23],gi->board[2][23]);
-    engine.PassMessage(MSG_ADDBLOCKS_B,gi->board[3][23], gi->board[4][23],gi->board[5][23]);
-    engine.PassMessage(MSG_ADDBLOCKS_C,gi->board[6][23], gi->board[7][23],gi->board[8][23]);
-    engine.PassMessage(MSG_ADDBLOCKS_D,gi->board[9][23], 0,0);
+    engine.passMessage(MSG_PUSHUP, 1,0,0);
+    engine.passMessage(MSG_ADDBLOCKS_A,gi->board[0][23], gi->board[1][23],gi->board[2][23]);
+    engine.passMessage(MSG_ADDBLOCKS_B,gi->board[3][23], gi->board[4][23],gi->board[5][23]);
+    engine.passMessage(MSG_ADDBLOCKS_C,gi->board[6][23], gi->board[7][23],gi->board[8][23]);
+    engine.passMessage(MSG_ADDBLOCKS_D,gi->board[9][23], 0,0);
   }
   else if (severity == 2) {
     // move two lines
@@ -1193,15 +1193,15 @@ void Tetris::Attack(game_info* gi, int severity) {
     }
 
     // send these lines!
-    engine.PassMessage(MSG_PUSHUP, 2,0,0);
-    engine.PassMessage(MSG_ADDBLOCKS_A,gi->board[0][23], gi->board[1][23],gi->board[2][23]);
-    engine.PassMessage(MSG_ADDBLOCKS_B,gi->board[3][23], gi->board[4][23],gi->board[5][23]);
-    engine.PassMessage(MSG_ADDBLOCKS_C,gi->board[6][23], gi->board[7][23],gi->board[8][23]);
-    engine.PassMessage(MSG_ADDBLOCKS_D,gi->board[9][23], 0,0);
-    engine.PassMessage(MSG_ADDBLOCKS2_A,gi->board[0][22], gi->board[1][22],gi->board[2][22]);
-    engine.PassMessage(MSG_ADDBLOCKS2_B,gi->board[3][22], gi->board[4][22],gi->board[5][22]);
-    engine.PassMessage(MSG_ADDBLOCKS2_C,gi->board[6][22], gi->board[7][22],gi->board[8][22]);
-    engine.PassMessage(MSG_ADDBLOCKS2_D,gi->board[9][22], 0,0);
+    engine.passMessage(MSG_PUSHUP, 2,0,0);
+    engine.passMessage(MSG_ADDBLOCKS_A,gi->board[0][23], gi->board[1][23],gi->board[2][23]);
+    engine.passMessage(MSG_ADDBLOCKS_B,gi->board[3][23], gi->board[4][23],gi->board[5][23]);
+    engine.passMessage(MSG_ADDBLOCKS_C,gi->board[6][23], gi->board[7][23],gi->board[8][23]);
+    engine.passMessage(MSG_ADDBLOCKS_D,gi->board[9][23], 0,0);
+    engine.passMessage(MSG_ADDBLOCKS2_A,gi->board[0][22], gi->board[1][22],gi->board[2][22]);
+    engine.passMessage(MSG_ADDBLOCKS2_B,gi->board[3][22], gi->board[4][22],gi->board[5][22]);
+    engine.passMessage(MSG_ADDBLOCKS2_C,gi->board[6][22], gi->board[7][22],gi->board[8][22]);
+    engine.passMessage(MSG_ADDBLOCKS2_D,gi->board[9][22], 0,0);
   }
   else if (severity == 3) {
     // rotate!
@@ -1210,7 +1210,7 @@ void Tetris::Attack(game_info* gi, int severity) {
   }
 
   if (gameover) {
-    engine.GameOver();
+    engine.gameOver();
   }
 }
 
