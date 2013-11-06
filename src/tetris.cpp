@@ -113,7 +113,7 @@ int Tetris::clearLines(game_info* gi) {
       engine.passMessage(MSG_APPENDSCORE, 100, lines, 0);
       dropLine(gi,j);
 
-      engine.audio.PlaySound(SND_TINK);
+      engine.audio.playSound(SND_TINK);
     }
   }
 
@@ -445,7 +445,7 @@ void Tetris::addPiece(game_info* gi, int start_x, int start_y) {
       gi->state_lines = 0;
 
       engine.displayMessage(STR_TRANSITION);
-      engine.audio.PlaySound(SND_CHANGEVIEW);
+      engine.audio.playSound(SND_CHANGEVIEW);
       engine.changeState(gi, STATE_TETRIS_TRANS);
     }
   }
@@ -1115,7 +1115,7 @@ void Tetris::attack(game_info* gi, int severity) {
   int gameover = 0;
   int good = 0;
 
-  engine.audio.PlaySound(SND_ADDLINE);
+  engine.audio.playSound(SND_ADDLINE);
 
   if (severity == 1) {
     // ok dokey

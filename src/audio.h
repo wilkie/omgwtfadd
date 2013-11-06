@@ -8,14 +8,14 @@ public:
   Audio();
   ~Audio();
 
-  void LoadMusic(const char* fname);
-  void PlayMusic();
+  void loadMusic(const char* fname);
+  void playMusic();
 
-  void Init();
+  void init();
 
-  void PlaySound(int soundIndex);
+  void playSound(int soundIndex);
 
-  int LoadSound(const char *file);
+  int loadSound(const char *file);
 
   // sounds
   static Mix_Chunk* sounds[NUM_SOUNDS];

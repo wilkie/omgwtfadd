@@ -393,7 +393,7 @@ void BreakOut::moveBall(game_info* gi, float t, int last_type) {
   //xs.push_back(gi->ball_x);
   //ys.push_back(gi->ball_y);
 
-  engine.audio.PlaySound(SND_BOUNCE);
+  engine.audio.playSound(SND_BOUNCE);
 
   // then, change direction, and move the rest of the way
 
@@ -581,7 +581,7 @@ void BreakOut::update(game_info* gi, float deltatime) {
     gi->break_out_time = 0;
 
     engine.displayMessage(STR_YOUSURVIVED);
-    engine.audio.PlaySound(SND_CHANGEVIEW);
+    engine.audio.playSound(SND_CHANGEVIEW);
     engine.changeState(gi, STATE_BREAKOUT_TRANS);
 
     gi->pos = (int)(gi->fine / 0.5f);

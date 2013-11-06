@@ -12,7 +12,7 @@ Audio::~Audio() {
   }
 }
 
-void Audio::Init() {
+void Audio::init() {
   int audio_rate = 44100;
   Uint16 audio_format = AUDIO_S16SYS; /* 16-bit stereo */
   int audio_channels = 2;
@@ -21,7 +21,7 @@ void Audio::Init() {
   Mix_OpenAudio(audio_rate, audio_format, audio_channels, audio_buffers);
 }
 
-void Audio::LoadMusic(const char* fname) {
+void Audio::loadMusic(const char* fname) {
   music=Mix_LoadMUS(fname);
   if(!music) {
     printf("Mix_LoadMUS(\"%s\"): %s\n", fname, Mix_GetError());
@@ -31,7 +31,7 @@ void Audio::LoadMusic(const char* fname) {
   Mix_VolumeMusic(100);
 }
 
-void Audio::PlayMusic() {
+void Audio::playMusic() {
   // play music forever
 
   if(Mix_PlayMusic(music, -1)==-1) {
@@ -40,7 +40,7 @@ void Audio::PlayMusic() {
   }
 }
 
-void Audio::PlaySound(int soundIndex) {
+void Audio::playSound(int soundIndex) {
   if (soundIndex >= soundcount) {
     return;
   }
@@ -49,7 +49,7 @@ void Audio::PlaySound(int soundIndex) {
 }
 
 
-int Audio::LoadSound(const char *file) {
+int Audio::loadSound(const char *file) {
   if (soundcount == NUM_SOUNDS) {
     return -1;
   }

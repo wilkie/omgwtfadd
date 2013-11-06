@@ -221,16 +221,16 @@ void Engine::init() {
   addTexture("images/block09.png");
   addTexture("images/block10.png");
 
-  audio.Init();
+  audio.init();
 
-  audio.LoadSound("sounds/addline.wav");
-  audio.LoadSound("sounds/tink.wav");
-  audio.LoadSound("sounds/penguin-short.wav");
-  audio.LoadSound("sounds/bounce.wav");
-  audio.LoadSound("sounds/changeview.wav");
+  audio.loadSound("sounds/addline.wav");
+  audio.loadSound("sounds/tink.wav");
+  audio.loadSound("sounds/penguin-short.wav");
+  audio.loadSound("sounds/bounce.wav");
+  audio.loadSound("sounds/changeview.wav");
 
-  audio.LoadMusic("music/bsh.ogg");
-  audio.PlayMusic();
+  audio.loadMusic("music/bsh.ogg");
+  audio.playMusic();
 
   // enable depth testing
   glEnable(GL_DEPTH_TEST);
@@ -719,7 +719,7 @@ void Engine::displayMessage(int stringIndex) {
 
   player1.message_uptime = 3;
 
-  audio.PlaySound(SND_PENGUIN);
+  audio.playSound(SND_PENGUIN);
 }
 
 void Engine::draw() {
