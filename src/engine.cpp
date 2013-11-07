@@ -738,7 +738,7 @@ void Engine::draw() {
   glEnable(GL_DEPTH_TEST);
 
   // BACKGROUND!!!
-  useTexture(TEXTURE_BG1, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
+  useTexture(TEXTURE_BG1);
 
   drawQuadXY(bg1x, bg1y, -6.3f, 15, 15);
   drawQuadXY(bg1x - 30, bg1y, -6.3f, 15, 15);
@@ -748,7 +748,7 @@ void Engine::draw() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  useTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
+  useTexture(TEXTURE_BG2);
 
   // draw current game
   games[player1.curgame]->draw(&player1);
@@ -982,22 +982,7 @@ void Engine::initState(game_info* gi) {
 void Engine::uninitState(game_info* gi) {
 }
 
-void Engine::useTextureUpsideDown(int textureIndex, int startX, int startY, int width, int height) {
-  if (textureIndex < 0 || textureIndex >= texture_count) { return; }
-
-  glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);
-
-  tu[1] = (float)startX / (float)(texture_widths[textureIndex]-1);
-  tv[1] = (float)startY / (float)(texture_heights[textureIndex]-1);
-
-  startX += width;
-  startY += height;
-
-  tu[0] = (float)startX / (float)(texture_widths[textureIndex]-1);
-  tv[0] = (float)startY / (float)(texture_heights[textureIndex]-1);
-}
-
-void Engine::useTexture(int textureIndex, int startX, int startY, int width, int height) {
+void Engine::useTexture(int textureIndex) {
   if (textureIndex < 0 || textureIndex >= texture_count) { return; }
 
   glBindTexture(GL_TEXTURE_2D, textures[textureIndex]);

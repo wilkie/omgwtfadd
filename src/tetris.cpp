@@ -166,7 +166,7 @@ void Tetris::drawBlock(int type, game_info* gi, double x, double y, bool hasLeft
                                                                     bool hasRight  = true,
                                                                     bool hasTop    = true,
                                                                     bool hasBottom = true) {
-  engine.useTexture(type, 0, 0, 32,32);
+  engine.useTexture(type);
 
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);
@@ -476,7 +476,7 @@ void Tetris::addBlock(game_info* gi, int i, int j, int type) {
 }
 
 void Tetris::drawBoard(game_info* gi) {
-  engine.useTexture(16, 0, 0, 32,32);
+  engine.useTexture(16);
 
   // left
   glm::mat4 model;
@@ -524,7 +524,7 @@ void Tetris::drawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.useTexture(3,0,0,0,0);
+  engine.useTexture(3);
   engine.drawCube();
 
   int i,j;
@@ -551,7 +551,7 @@ void Tetris::drawBoard(game_info* gi) {
           model = glm::translate(model, glm::vec3(-2.25f + (0.5f*i) + offset_x, 6.375f - (0.5f*j) + offset_y, z));
           model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
           glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-          engine.useTexture(gi->board[i][j],0,0,0,0);
+          engine.useTexture(gi->board[i][j]);
           engine.drawCube();
         }
       }
@@ -568,7 +568,7 @@ void Tetris::drawBoard(game_info* gi) {
 }
 
 void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
-  engine.useTexture(17,0,0,0,0);
+  engine.useTexture(17);
 
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);

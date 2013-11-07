@@ -75,7 +75,7 @@ public:
 
   // textures
 
-  void useTexture(int textureIndex, int startx, int starty, int width, int height);
+  void useTexture(int textureIndex);
   void useTextureUpsideDown(int textureIndex, int startx, int starty, int width, int height);
   void enableTextures();
   void disableTextures();
