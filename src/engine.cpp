@@ -837,6 +837,7 @@ int Engine::drawInt(int i, int color, float x, float y) {
 
 
   switchVAO(0);
+  return 0;
 }
 
 int Engine::drawStringWhite(const char* str, int color, float x, float y) {
@@ -1075,7 +1076,7 @@ void Engine::drawQuadXY(float x, float y, float z, float w, float h) {
 }
 
 void Engine::drawQuad(int side) {
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(side * 6 * sizeof(ushort)));
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(side * 6 * sizeof(unsigned short)));
   gl_check_errors("glDrawElements");
 }
 
