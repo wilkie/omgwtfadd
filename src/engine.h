@@ -7,6 +7,8 @@
 
 #include "audio.h"
 
+#include "glm/glm.hpp"
+
 class Engine {
 public:
   Engine();
@@ -86,15 +88,28 @@ public:
 
   void displayMessage(int stringIndex);
 
+  void switchVAO(int vao);
+
   // vars
 
   GLuint _vao;
 
   GLuint _program;
+
+  glm::mat4 _perspective;
+  glm::mat4 _view;
+  glm::mat4 _orthographic;
+  glm::mat4 _viewOrtho;
+
+  GLuint _projection_uniform;
+  GLuint _view_uniform;
   GLuint _model_uniform;
 
   GLuint _vbo_vertex;
   GLuint _vbo_elements_cube;
+
+  GLuint _vbo_vertex_hud;
+  GLuint _vbo_elements_hud;
 
   static GLfloat cubecoords[8][4];
   static GLfloat cubenorms[8][4];

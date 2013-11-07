@@ -85,9 +85,9 @@ extern const char* strings[7];
 #define BG2_SPEED_Y -0.48f
 
 // Other
- 
+
 #define BOARD_NORMAL_ROT 0.0f
-#define SCROLL_CONSTRAINT 30 
+#define SCROLL_CONSTRAINT 30
 
 #define SPHERE_SIZE 0.125f
 

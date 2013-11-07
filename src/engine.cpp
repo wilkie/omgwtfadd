@@ -116,7 +116,7 @@ Engine::~Engine() {
 }
 
 static const GLfloat _cube_data[] = {
-  // cube ///////////////////////////////////////////////////////////////////////
+  // cube ///////////////////
   //  v6----- v5
   // /|       /|
   // v1------v0|
@@ -124,6 +124,7 @@ static const GLfloat _cube_data[] = {
   // | |v7---|-|v4
   // |/      |/
   // v2------v3
+  // ////////////////////////
 
   // Face v0-v1-v2-v3 (front)
    1, 1, 1, 0, 0, 1, 0, 0,
@@ -170,6 +171,100 @@ static const GLushort _cube_elements[] = {
   18, 19, 16,
   20, 21, 22,
   22, 23, 20
+};
+
+static const GLfloat _hud_data[] = {
+  // 0
+  -0.5, 0.5, 0.0, 0, 0, 1, 230.0f/269.0f,  0.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 260.0f/269.0f,  0.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 260.0f/269.0f, 38.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 230.0f/269.0f, 38.0f/269.0f,
+
+  // 1
+  -0.5, 0.5, 0.0, 0, 0, 1, 196.0f/269.0f, 41.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 222.0f/269.0f, 41.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 222.0f/269.0f, 78.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 196.0f/269.0f, 78.0f/269.0f,
+
+  // 2
+  -0.5, 0.5, 0.0, 0, 0, 1,  55.0f/269.0f,  98.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1,  87.0f/269.0f,  98.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1,  87.0f/269.0f, 136.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1,  55.0f/269.0f, 136.0f/269.0f,
+
+  // 3
+  -0.5, 0.5, 0.0, 0, 0, 1, 239.0f/269.0f,  80.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 267.0f/269.0f,  80.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 267.0f/269.0f, 118.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 239.0f/269.0f, 118.0f/269.0f,
+
+  // 4
+  -0.5, 0.5, 0.0, 0, 0, 1, 238.0f/269.0f, 122.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 267.0f/269.0f, 122.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 267.0f/269.0f, 160.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 238.0f/269.0f, 160.0f/269.0f,
+
+  // 5
+  -0.5, 0.5, 0.0, 0, 0, 1, 238.0f/269.0f, 162.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 266.0f/269.0f, 162.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 266.0f/269.0f, 200.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 238.0f/269.0f, 200.0f/269.0f,
+
+  // 6
+  -0.5, 0.5, 0.0, 0, 0, 1, 230.0f/269.0f, 40.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 260.0f/269.0f, 40.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 260.0f/269.0f, 78.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 230.0f/269.0f, 78.0f/269.0f,
+
+  // 7
+  -0.5, 0.5, 0.0, 0, 0, 1, 226.0f/269.0f, 206.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 258.0f/269.0f, 206.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 258.0f/269.0f, 245.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 226.0f/269.0f, 245.0f/269.0f,
+
+  // 8
+  -0.5, 0.5, 0.0, 0, 0, 1, 192.0f/269.0f, 206.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 224.0f/269.0f, 206.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 224.0f/269.0f, 246.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 192.0f/269.0f, 246.0f/269.0f,
+
+  // 9
+  -0.5, 0.5, 0.0, 0, 0, 1, 196.0f/269.0f,  0.0f/269.0f,
+   0.5, 0.5, 0.0, 0, 0, 1, 228.0f/269.0f,  0.0f/269.0f,
+   0.5,-0.5, 0.0, 0, 0, 1, 228.0f/269.0f, 39.0f/269.0f,
+  -0.5,-0.5, 0.0, 0, 0, 1, 196.0f/269.0f, 39.0f/269.0f,
+};
+
+static const GLushort _hud_elements[] = {
+  0, 1, 2,
+  2, 3, 0,
+
+  4, 5, 6,
+  6, 7, 4,
+
+  8, 9, 10,
+  10, 11, 8,
+
+  12, 13, 14,
+  14, 15, 12,
+
+  16, 17, 18,
+  18, 19, 16,
+
+  20, 21, 22,
+  22, 23, 20,
+
+  24, 25, 26,
+  26, 27, 24,
+
+  28, 29, 30,
+  30, 31, 28,
+
+  32, 33, 34,
+  34, 35, 32,
+
+  36, 37, 38,
+  38, 39, 36
 };
 
 void Engine::init() {
@@ -230,6 +325,8 @@ void Engine::init() {
   addTexture("images/block09.png");
   addTexture("images/block10.png");
 
+  addTexture("images/hud_spritesheet.png");
+
   audio.init();
 
   audio.loadSound("sounds/addline.wav");
@@ -245,7 +342,7 @@ void Engine::init() {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  player1.state = STATE_TETRIS_TRANS;
+  player1.state = STATE_TETRIS;
   initState(&player1);
 
   player1.pos = 5;
@@ -253,25 +350,10 @@ void Engine::init() {
 
   tetris.getNewPiece(&player1);
 
-  space_penguinx = -15 - (rand() % 10);
-
-  space_penguindx = 0.5f * (float)(5 - (rand() % 11));
-
-  if (space_penguindx < 0) {
-    space_penguinx = -space_penguinx;
-  }
-  space_penguiny = -15 - (rand() % 15);
-
-  space_penguindy = 0.5f * (float)(5 - (rand() % 11));
-
-  if (space_penguindy < 0) {
-    space_penguiny = -space_penguiny;
-  }
-
   /* Generate VAOS */
 #ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
-  glGenVertexArrays(1, &_vao);
-  glBindVertexArray(_vao);
+//  glGenVertexArrays(1, &_vao);
+//  glBindVertexArray(_vao);
   gl_check_errors("glBindVertexArray");
 #endif
 
@@ -287,6 +369,21 @@ void Engine::init() {
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
   gl_check_errors("glBufferData cube_elements");
+
+  glGenBuffers(1, &_vbo_vertex_hud);
+  glGenBuffers(1, &_vbo_elements_hud);
+  gl_check_errors("glGenBuffers");
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_hud);
+  glBufferData(GL_ARRAY_BUFFER, sizeof(_hud_data), _hud_data, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData hud_data");
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_hud);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_hud_elements), _hud_elements, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData hud_elements");
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
@@ -345,8 +442,9 @@ void Engine::init() {
 
   /* Attach/describe uniforms */
   _model_uniform = glGetUniformLocation(_program, "model");
-  GLuint view_uniform = glGetUniformLocation(_program, "view");
-  GLuint proj_uniform = glGetUniformLocation(_program, "proj");
+  _view_uniform = glGetUniformLocation(_program, "view");
+  _projection_uniform = glGetUniformLocation(_program, "proj");
+
   GLuint tex_uniform = glGetUniformLocation(_program, "tex");
   gl_check_errors("glGetUniformLocation");
 
@@ -388,16 +486,100 @@ void Engine::init() {
   }
 
   /* set up perspective */
-  glm::mat4 perspective = glm::perspective(40.0f, 4.0f/3.0f, 1.0f, 200.0f);
-  glUniformMatrix4fv(proj_uniform, 1, GL_FALSE, &perspective[0][0]);
+  _perspective  = glm::perspective(40.0f, 4.0f/3.0f, 1.0f, 200.0f);
+  _orthographic = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f);
+  glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
   gl_check_errors("glUniformMatrix4fv perspective");
 
   /* set up view */
-  glm::mat4 view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
-                               glm::vec3(0.0f, 0.0f, 0.0f),
-                               glm::vec3(0.0f, 1.0f, 0.0));
-  glUniformMatrix4fv(view_uniform, 1, GL_FALSE, &view[0][0]);
+  _view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
+                      glm::vec3(0.0f, 0.0f, 0.0f),
+                      glm::vec3(0.0f, 1.0f, 0.0));
+  _viewOrtho = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f),
+                           glm::vec3(0.0f, 0.0f, 0.0f),
+                           glm::vec3(0.0f, 1.0f, 0.0));
+  glUniformMatrix4fv(_view_uniform, 1, GL_FALSE, &_view[0][0]);
   gl_check_errors("glUniformMatrix4fv view");
+
+  glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
+  glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
+  gl_check_errors("glUniformMatrix4fv model");
+
+  glUniform1i(tex_uniform, 0);
+  gl_check_errors("glUniform1i tex");
+}
+
+void Engine::switchVAO(int VAO) {
+  switch(VAO) {
+    case 0:
+      glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
+      gl_check_errors("glBindBuffer cube");
+      break;
+
+    case 1:
+      glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_hud);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_hud);
+      gl_check_errors("glBindBuffer hud");
+      break;
+  }
+
+  /* Attach/describe uniforms */
+  GLuint tex_uniform = glGetUniformLocation(_program, "tex");
+  gl_check_errors("glGetUniformLocation");
+
+  GLint posAttrib = glGetAttribLocation(_program, "position");
+  gl_check_errors("glGetAttribLocation position");
+
+  glEnableVertexAttribArray(posAttrib);
+  gl_check_errors("glEnableVertexAttribPointer position");
+
+  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
+                        (GLsizei)(8 * sizeof(float)),
+                        (const GLvoid*)(size_t)(0 * sizeof(float)));
+  gl_check_errors("glVertexAttribPointer position");
+
+  posAttrib = glGetAttribLocation(_program, "normal");
+  gl_check_errors("glGetAttribLocation normal");
+
+  if (posAttrib >= 0) {
+    glEnableVertexAttribArray(posAttrib);
+    gl_check_errors("glEnableVertexAttribPointer normal");
+
+    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
+                          (GLsizei)(8 * sizeof(float)),
+                          (const GLvoid*)(size_t)(3 * sizeof(float)));
+    gl_check_errors("glVertexAttribPointer normal");
+  }
+
+  posAttrib = glGetAttribLocation(_program, "texcoord");
+  gl_check_errors("glGetAttribLocation texcoord");
+
+  if (posAttrib >= 0) {
+    glEnableVertexAttribArray(posAttrib);
+    gl_check_errors("glEnableVertexAttribPointer texcoord");
+
+    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
+                          (GLsizei)(8 * sizeof(float)),
+                          (const GLvoid*)(size_t)(6 * sizeof(float)));
+    gl_check_errors("glVertexAttribPointer texcoord");
+  }
+
+  /* set up perspective/view */
+  if (VAO == 0) {
+    glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
+    gl_check_errors("glUniformMatrix4fv perspective");
+
+    glUniformMatrix4fv(_view_uniform, 1, GL_FALSE, &_view[0][0]);
+    gl_check_errors("glUniformMatrix4fv view");
+  }
+  else if (VAO == 1) {
+    glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_orthographic[0][0]);
+    gl_check_errors("glUniformMatrix4fv orthographic");
+
+    glUniformMatrix4fv(_view_uniform, 1, GL_FALSE, &_viewOrtho[0][0]);
+    gl_check_errors("glUniformMatrix4fv viewOrtho");
+  }
 
   glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
   glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
@@ -614,11 +796,47 @@ int Engine::intLength(int i) {
 }
 
 int Engine::drawInt(int i, int color, float x, float y) {
-  char buffer[255];
+  useTexture(19);
 
-  sprintf(buffer, "%d", i);
+  switchVAO(1);
 
-  return drawString((const char*)buffer, color, x, y);
+  static int hud_widths[]  = {30.0f, 26.0f, 32.0f, 28.0f, 29.0f,
+                              28.0f, 30.0f, 32.0f, 32.0f, 32.0f};
+
+  static int hud_heights[] = {38.0f, 37.0f, 38.0f, 38.0f, 38.0f,
+                              38.0f, 38.0f, 39.0f, 40.0f, 39.0f};
+
+  int length = 0;
+  int width = 0;
+
+  int tmp = i;
+  do {
+    int digit = tmp % 10;
+    length += 1;
+    width += hud_widths[digit];
+    tmp /= 10;
+  } while (tmp > 0);
+
+  tmp = i;
+  do {
+    int digit = tmp % 10;
+    width -= hud_widths[digit];
+
+    glm::mat4 model = glm::scale(
+        glm::translate(
+          glm::mat4(1.0f),
+          glm::vec3(x+width, y, 1.0f)),
+        glm::vec3(hud_widths[digit], hud_heights[digit], 1.0f));
+    glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
+    gl_check_errors("glUniformMatrix4fv model");
+
+    drawQuad(digit);
+
+    tmp /= 10;
+  } while (width > 0);
+
+
+  switchVAO(0);
 }
 
 int Engine::drawStringWhite(const char* str, int color, float x, float y) {
@@ -737,6 +955,9 @@ void Engine::draw() {
 
   glEnable(GL_DEPTH_TEST);
 
+  // Perspective
+  glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
+
   // BACKGROUND!!!
   useTexture(TEXTURE_BG1);
 
@@ -754,78 +975,19 @@ void Engine::draw() {
   games[player1.curgame]->draw(&player1);
   games[player2.curgame]->draw(&player2);
 
-  SDL_GL_SwapBuffers();
-  return;
+  // Orthographic (UI)
+  glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_orthographic[0][0]);
+  gl_check_errors("glUniformMatrix4fv orthographic");
 
-  // Orthogonal HUD!!!
-  /*
-
-  glm::ortho(0.0f, 800.0f, 600.0f, 0.0f);
-
-  // go to model view matrix
-  glMatrixMode(GL_MODELVIEW) ;
-  // init to identity
-  glLoadIdentity();
-
-  DrawString("SCORE:", 0, 32.0f,25.0);
-  DrawInt(player1.score, 1, 32.0f + (16 * 6),25.0);
-
-  games[player1.curgame]->DrawOrtho(&player1);
-  games[player2.curgame]->DrawOrtho(&player2);
-
-  if (player1.message_uptime > 0) {
-    // put up display
-    EnableTextures();
-    glEnable(GL_BLEND);
-
-    // speech bubble
-    UseTexture(TEXTURE_SPEECH, 0,0,330,110);
-
-    glBegin(GL_QUADS);
-
-    glTexCoord2f(tu[0],tv[1]);
-    glVertex3f(400+60,50,0);
-    glTexCoord2f(tu[1],tv[1]);
-    glVertex3f(400+335,50,0);
-    glTexCoord2f(tu[1],tv[0]);
-    glVertex3f(400+335,50+110,0);
-    glTexCoord2f(tu[0],tv[0]);
-    glVertex3f(400+60,50.0+110,0);
-
-    glEnd();
-
-    // center message within bubble
-    int x2 = ((int)strlen(player1.message) * 16);
-    x2 = 245 - x2;
-    x2 /= 2;
-    x2 += 480;
-
-    // draw message
-    DrawStringWhite(player1.message, 4, x2,99);
-  }
+  games[player1.curgame]->drawOrtho(&player1);
+  games[player2.curgame]->drawOrtho(&player2);
 
   glEnable(GL_BLEND);
-  EnableTextures();
-  UseTexture(TEXTURE_PENGUIN, 0,0,180,175);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  glBegin(GL_QUADS);
+  drawInt(player1.score, 0, -370.0f, 270.0f);
 
-  glTexCoord2f(tu[0],tv[0]);
-  glVertex3f(400-55,20,0);
-  glTexCoord2f(tu[1],tv[0]);
-  glVertex3f(400+65,20,0);
-  glTexCoord2f(tu[1],tv[1]);
-  glVertex3f(400+65,20.0+110.0,0);
-  glTexCoord2f(tu[0],tv[1]);
-  glVertex3f(400-55,20.0+110.0,0);
-
-  glEnd();
-
-  DisableTextures();
-
-  glDisable(GL_BLEND);
-
-  */
+  SDL_GL_SwapBuffers();
 }
 
 void Engine::keyDown(Uint32 key) {
@@ -1095,7 +1257,6 @@ int Engine::addTexture(const char* fname) {
   }
 
   return 0;
-
 }
 
 // networking
@@ -1281,31 +1442,6 @@ Tetris Engine::tetris = Tetris();
 BreakOut Engine::breakout = BreakOut();
 
 Audio Engine::audio = Audio();
-
-GLfloat Engine::cubecoords[8][4] = {
-  {-0.5,0.5,0.5,1},
-  {0.5, 0.5, 0.5, 1},
-  {0.5, 0.5, -0.5, 1},
-  {-0.5, 0.5, -0.5, 1},
-
-  {-0.5,-0.5,0.5,1},
-  {0.5, -0.5, 0.5, 1},
-  {0.5, -0.5, -0.5, 1},
-  {-0.5, -0.5, -0.5, 1}
-};
-
-GLfloat Engine::cubenorms[8][4] = {
-  {-1,1,1,1},
-  {1, 1, 1, 1},
-  {1, 1, -1, 1},
-  {-1, 1, -1, 1},
-
-  {-1,-1,1,1},
-  {1, -1, 1, 1},
-  {1, -1, -1, 1},
-  {-1, -1, -1, 1}
-};
-
 
 game_info Engine::player2 = {0};
 game_info Engine::player1 = {0};

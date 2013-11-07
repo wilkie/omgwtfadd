@@ -726,23 +726,6 @@ void BreakOut::draw(game_info* gi) {
 }
 
 void BreakOut::drawOrtho(game_info* gi) {
-  if (gi->side == -1) {
-    engine.drawString(":CONS", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
-
-    int x  = engine.intLength(gi->break_out_consecutives);
-
-    engine.drawInt(gi->break_out_consecutives, 1, (400.0f - 32.0f) - ((6 + x) * 16), 25.0f);
-
-    int x2;
-
-    x2 = (400 - (14 * 16)) / 2;
-
-    engine.drawString("SURVIVE:", 2, x2, 600.0f - 25.0f);
-    x2 += (8 * 16);
-    engine.drawInt(gi->break_out_time, 3, x2, 600.0f - 25.0f);
-    x2 += (engine.intLength(gi->break_out_time + 0.5) * 16);
-    engine.drawString(" SEC", 2, x2, 600.0f - 25.0f);
-  }
 }
 
 void BreakOut::keyRepeat(game_info* gi) {

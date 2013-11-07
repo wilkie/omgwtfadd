@@ -209,46 +209,6 @@ void Tetris::drawBlock(int type, game_info* gi, double x, double y, bool hasLeft
 
 // draw interface
 void Tetris::drawOrtho(game_info* gi) {
-  if (!engine.network_thread && gi->side == 1) {
-    int y = 200;
-    engine.drawString("SINGLE PLAYER GAME", 1, 440, y);
-    y+= 40;
-    engine.drawString("FOR MULTIPLAYER", 2, 440, y);
-    y+= 40;
-    engine.drawString("HOST USING COMMAND", 2, 440, y);
-    y+= 20;
-    engine.drawString("OMGWTFADD -S -P 2000", 4, 440, y);
-    y+= 40;
-    engine.drawString("CONNECT USING COMMAND", 2, 440, y);
-    y+= 20;
-    engine.drawString("OMGWTFADD -P 2000", 4, 440, y);
-    y+= 20;
-    engine.drawString("127.0.0.1", 4, 475, y);
-
-    y += 60;
-    engine.drawString("LEVEL: ", 5, 440, y);
-    engine.drawInt(LEVEL, 1, 440 + (16 * 6), y);
-
-    return;
-  }
-
-  if (gi->side == -1) {
-    engine.drawString(":LINES", 0,(400.0f - 32.0f) - (6 * 16),25.0f);
-
-    int x  = engine.intLength(gi->total_lines);
-
-    engine.drawInt(gi->total_lines, 1, (400.0f - 32.0f) - ((6 + x) * 16), 25.0f);
-
-    int x2;
-
-    x2 = (400 - (16 * 16)) / 2;
-
-    engine.drawString("COMPLETE", 2, x2, 600.0f - 25.0f);
-    x2 += (8 * 16);
-    engine.drawInt(TETRIS_LINES_NEEDED - gi->state_lines, 3, x2, 600.0f - 25.0f);
-    x2 += (engine.intLength(TETRIS_LINES_NEEDED - gi->state_lines) * 16);
-    engine.drawString("LINES", 2, x2, 600.0f - 25.0f);
-  }
 }
 
 bool Tetris::testGameOver(game_info* gi) {
