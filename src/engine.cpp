@@ -1161,12 +1161,12 @@ int Engine::addTexture(const char* fname) {
   if ( (surface = IMG_Load(fname)) ) {
     // Check that the image's width is a power of 2
     if ( (surface->w & (surface->w - 1)) != 0 ) {
-      printf("warning: image.bmp's width is not a power of 2\n");
+//      printf("warning: image.bmp's width is not a power of 2\n");
     }
 
     // Also check if the height is a power of 2
     if ( (surface->h & (surface->h - 1)) != 0 ) {
-      printf("warning: image.bmp's height is not a power of 2\n");
+//      printf("warning: image.bmp's height is not a power of 2\n");
     }
 
     // get the number of channels in the SDL surface
