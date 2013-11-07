@@ -7,7 +7,7 @@
 #include "glm/gtc/type_ptr.hpp"
 
 #define GAMEOVER_SPREAD_RATE 0.1
-#define GAMEOVER_VELOCITY    1.0
+#define GAMEOVER_VELOCITY    3.0
 
 void Tetris::update(game_info* gi, float deltatime) {
   if (gi->state == STATE_GAMEOVER) {
@@ -472,8 +472,8 @@ void Tetris::drawBoard(game_info* gi) {
 
   glm::mat4 base = model;
 
-  model = glm::translate(model, glm::vec3(-2.625,-0.125,0));
-  model = glm::scale(model, glm::vec3(0.25,11,0.5));
+  model = glm::translate(model, glm::vec3(-2.625,0.125,0));
+  model = glm::scale(model, glm::vec3(0.25,11.5,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
@@ -481,8 +481,8 @@ void Tetris::drawBoard(game_info* gi) {
 
   // right
   model = base;
-  model = glm::translate(model, glm::vec3(2.625,-0.125,0));
-  model = glm::scale(model, glm::vec3(0.25,11,0.5));
+  model = glm::translate(model, glm::vec3(2.625,0.125,0));
+  model = glm::scale(model, glm::vec3(0.25,11.5,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
@@ -495,6 +495,16 @@ void Tetris::drawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+  engine.drawCube();
+
+  // top
+  model = base;
+  model = glm::translate(model, glm::vec3(0,5.75,0));
+  model = glm::scale(model, glm::vec3(5,0.03125,0.0625));
+  model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
+
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+  engine.useTexture(3,0,0,0,0);
   engine.drawCube();
 
   int i,j;
@@ -513,8 +523,12 @@ void Tetris::drawBoard(game_info* gi) {
         if(gi->board[i][j] != -1) {
           float offset_x = (float)(i - 5) * gi->gameover_position * GAMEOVER_SPREAD_RATE;
           float offset_y = (float)(11 - j) * gi->gameover_position * GAMEOVER_SPREAD_RATE;
+          float z = gi->gameover_position;
+          if (gi->rot2 > 90) {
+            z = -z;
+          }
           model = base;
-          model = glm::translate(model, glm::vec3(-2.25f + (0.5f*i) + offset_x, 6.375f - (0.5f*j) + offset_y, gi->gameover_position));
+          model = glm::translate(model, glm::vec3(-2.25f + (0.5f*i) + offset_x, 6.375f - (0.5f*j) + offset_y, z));
           model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
           glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
           engine.useTexture(gi->board[i][j],0,0,0,0);
@@ -1122,7 +1136,7 @@ void Tetris::attack(game_info* gi, int severity) {
     int i;
 
     for (i=0; i<10; i++) {
-      if (gi->board[i][0] != -1) {
+      if (gi->board[i][2] != -1) {
         // game over!
         gameover = 1;
         break;
@@ -1219,7 +1233,6 @@ GLfloat Tetris::board_piece_diff[4] = {0.6, 0.6, 0.6, 1};
 GLfloat Tetris::board_piece_spec[4] = {0.0, 0.0, 0.0, 1};
 GLfloat Tetris::board_piece_emi[4] = {0.3, 0.3, 0.3, 1};
 GLfloat Tetris::board_piece_shine = 0;
-
 
 GLfloat Tetris::tet_piece_amb[4] = {0.2, 0.2, 0.2, 1};
 GLfloat Tetris::tet_piece_diff[6][4] = {

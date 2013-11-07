@@ -200,6 +200,7 @@ void BreakOut::moveBall(game_info* gi, float t, int last_type) {
   int board_j = -1;
 
   float up_t = checkBallAgainst(gi, t, -5, 11.75, 10, 11.75);
+  float bottom_t = checkBallAgainst(gi, t, -5, 0.5, 10, 0.5);
   float left_t = checkBallAgainst(gi, t, 0, 20, 0, -5);
   float right_t = checkBallAgainst(gi, t, 4.5, 20, 4.5, -5);
 
@@ -219,6 +220,12 @@ void BreakOut::moveBall(game_info* gi, float t, int last_type) {
     cur_t = left_t;
     type_t |= 4;
   }
+
+  if (gi->ball_dy < 0 && bottom_t <= cur_t && !(2048 & last_type)) {
+    cur_t = bottom_t;
+    type_t |= 2048;
+  }
+
 
   int i,j;
 
@@ -412,6 +419,10 @@ void BreakOut::moveBall(game_info* gi, float t, int last_type) {
   if (type_t & 4) { // left
     gi->ball_dx = -gi->ball_dx;
   }
+  if (type_t & 2048) { // bottom
+    gi->ball_dy = -gi->ball_dy;
+    engine.tetris.attack(gi, 1);
+  }
 
   if (type_t & 8) { // left side block
     gi->ball_dx = -gi->ball_dx;
@@ -537,6 +548,11 @@ void BreakOut::moveBall(game_info* gi, float t, int last_type) {
 }
 
 void BreakOut::update(game_info* gi, float deltatime) {
+  if (gi->state == STATE_GAMEOVER) {
+    engine.tetris.update(gi, deltatime);
+    return;
+  }
+
   bool move = false;
 
   if (gi->state == STATE_BREAKOUT_TRANS) {
@@ -637,11 +653,6 @@ void BreakOut::update(game_info* gi, float deltatime) {
   moveBall(gi,deltatime,0);
 
   engine.passMessage(MSG_UPDATEBALL, ((float)(gi->ball_x) / 20.0f) * 255.0f, ((float)(gi->ball_y) / 20.0f) * 255.0f, 0);
-
-
-  if (gi->ball_y < -1.5) {
-    engine.tetris.attack(gi, 1);
-  }
 }
 
 void BreakOut::drawBall(game_info* gi) {
@@ -667,6 +678,11 @@ void BreakOut::drawBall(game_info* gi) {
 }
 
 void BreakOut::draw(game_info* gi) {
+  if (gi->state == STATE_GAMEOVER) {
+    engine.tetris.draw(gi);
+    return;
+  }
+
   engine.tetris.drawBoard(gi);
 
   if (gi->state == STATE_BREAKOUT_TRANS) {
