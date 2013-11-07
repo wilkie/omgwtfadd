@@ -162,7 +162,10 @@ void Tetris::draw(game_info* gi) {
   }
 }
 
-void Tetris::drawBlock(int type, game_info* gi, double x, double y) {
+void Tetris::drawBlock(int type, game_info* gi, double x, double y, bool hasLeft   = true,
+                                                                    bool hasRight  = true,
+                                                                    bool hasTop    = true,
+                                                                    bool hasBottom = true) {
   engine.useTexture(type, 0, 0, 32,32);
 
   // translate to world
@@ -177,14 +180,31 @@ void Tetris::drawBlock(int type, game_info* gi, double x, double y) {
   model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
 
   // translate
-  model = glm::translate(model, glm::vec3(-2.25f + (x), 6.375f - (y), 0.0f));
+  model = glm::translate(model, glm::vec3(-2.25f + (x), 6.325 - (y), 0.0f));
 
   // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
   model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
-  engine.drawCube();
+  if (gi->rot2 > 90) {
+    engine.drawQuad(5); // back
+  }
+  else {
+    engine.drawQuad(0); // front
+  }
+  if (hasLeft) {
+    engine.drawQuad(3); // left
+  }
+  if (hasTop) {
+    engine.drawQuad(2); // top
+  }
+  if (hasBottom) {
+    engine.drawQuad(4); // bottom
+  }
+  if (hasRight) {
+    engine.drawQuad(1); // right
+  }
 }
 
 // draw interface
@@ -574,135 +594,219 @@ void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
-  engine.drawQuad(0,0,0,0);
+  engine.drawQuad(0);
 }
 
 void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
   switch (gi->curpiece) {
     case 0:
+      /*
+       *   ##x#
+       */
       if (gi->curdir % 2) {
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x-1.0, y);
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
+        drawBlock(texture, gi, x-0.5, y, false, false, true, true);
+        drawBlock(texture, gi, x-1.0, y, true,  false, true, true);
+        drawBlock(texture, gi, x, y,     false, false, true, true);
+        drawBlock(texture, gi, x+0.5, y, false, true,  true, true);
       }
+      /*
+       *   #
+       *   #
+       *   x
+       *   #
+       */
       else {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y+1.0);
-        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y,     true, true, false, false);
+        drawBlock(texture, gi, x, y+0.5, true, true, false, false);
+        drawBlock(texture, gi, x, y+1.0, true, true, true,  false);
+        drawBlock(texture, gi, x, y-0.5, true, true, false, true);
       }
       break;
     case 1:
+      /*
+       *    #
+       *   x#
+       *   #
+       */
       if (gi->curdir % 2) {
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x+0.5, y,     false, true,  false, true);
+        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(texture, gi, x, y,         true,  false, true,  false);
+        drawBlock(texture, gi, x+0.5, y-0.5, true,  true,  true,  false);
       }
+      /*   ##
+       *    x#
+       */
       else {
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x, y-0.5);
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  true);
+        drawBlock(texture, gi, x, y-0.5,     false, true,  true,  false);
+        drawBlock(texture, gi, x, y,         true,  false, false, true);
+        drawBlock(texture, gi, x-0.5, y-0.5, true,  false, true,  true);
       }
       break;
     case 2:
+      /*
+       *   #
+       *   #x
+       *    #
+       */
       if (gi->curdir % 2) {
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x-0.5, y,     true,  false, false, true);
+        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(texture, gi, x, y,         false, true,  true,  false);
+        drawBlock(texture, gi, x-0.5, y-0.5, true,  true,  true,  false);
       }
+      /*
+       *    ##
+       *   #x
+       */
       else {
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x, y-0.5);
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x-0.5, y,     true,  false, true,  true);
+        drawBlock(texture, gi, x, y-0.5,     true,  false, true,  false);
+        drawBlock(texture, gi, x, y,         false, true,  false, true);
+        drawBlock(texture, gi, x+0.5, y-0.5, false, true,  true,  true);
       }
       break;
     case 3:
-      drawBlock(texture, gi, x+0.5, y);
-      drawBlock(texture, gi, x, y+0.5);
-      drawBlock(texture, gi, x, y);
-      drawBlock(texture, gi, x+0.5, y+0.5);
+      /*
+       *   x#
+       *   ##
+       */
+      drawBlock(texture, gi, x+0.5, y,     false, true,  true,  false);
+      drawBlock(texture, gi, x, y+0.5,     true,  false, false, true);
+      drawBlock(texture, gi, x, y,         true,  false, true,  false);
+      drawBlock(texture, gi, x+0.5, y+0.5, false, true,  false, true);
       break;
     case 4:
+      /*
+       *   #
+       *   x
+       *   ##
+       */
       if (gi->curdir == 0) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y-0.5);
-        drawBlock(texture, gi, x+0.5, y+0.5);
+        drawBlock(texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(texture, gi, x, y+0.5,     true,  false, false, true);
+        drawBlock(texture, gi, x, y-0.5,     true,  true,  true,  false);
+        drawBlock(texture, gi, x+0.5, y+0.5, false, true,  true,  true);
       }
+      /*
+       *   #x#
+       *   #
+       */
       else if (gi->curdir == 1) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x-0.5, y+0.5);
+        drawBlock(texture, gi, x, y,         false, false, true,  true);
+        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  true);
+        drawBlock(texture, gi, x-0.5, y,     true,  false, true,  false);
+        drawBlock(texture, gi, x-0.5, y+0.5, true,  true,  false, true);
       }
+      /*
+       *   ##
+       *    x
+       *    #
+       */
       else if (gi->curdir == 2) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y-0.5);
-        drawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(texture, gi, x, y-0.5,     false, true,  true,  false);
+        drawBlock(texture, gi, x-0.5, y-0.5, true,  false, true,  true);
       }
+      /*
+       *     #
+       *   #x#
+       */
       else {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x, y,         false, false, true,  true);
+        drawBlock(texture, gi, x+0.5, y,     false, true,  false, true);
+        drawBlock(texture, gi, x-0.5, y,     true,  false, true, true);
+        drawBlock(texture, gi, x+0.5, y-0.5, true,  true,  true, false);
       }
       break;
     case 5:
+      /*
+       *    #
+       *    x
+       *   ##
+       */
       if (gi->curdir == 0) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y-0.5);
-        drawBlock(texture, gi, x-0.5, y+0.5);
+        drawBlock(texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(texture, gi, x, y+0.5,     false, true,  false, true);
+        drawBlock(texture, gi, x, y-0.5,     true,  true,  true,  false);
+        drawBlock(texture, gi, x-0.5, y+0.5, true,  false, true,  true);
       }
+      /*
+       *   #
+       *   #x#
+       */
       else if (gi->curdir == 1) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x-0.5, y-0.5);
+        drawBlock(texture, gi, x, y,         false, false, true,  true);
+        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  true);
+        drawBlock(texture, gi, x-0.5, y,     true,  false, false, true);
+        drawBlock(texture, gi, x-0.5, y-0.5, true,  true,  true,  false);
       }
+      /*
+       *   ##
+       *   x
+       *   #
+       */
       else if (gi->curdir == 2) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y-0.5);
-        drawBlock(texture, gi, x+0.5, y-0.5);
+        drawBlock(texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(texture, gi, x, y-0.5,     true,  false, true,  false);
+        drawBlock(texture, gi, x+0.5, y-0.5, false, true,  true,  true);
       }
+      /*
+       *   #x#
+       *     #
+       */
       else {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x+0.5, y+0.5);
+        drawBlock(texture, gi, x, y,         false, false, true,  true);
+        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  false);
+        drawBlock(texture, gi, x-0.5, y,     true,  false, true,  true);
+        drawBlock(texture, gi, x+0.5, y+0.5, true,  true,  false, true);
       }
       break;
     case 6:
+      /*
+       *    #
+       *   #x#
+       */
       if (gi->curdir == 0) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y,     false, false, false, true);
+        drawBlock(texture, gi, x+0.5, y, false, true,  true,  true);
+        drawBlock(texture, gi, x-0.5, y, true,  false, true,  true);
+        drawBlock(texture, gi, x, y-0.5, true,  true,  true,  false);
       }
+      /*
+       *   #
+       *   x#
+       *   #
+       */
       else if (gi->curdir == 1) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y,     true,  false, false, false);
+        drawBlock(texture, gi, x+0.5, y, false, true,  true,  true);
+        drawBlock(texture, gi, x, y+0.5, true,  true,  false, true);
+        drawBlock(texture, gi, x, y-0.5, true,  true,  true,  false);
       }
+      /*
+       *   #x#
+       *    #
+       */
       else if (gi->curdir == 2) {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x+0.5, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x, y+0.5);
+        drawBlock(texture, gi, x, y,     false, false, true,  false);
+        drawBlock(texture, gi, x+0.5, y, false, true,  true,  true);
+        drawBlock(texture, gi, x-0.5, y, true,  false, true,  true);
+        drawBlock(texture, gi, x, y+0.5, true,  true,  false, true);
       }
+      /*
+       *    #
+       *   #x
+       *    #
+       */
       else {
-        drawBlock(texture, gi, x, y);
-        drawBlock(texture, gi, x-0.5, y);
-        drawBlock(texture, gi, x, y+0.5);
-        drawBlock(texture, gi, x, y-0.5);
+        drawBlock(texture, gi, x, y,     false, true,  false, false);
+        drawBlock(texture, gi, x-0.5, y, true,  false, true,  true);
+        drawBlock(texture, gi, x, y+0.5, true,  true,  false, true);
+        drawBlock(texture, gi, x, y-0.5, true,  true,  true,  false);
       }
       break;
   }

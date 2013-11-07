@@ -116,32 +116,41 @@ Engine::~Engine() {
 }
 
 static const GLfloat _cube_data[] = {
-  // Face v0-v1-v2-v3
+  // cube ///////////////////////////////////////////////////////////////////////
+  //  v6----- v5
+  // /|       /|
+  // v1------v0|
+  // | |     | |
+  // | |v7---|-|v4
+  // |/      |/
+  // v2------v3
+
+  // Face v0-v1-v2-v3 (front)
    1, 1, 1, 0, 0, 1, 0, 0,
   -1, 1, 1, 0, 0, 1, 1, 0,
   -1,-1, 1, 0, 0, 1, 1, 1,
    1,-1, 1, 0, 0, 1, 0, 1,
-  // Face v0-v3-v4-v5
+  // Face v0-v3-v4-v5 (right)
    1, 1, 1, 1, 0, 0, 0, 0,
    1,-1, 1, 1, 0, 0, 0, 1,
    1,-1,-1, 1, 0, 0, 1, 1,
    1, 1,-1, 1, 0, 0, 1, 0,
-  // Face v0-v5-v6-v1
+  // Face v0-v5-v6-v1 (top)
    1, 1, 1, 0, 1, 0, 0, 0,
    1, 1,-1, 0, 1, 0, 0, 1,
   -1, 1,-1, 0, 1, 0, 1, 1,
   -1, 1, 1, 0, 1, 0, 1, 0,
-  // Face v1-v6-v7-v2
+  // Face v1-v6-v7-v2 (left)
   -1, 1, 1,-1, 0, 0, 0, 0,
   -1, 1,-1,-1, 0, 0, 0, 1,
   -1,-1,-1,-1, 0, 0, 1, 1,
   -1,-1, 1,-1, 0, 0, 1, 0,
-  // Face v7-v4-v3-v2
+  // Face v7-v4-v3-v2 (bottom)
   -1,-1,-1, 0,-1, 0, 0, 0,
    1,-1,-1, 0,-1, 0, 0, 1,
    1,-1, 1, 0,-1, 0, 1, 1,
   -1,-1, 1, 0,-1, 0, 1, 0,
-  // Face v4-v7-v6-v5
+  // Face v4-v7-v6-v5 (back)
    1,-1,-1, 0, 0,-1, 0, 0,
   -1,-1,-1, 0, 0,-1, 0, 1,
   -1, 1,-1, 0, 0,-1, 1, 1,
@@ -741,33 +750,9 @@ void Engine::draw() {
 
   useTexture(TEXTURE_BG2, 0,0,texture_widths[TEXTURE_BG2], texture_heights[TEXTURE_BG2]);
 
-  /*
-  drawQuadXY(bg2x, bg2y, -6.0f, 20, 20);
-  drawQuadXY(bg2x - 30, bg2y, -6.0f, 20, 20);
-  drawQuadXY(bg2x, bg2y-30, -6.0f, 20, 20);
-  drawQuadXY(bg2x - 30, bg2y-30, -6.0f, 20, 20);*/
-
-  // Draw Space Pirate Penguin!
-
-  //UseTexture(TEXTURE_SPACEPENGUIN, 0, 0, 150, 155);
-
-  /*
-  glTranslatef(space_penguinx, space_penguiny, -5.9f);
-  glRotatef(space_penguinrot, 0,0,1);
-
-  glBegin(GL_QUADS);
-
-  DrawQuadXY(-1.0f, 1.0333, 0, 2, 2.03333f);
-
-  glEnd();
-  */
-
   // draw current game
   games[player1.curgame]->draw(&player1);
   games[player2.curgame]->draw(&player2);
-
-  // enable depth testing
-  glDisable(GL_DEPTH_TEST);
 
   SDL_GL_SwapBuffers();
   return;
@@ -927,8 +912,8 @@ void Engine::drawQuadXY(float x, float y, float z, float w, float h) {
   gl_check_errors("glDrawElements");
 }
 
-void Engine::drawQuad(int a, int b, int c, int d) {
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
+void Engine::drawQuad(int side) {
+  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(side * 6 * sizeof(ushort)));
   gl_check_errors("glDrawElements");
 }
 

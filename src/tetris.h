@@ -29,7 +29,10 @@ public:
   void drawBoard(game_info* gi);
   void drawPiece(game_info* gi, double x, double y, int texture);
   void drawBackgroundBlock(game_info* gi, double x, double y);
-  void drawBlock(int type, game_info* gi, double x, double y);
+  void drawBlock(int type, game_info* gi, double x, double y, bool hasLeft,
+                                                              bool hasRight,
+                                                              bool hasTop,
+                                                              bool hasBottom);
 
   float determineDropPosition(game_info* gi);
 

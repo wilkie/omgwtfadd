@@ -59,7 +59,7 @@ public:
 
   void drawCube();
   void drawQuadXY(float x, float y, float z, float w, float h);
-  void drawQuad(int a, int b, int c, int d);
+  void drawQuad(int side);
 
   // state
 
