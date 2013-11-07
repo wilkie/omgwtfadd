@@ -146,15 +146,15 @@ static const GLfloat _cube_data[] = {
   -1,-1,-1,-1, 0, 0, 1, 1,
   -1,-1, 1,-1, 0, 0, 1, 0,
   // Face v7-v4-v3-v2 (bottom)
-  -1,-1,-1, 0,-1, 0, 0, 0,
+  -1,-1,-1, 0,-1, 0, 1, 1,
    1,-1,-1, 0,-1, 0, 0, 1,
-   1,-1, 1, 0,-1, 0, 1, 1,
+   1,-1, 1, 0,-1, 0, 0, 0,
   -1,-1, 1, 0,-1, 0, 1, 0,
   // Face v4-v7-v6-v5 (back)
    1,-1,-1, 0, 0,-1, 0, 0,
-  -1,-1,-1, 0, 0,-1, 0, 1,
+  -1,-1,-1, 0, 0,-1, 1, 0,
   -1, 1,-1, 0, 0,-1, 1, 1,
-   1, 1,-1, 0, 0,-1, 1, 0
+   1, 1,-1, 0, 0,-1, 0, 1
 };
 
 static const GLushort _cube_elements[] = {
@@ -245,7 +245,7 @@ void Engine::init() {
   glEnable(GL_DEPTH_TEST);
   glDepthFunc(GL_LESS);
 
-  player1.state = STATE_TETRIS;
+  player1.state = STATE_TETRIS_TRANS;
   initState(&player1);
 
   player1.pos = 5;
