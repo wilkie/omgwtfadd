@@ -156,6 +156,10 @@ public:
   static float bg2x;
   static float bg2y;
 
+  // board background tile
+  static float bg_tile_opacity;
+  static bool bg_tile_opacity_direction;
+
   // networking
 
 #ifndef NO_NETWORK

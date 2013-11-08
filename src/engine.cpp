@@ -9,7 +9,7 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
 
-void gl_check_errors(const char* msg) {
+static void gl_check_errors(const char* msg) {
   GLenum error = glGetError();
   if (error != GL_NO_ERROR) {
     const char* errorString;
@@ -37,9 +37,10 @@ const char* frag_shader_code[] = {
   "varying vec2 Texcoord;\n"
   "\n"
   "uniform sampler2D tex;\n"
+  "uniform float opacity;\n"
   "\n"
   "void main() {\n"
-  "  gl_FragColor = texture2D(tex, Texcoord);\n"
+  "  gl_FragColor = texture2D(tex, Texcoord) * vec4(1.0, 1.0, 1.0, opacity);\n"
   "}"
 };
 
@@ -53,6 +54,7 @@ const char* vertex_shader_code[] = {
   "varying vec2 Texcoord;\n"
   "varying vec3 Normal;\n"
   "varying vec3 Position;\n"
+  "varying float Opacity;\n"
   "\n"
   "uniform mat4 model;\n"
   "uniform mat4 view;\n"
@@ -308,7 +310,7 @@ void Engine::init() {
   addTexture("images/letters_w.png");
 
   addTexture("images/block08.png");
-  addTexture("images/block09.png");
+  addTexture("images/block_09.png");
   addTexture("images/block10.png");
 
   addTexture("images/hud_spritesheet.png");
@@ -432,6 +434,7 @@ void Engine::init() {
   _projection_uniform = glGetUniformLocation(_program, "proj");
 
   GLuint tex_uniform = glGetUniformLocation(_program, "tex");
+  GLuint opacity_uniform = glGetUniformLocation(_program, "opacity");
   gl_check_errors("glGetUniformLocation");
 
   GLint posAttrib = glGetAttribLocation(_program, "position");
@@ -494,6 +497,9 @@ void Engine::init() {
 
   glUniform1i(tex_uniform, 0);
   gl_check_errors("glUniform1i tex");
+
+  glUniform1f(opacity_uniform, 1.0f);
+  gl_check_errors("glUniform1i opacity");
 }
 
 void Engine::switchVAO(int VAO) {
@@ -673,32 +679,6 @@ bool Engine::_iterate() {
 }
 
 void Engine::update(float deltatime) {
-  space_penguinx += space_penguindx * deltatime;
-  space_penguiny += space_penguindy * deltatime;
-
-  space_penguinrot += 30.0f * deltatime;
-
-  space_penguinrot = fmod(space_penguinrot, 360.0f);
-
-  if (space_penguinx > 30 || space_penguinx < -30) {
-    space_penguinx = -15 - (rand() % 10);
-
-    space_penguindx = 0.5f * (float)(5 - (rand() % 11));
-
-    if (space_penguindx < 0) {
-      space_penguinx = -space_penguinx;
-    }
-  }
-  if (space_penguiny > 25 || space_penguiny < -25) {
-    space_penguiny = -15 - (rand() % 15);
-
-    space_penguindy = 0.5f * (float)(5 - (rand() % 11));
-
-    if (space_penguindy < 0) {
-      space_penguiny = -space_penguiny;
-    }
-  }
-
   // scroll background
   bg1x += BG1_SPEED_X * deltatime;
   bg1y += BG1_SPEED_Y * deltatime;
@@ -738,11 +718,6 @@ void Engine::update(float deltatime) {
     bg2y += 30;
   }
 
-  player1.message_uptime -= deltatime;
-  if (player1.message_uptime < 0) {
-    player1.message_uptime = 0;
-  }
-
   if (repeatTime < 0.35) {
     repeatTime += deltatime;
   }
@@ -756,7 +731,23 @@ void Engine::update(float deltatime) {
     }
   }
 
-  // draw current game
+  if (bg_tile_opacity_direction) {
+    bg_tile_opacity -= deltatime * 0.02;
+  }
+  else {
+    bg_tile_opacity += deltatime * 0.02;
+  }
+
+  if (bg_tile_opacity < 0.1) {
+    bg_tile_opacity = 0.1;
+    bg_tile_opacity_direction = false;
+  }
+  if (bg_tile_opacity > 0.14) {
+    bg_tile_opacity = 0.14;
+    bg_tile_opacity_direction = true;
+  }
+
+  // update current game
   games[player1.curgame]->update(&player1, deltatime);
 }
 
@@ -1443,6 +1434,9 @@ float Engine::bg1y = 0;
 
 float Engine::bg2x = 0;
 float Engine::bg2y = 0;
+
+float Engine::bg_tile_opacity = 0.2f;
+bool  Engine::bg_tile_opacity_direction = true;
 
 #ifndef NO_NETWORK
 IPaddress Engine::ip = {0};

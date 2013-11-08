@@ -9,6 +9,25 @@
 #define GAMEOVER_SPREAD_RATE 0.1
 #define GAMEOVER_VELOCITY    3.0
 
+static void gl_check_errors(const char* msg) {
+  GLenum error = glGetError();
+  if (error != GL_NO_ERROR) {
+    const char* errorString;
+    switch ( error ) {
+      case GL_INVALID_ENUM: errorString = "invalid enumerant"; break;
+      case GL_INVALID_VALUE: errorString = "invalid value"; break;
+      case GL_INVALID_OPERATION: errorString = "invalid operation"; break;
+      case GL_STACK_OVERFLOW: errorString = "stack overflow"; break;
+      case GL_STACK_UNDERFLOW: errorString = "stack underflow"; break;
+      case GL_OUT_OF_MEMORY: errorString = "out of memory"; break;
+      case GL_TABLE_TOO_LARGE: errorString = "table too large"; break;
+      case GL_INVALID_FRAMEBUFFER_OPERATION: errorString = "invalid framebuffer operation"; break;
+      default: errorString = "unknown GL error"; break;
+    }
+    fprintf(stderr, "GL Error: %s: %s\n", msg, errorString);
+  }
+}
+
 void Tetris::update(game_info* gi, float deltatime) {
   if (gi->state == STATE_GAMEOVER) {
     // Shoot out the blocks
@@ -573,12 +592,21 @@ void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
+  GLuint opacity_uniform = glGetUniformLocation(engine._program, "opacity");
+  gl_check_errors("glGetUniformLocation");
+
+  glUniform1f(opacity_uniform, engine.bg_tile_opacity);
+  gl_check_errors("glUniform1i opacity");
+
   if (gi->rot2 > 90) {
     engine.drawQuad(5);
   }
   else {
     engine.drawQuad(0);
   }
+
+  glUniform1f(opacity_uniform, 1.0f);
+  gl_check_errors("glUniform1i opacity");
 }
 
 void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
