@@ -963,10 +963,10 @@ void Engine::draw() {
   // BACKGROUND!!!
   useTexture(TEXTURE_BG1);
 
-  drawQuadXY(bg1x, bg1y, -6.3f, 15, 15);
-  drawQuadXY(bg1x - 30, bg1y, -6.3f, 15, 15);
-  drawQuadXY(bg1x, bg1y-30, -6.3f, 15, 15);
-  drawQuadXY(bg1x - 30, bg1y-30, -6.3f, 15, 15);
+  drawQuadXY(bg1x, bg1y, -12.3f, 30, 30);
+  drawQuadXY(bg1x - 30, bg1y, -12.3f, 30, 30);
+  drawQuadXY(bg1x, bg1y-30, -12.3f, 30, 30);
+  drawQuadXY(bg1x - 30, bg1y-30, -12.3f, 30, 30);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
