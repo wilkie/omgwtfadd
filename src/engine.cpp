@@ -321,7 +321,7 @@ void Engine::init() {
   audio.loadSound("sounds/bounce.wav");
   audio.loadSound("sounds/changeview.wav");
 
-  //audio.loadMusic("music/bsh.ogg");
+  audio.loadMusic("music/bsh.ogg");
   audio.playMusic();
 
   // enable depth testing
