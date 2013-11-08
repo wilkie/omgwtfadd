@@ -500,6 +500,8 @@ void Engine::init() {
 
   glUniform1f(opacity_uniform, 1.0f);
   gl_check_errors("glUniform1i opacity");
+
+  glDisable(GL_CULL_FACE);
 }
 
 void Engine::switchVAO(int VAO) {
@@ -601,7 +603,6 @@ void Engine::performAttack(int severity) {
   displayMessage(STR_ATTACK);
 
   games[player1.curgame]->attack(&player1, severity);
-
 }
 
 void Engine::quit() {
