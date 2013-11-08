@@ -4,10 +4,47 @@
 
 #include <math.h>
 #include <vector>
+#include <ios>
+#include <iostream>
+#include <sstream>
+#include <fstream>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
+
+void load_obj(const char* filename, std::vector<glm::vec4> &vertices, std::vector<glm::vec3> &normals, std::vector<GLushort> &elements) {
+  std::ifstream in(filename, std::ios::in);
+  if (!in) { std::cerr << "Cannot open " << filename << std::endl; exit(1); }
+
+  std::string line;
+  while (getline(in, line)) {
+    if (line.substr(0,2) == "v ") {
+      std::istringstream s(line.substr(2));
+      glm::vec4 v; s >> v.x; s >> v.y; s >> v.z; v.w = 1.0f;
+      vertices.push_back(v);
+    }  else if (line.substr(0,2) == "f ") {
+      std::istringstream s(line.substr(2));
+      GLushort a,b,c;
+      s >> a; s >> b; s >> c;
+      a--; b--; c--;
+      elements.push_back(a); elements.push_back(b); elements.push_back(c);
+    }
+    else if (line[0] == '#') { /* ignoring this line */ }
+    else { /* ignoring this line */ }
+  }
+
+  normals.resize(vertices.size(), glm::vec3(0.0, 0.0, 0.0));
+  for (int i = 0; i < elements.size(); i+=3) {
+    GLushort ia = elements[i];
+    GLushort ib = elements[i+1];
+    GLushort ic = elements[i+2];
+    glm::vec3 normal = glm::normalize(glm::cross(
+          glm::vec3(vertices[ib]) - glm::vec3(vertices[ia]),
+          glm::vec3(vertices[ic]) - glm::vec3(vertices[ia])));
+    normals[ia] = normals[ib] = normals[ic] = normal;
+  }
+}
 
 static void gl_check_errors(const char* msg) {
   GLenum error = glGetError();
@@ -370,9 +407,6 @@ void Engine::init() {
   glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_hud_elements), _hud_elements, GL_STATIC_DRAW);
   gl_check_errors("glBufferData hud_elements");
 
-  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
-
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   gl_check_errors("glBindTexture");
@@ -502,6 +536,50 @@ void Engine::init() {
   gl_check_errors("glUniform1i opacity");
 
   glDisable(GL_CULL_FACE);
+
+  std::vector<glm::vec4> vertices;
+  std::vector<glm::vec3> normals;
+  std::vector<GLushort>  elements;
+  load_obj("assets/ship_final.obj", vertices, normals, elements);
+
+  // Interleave
+  float* data = new float[vertices.size() * 8];
+  for(size_t i = 0; i < vertices.size(); i++) {
+    data[i*8+0] = vertices[i].x;
+    data[i*8+1] = vertices[i].y;
+    data[i*8+2] = vertices[i].z;
+    data[i*8+3] = normals[i].x;
+    data[i*8+4] = normals[i].y;
+    data[i*8+5] = normals[i].z;
+    data[i*8+6] = 0.0;
+    data[i*8+7] = 0.0;
+  }
+
+  unsigned short* element_data = new unsigned short[elements.size()];
+  for(size_t i = 0; i < elements.size(); i++) {
+    element_data[i] = elements[i];
+  }
+
+  glGenBuffers(1, &_vbo_vertex_ship);
+  glGenBuffers(1, &_vbo_elements_ship);
+  gl_check_errors("glGenBuffers");
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_ship);
+  glBufferData(GL_ARRAY_BUFFER, vertices.size() * 8 * sizeof(float), data, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData cube_data");
+
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_ship);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), element_data, GL_STATIC_DRAW);
+  gl_check_errors("glBufferData cube_elements");
+
+  _vbo_count_ship = elements.size();
+  printf("%d\n", _vbo_count_ship);
+
+  delete [] data;
+  delete [] element_data;
+
+  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
 }
 
 void Engine::switchVAO(int VAO) {
@@ -516,6 +594,12 @@ void Engine::switchVAO(int VAO) {
       glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_hud);
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_hud);
       gl_check_errors("glBindBuffer hud");
+      break;
+
+    case 2:
+      glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_ship);
+      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_ship);
+      gl_check_errors("glBindBuffer ship");
       break;
   }
 
@@ -561,7 +645,7 @@ void Engine::switchVAO(int VAO) {
   }
 
   /* set up perspective/view */
-  if (VAO == 0) {
+  if (VAO != 1) {
     glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
     gl_check_errors("glUniformMatrix4fv perspective");
 
@@ -582,6 +666,12 @@ void Engine::switchVAO(int VAO) {
 
   glUniform1i(tex_uniform, 0);
   gl_check_errors("glUniform1i tex");
+
+  GLuint opacity_uniform = glGetUniformLocation(_program, "opacity");
+  gl_check_errors("glGetUniformLocation");
+
+  glUniform1f(opacity_uniform, 1.0f);
+  gl_check_errors("glUniform1i opacity");
 }
 
 void Engine::sendAttack(int severity) {
@@ -677,6 +767,11 @@ bool Engine::_iterate() {
   }
 
   return true;
+}
+
+void Engine::drawMesh(int count) {
+  glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_SHORT, 0);
+  gl_check_errors("glDrawElements mesh");
 }
 
 void Engine::update(float deltatime) {
@@ -942,6 +1037,35 @@ void Engine::draw() {
   // draw current game
   games[player1.curgame]->draw(&player1);
   games[player2.curgame]->draw(&player2);
+
+  // draw ship
+  switchVAO(2);
+
+  // translate to world
+  glm::mat4 model = glm::mat4(1.0f);
+
+  model = glm::translate(model, glm::vec3(-3.8f, -1.0f, 0.0f));
+  model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
+  model = glm::rotate(model, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+
+  useTexture(TEXTURE_BLOCK1);
+  drawMesh(_vbo_count_ship);
+
+  // translate to world
+  model = glm::mat4(1.0f);
+
+  model = glm::translate(model, glm::vec3(3.8f, -1.0f, 0.0f));
+  model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
+  model = glm::rotate(model, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
+  model = glm::rotate(model, 180.0f, glm::vec3(0.0f, 0.0f, 1.0f));
+
+  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+
+  drawMesh(_vbo_count_ship);
+
+  switchVAO(0);
 
   // Orthographic (UI)
   glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_orthographic[0][0]);

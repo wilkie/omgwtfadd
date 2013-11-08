@@ -47,6 +47,8 @@ public:
   void update(float deltatime);
   void draw();
 
+  void drawMesh(int count);
+
   // key processing
 
   void keyDown(Uint32 key);
@@ -110,6 +112,10 @@ public:
 
   GLuint _vbo_vertex_hud;
   GLuint _vbo_elements_hud;
+
+  GLuint _vbo_vertex_ship;
+  GLuint _vbo_elements_ship;
+  unsigned int _vbo_count_ship;
 
   static GLfloat cubecoords[8][4];
   static GLfloat cubenorms[8][4];
