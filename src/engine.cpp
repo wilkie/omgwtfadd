@@ -69,20 +69,6 @@ const char* vertex_shader_code[] = {
   "}"
 };
 
-const char* stuffs[] = {
-  "OMGWTFADD!!! It is ultra cool!!! TRUST ME!", "OMGWTFADD!",
-  "Do Your Part..Get your penguin spayed or neutered....",
-  "Music: Stabilizer Feat. Captain Dan and the Scurvy Crew: We, Conquistadors",
-  "Music: Visit Stabilizer's Website and Album Information: http://www.nonexistent-recordings.com/artists/",
-  "WTF! pirate rap?/? LOLZ",
-  "Space Pirate Penguins??? ROFL!",
-  "HAHAHAHAHA! YOU SUCK! LOOOOLLL!!!factorial!!!!",
-  "Music: Stabilizer Feat. Captain Dan and the Scurvy Crew: We, Conquistadors",
-  "Music: Visit Stabilizer's Website and Album Information: http://www.nonexistent-recordings.com/artists/",
-};
-
-int num_captions = sizeof(stuffs) / sizeof(char*);
-
 #ifndef NO_NETWORK
 // threading code for networking
 int thread_func(void *unused) {
@@ -298,13 +284,13 @@ void Engine::init() {
 
   srand(SDL_GetTicks());
 
-  addTexture("images/block01.png");
-  addTexture("images/block02.png");
-  addTexture("images/block03.png");
-  addTexture("images/block04.png");
-  addTexture("images/block05.png");
-  addTexture("images/block06.png");
-  addTexture("images/block07.png");
+  addTexture("images/block_01.png");
+  addTexture("images/block_02.png");
+  addTexture("images/block_03.png");
+  addTexture("images/block_04.png");
+  addTexture("images/block_05.png");
+  addTexture("images/block_06.png");
+  addTexture("images/block_07.png");
 
   addTexture("images/stars-layer.png");
   addTexture("images/nebula-layer.png");
@@ -335,7 +321,7 @@ void Engine::init() {
   audio.loadSound("sounds/bounce.wav");
   audio.loadSound("sounds/changeview.wav");
 
-  audio.loadMusic("music/bsh.ogg");
+  //audio.loadMusic("music/bsh.ogg");
   audio.playMusic();
 
   // enable depth testing
@@ -486,8 +472,9 @@ void Engine::init() {
   }
 
   /* set up perspective */
-  _perspective  = glm::perspective(40.0f, 4.0f/3.0f, 1.0f, 200.0f);
-  _orthographic = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f);
+  _perspective  = glm::perspective(40.0f, (float)WIDTH/(float)HEIGHT, 1.0f, 200.0f);
+  _orthographic = glm::ortho(-(float)WIDTH  / 2.0f, (float)WIDTH  / 2.0f,
+                             -(float)HEIGHT / 2.0f, (float)HEIGHT / 2.0f);
   glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
   gl_check_errors("glUniformMatrix4fv perspective");
 
@@ -756,20 +743,6 @@ void Engine::update(float deltatime) {
     player1.message_uptime = 0;
   }
 
-  if (titleChangeTime < 30.0) {
-    titleChangeTime += deltatime;
-  }
-  else {
-    titleChangeTime = 0;
-
-    static int cur_caption = 0;
-
-    SDL_WM_SetCaption(stuffs[cur_caption], stuffs[cur_caption]);
-
-    cur_caption++;
-    cur_caption %= num_captions;
-  }
-
   if (repeatTime < 0.35) {
     repeatTime += deltatime;
   }
@@ -809,24 +782,26 @@ int Engine::drawInt(int i, int color, float x, float y) {
   int length = 0;
   int width = 0;
 
+  float scale = 0.5f;
+
   int tmp = i;
   do {
     int digit = tmp % 10;
     length += 1;
-    width += hud_widths[digit];
+    width += hud_widths[digit]*scale;
     tmp /= 10;
   } while (tmp > 0);
 
   tmp = i;
   do {
     int digit = tmp % 10;
-    width -= hud_widths[digit];
+    width -= hud_widths[digit]*scale;
 
     glm::mat4 model = glm::scale(
         glm::translate(
           glm::mat4(1.0f),
           glm::vec3(x+width, y, 1.0f)),
-        glm::vec3(hud_widths[digit], hud_heights[digit], 1.0f));
+        glm::vec3(hud_widths[digit]*scale, hud_heights[digit]*scale, 1.0f));
     glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
     gl_check_errors("glUniformMatrix4fv model");
 
@@ -962,10 +937,10 @@ void Engine::draw() {
   // BACKGROUND!!!
   useTexture(TEXTURE_BG1);
 
-  drawQuadXY(bg1x, bg1y, -6.3f, 15, 15);
-  drawQuadXY(bg1x - 30, bg1y, -6.3f, 15, 15);
-  drawQuadXY(bg1x, bg1y-30, -6.3f, 15, 15);
-  drawQuadXY(bg1x - 30, bg1y-30, -6.3f, 15, 15);
+  drawQuadXY(bg1x, bg1y, -12.3f, 30, 30);
+  drawQuadXY(bg1x - 30, bg1y, -12.3f, 30, 30);
+  drawQuadXY(bg1x, bg1y-30, -12.3f, 30, 30);
+  drawQuadXY(bg1x - 30, bg1y-30, -12.3f, 30, 30);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -986,7 +961,7 @@ void Engine::draw() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  drawInt(player1.score, 0, -370.0f, 270.0f);
+  drawInt(player1.score, 0, -(float)WIDTH/2.0f + 30, (float)HEIGHT/2.0f - 30);
 
   SDL_GL_SwapBuffers();
 }
@@ -1460,7 +1435,6 @@ GLfloat Engine::tv[2] = {0.0f, 1.0f};
 
 double Engine::time = 0;
 double Engine::repeatTime = 0;
-double Engine::titleChangeTime = 30.0;
 
 int Engine::keys[0xffff] = {0};
 

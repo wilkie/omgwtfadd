@@ -145,7 +145,6 @@ public:
   static GLfloat tv[2];
 
   static double repeatTime;
-  static double titleChangeTime;
   static double time;
 
   static int keys[0xffff];

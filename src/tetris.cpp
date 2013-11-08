@@ -492,7 +492,26 @@ void Tetris::drawBoard(game_info* gi) {
     for (i=0; i<10; i++) {
       for (j=0; j<24; j++) {
         if(gi->board[i][j] != -1) {
-          drawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j);
+          bool hasLeft = true;
+          bool hasRight = true;
+          bool hasTop = true;
+          bool hasBottom = true;
+          if (i > 0 && gi->board[i-1][j] != -1) {
+            hasLeft = false;
+          }
+          if (i < 9 && gi->board[i+1][j] != -1) {
+            hasRight = false;
+          }
+          if (j > 0 && gi->board[i][j-1] != -1) {
+            hasTop = false;
+          }
+          if (j < 23 && gi->board[i][j+1] != -1) {
+            hasBottom = false;
+          }
+          drawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j, hasLeft,
+                                                                           hasRight,
+                                                                           hasTop,
+                                                                           hasBottom);
         }
       }
     }
@@ -571,15 +590,15 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
       }
       /*
        *   #
-       *   #
        *   x
+       *   #
        *   #
        */
       else {
         drawBlock(texture, gi, x, y,     true, true, false, false);
         drawBlock(texture, gi, x, y+0.5, true, true, false, false);
-        drawBlock(texture, gi, x, y+1.0, true, true, true,  false);
-        drawBlock(texture, gi, x, y-0.5, true, true, false, true);
+        drawBlock(texture, gi, x, y+1.0, true, true, false, true);
+        drawBlock(texture, gi, x, y-0.5, true, true, true,  false);
       }
       break;
     case 1:
