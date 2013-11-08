@@ -19,6 +19,7 @@ int main(int argc, char** argv) {
   char* ip=NULL;
 
   SDL_Init(SDL_INIT_EVERYTHING);
+  SDL_WM_SetCaption("OMGWTFADD", NULL);
 
   if (argc > 1) {
     int i;
