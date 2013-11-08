@@ -571,15 +571,15 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
       }
       /*
        *   #
-       *   #
        *   x
+       *   #
        *   #
        */
       else {
         drawBlock(texture, gi, x, y,     true, true, false, false);
         drawBlock(texture, gi, x, y+0.5, true, true, false, false);
-        drawBlock(texture, gi, x, y+1.0, true, true, true,  false);
-        drawBlock(texture, gi, x, y-0.5, true, true, false, true);
+        drawBlock(texture, gi, x, y+1.0, true, true, false, true);
+        drawBlock(texture, gi, x, y-0.5, true, true, true,  false);
       }
       break;
     case 1:
