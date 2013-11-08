@@ -69,20 +69,6 @@ const char* vertex_shader_code[] = {
   "}"
 };
 
-const char* stuffs[] = {
-  "OMGWTFADD!!! It is ultra cool!!! TRUST ME!", "OMGWTFADD!",
-  "Do Your Part..Get your penguin spayed or neutered....",
-  "Music: Stabilizer Feat. Captain Dan and the Scurvy Crew: We, Conquistadors",
-  "Music: Visit Stabilizer's Website and Album Information: http://www.nonexistent-recordings.com/artists/",
-  "WTF! pirate rap?/? LOLZ",
-  "Space Pirate Penguins??? ROFL!",
-  "HAHAHAHAHA! YOU SUCK! LOOOOLLL!!!factorial!!!!",
-  "Music: Stabilizer Feat. Captain Dan and the Scurvy Crew: We, Conquistadors",
-  "Music: Visit Stabilizer's Website and Album Information: http://www.nonexistent-recordings.com/artists/",
-};
-
-int num_captions = sizeof(stuffs) / sizeof(char*);
-
 #ifndef NO_NETWORK
 // threading code for networking
 int thread_func(void *unused) {
@@ -755,20 +741,6 @@ void Engine::update(float deltatime) {
   player1.message_uptime -= deltatime;
   if (player1.message_uptime < 0) {
     player1.message_uptime = 0;
-  }
-
-  if (titleChangeTime < 30.0) {
-    titleChangeTime += deltatime;
-  }
-  else {
-    titleChangeTime = 0;
-
-    static int cur_caption = 0;
-
-    SDL_WM_SetCaption(stuffs[cur_caption], stuffs[cur_caption]);
-
-    cur_caption++;
-    cur_caption %= num_captions;
   }
 
   if (repeatTime < 0.35) {
@@ -1462,7 +1434,6 @@ GLfloat Engine::tv[2] = {0.0f, 1.0f};
 
 double Engine::time = 0;
 double Engine::repeatTime = 0;
-double Engine::titleChangeTime = 30.0;
 
 int Engine::keys[0xffff] = {0};
 
