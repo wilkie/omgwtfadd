@@ -65,7 +65,7 @@ int main(int argc, char** argv) {
   // Create a double-buffered draw context
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-  SDL_SetVideoMode(800, 600, 0, SDL_OPENGL);// | SDL_FULLSCREEN);
+  SDL_SetVideoMode(WIDTH, HEIGHT, 0, SDL_OPENGL);// | SDL_FULLSCREEN);
 
   engine.init();
 

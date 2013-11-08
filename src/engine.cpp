@@ -298,13 +298,13 @@ void Engine::init() {
 
   srand(SDL_GetTicks());
 
-  addTexture("images/block01.png");
-  addTexture("images/block02.png");
-  addTexture("images/block03.png");
-  addTexture("images/block04.png");
-  addTexture("images/block05.png");
-  addTexture("images/block06.png");
-  addTexture("images/block07.png");
+  addTexture("images/block_01.png");
+  addTexture("images/block_02.png");
+  addTexture("images/block_03.png");
+  addTexture("images/block_04.png");
+  addTexture("images/block_05.png");
+  addTexture("images/block_06.png");
+  addTexture("images/block_07.png");
 
   addTexture("images/stars-layer.png");
   addTexture("images/nebula-layer.png");
@@ -335,7 +335,7 @@ void Engine::init() {
   audio.loadSound("sounds/bounce.wav");
   audio.loadSound("sounds/changeview.wav");
 
-  audio.loadMusic("music/bsh.ogg");
+  //audio.loadMusic("music/bsh.ogg");
   audio.playMusic();
 
   // enable depth testing
@@ -486,8 +486,9 @@ void Engine::init() {
   }
 
   /* set up perspective */
-  _perspective  = glm::perspective(40.0f, 4.0f/3.0f, 1.0f, 200.0f);
-  _orthographic = glm::ortho(-400.0f, 400.0f, -300.0f, 300.0f);
+  _perspective  = glm::perspective(40.0f, (float)WIDTH/(float)HEIGHT, 1.0f, 200.0f);
+  _orthographic = glm::ortho(-(float)WIDTH  / 2.0f, (float)WIDTH  / 2.0f,
+                             -(float)HEIGHT / 2.0f, (float)HEIGHT / 2.0f);
   glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
   gl_check_errors("glUniformMatrix4fv perspective");
 
@@ -987,7 +988,7 @@ void Engine::draw() {
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-  drawInt(player1.score, 0, -370.0f, 270.0f);
+  drawInt(player1.score, 0, -(float)WIDTH/2.0f + 30, (float)HEIGHT/2.0f - 30);
 
   SDL_GL_SwapBuffers();
 }
