@@ -2,13 +2,14 @@
 #define TETRIS_INCLUDED
 
 #include "game.h"
+#include "context.h"
 
 class Tetris : public Game {
 public:
   // conventions:
   void update(game_info* gi, float deltatime);
-  void draw(game_info* gi);
-  void drawOrtho(game_info* gi);
+  void draw(Context* context, game_info* gi);
+  void drawOrtho(Context* context, game_info* gi);
 
   void keyDown(game_info* gi, Uint32 key);
   void keyUp(game_info* gi, Uint32 key);
@@ -26,10 +27,11 @@ public:
 
   void getNewPiece(game_info* gi);
 
-  void drawBoard(game_info* gi);
-  void drawPiece(game_info* gi, double x, double y, int texture);
-  void drawBackgroundBlock(game_info* gi, double x, double y);
-  void drawBlock(int type, game_info* gi, double x, double y, bool hasLeft,
+  void drawBoard(Context* context, game_info* gi);
+  void drawPiece(Context* context, game_info* gi, double x, double y, int texture);
+  void drawBackgroundBlock(Context* context, game_info* gi, double x, double y);
+  void drawBlock(Context*,
+                 int type, game_info* gi, double x, double y, bool hasLeft,
                                                               bool hasRight,
                                                               bool hasTop,
                                                               bool hasBottom);

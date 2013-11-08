@@ -8,21 +8,25 @@ all: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.c
 	$(CC) breakout.cpp -c $(CFLAGS) -I.
 	$(CC) components.cpp -c $(CFLAGS) -I.
 	$(CC) engine.cpp -c $(CFLAGS) -I.
+	$(CC) mesh.cpp -c $(CFLAGS) -I.
+	$(CC) context.cpp -c $(CFLAGS) -I.
 	$(CC) game.cpp -c $(CFLAGS) -I.
 	$(CC) main.cpp -c $(CFLAGS) -I.
 	$(CC) tetris.cpp -c $(CFLAGS) -I.
 	$(CC) glew/glew.c -c $(CFLAGS) -I.
-	$(CC) -o ../omgwtfadd audio.o glew.o breakout.o components.o engine.o game.o main.o tetris.o $(CLINK) $(CLINK_NET)
+	$(CC) -o ../omgwtfadd audio.o context.o mesh.o glew.o breakout.o components.o engine.o game.o main.o tetris.o $(CLINK) $(CLINK_NET)
 
 js: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.cpp
 	em++ audio.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ breakout.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ components.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ engine.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ mesh.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
+	em++ context.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ game.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ main.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ tetris.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
-	emcc -o ../omgwtfadd.js audio.o breakout.o components.o engine.o game.o main.o tetris.o -s ALLOW_MEMORY_GROWTH=1 --preload-file ../sounds@/sounds --preload-file ../images@/images --preload-file ../music@/music $(CLINK)
+	emcc -o ../omgwtfadd.js audio.o context.o breakout.o components.o engine.o game.o main.o tetris.o -s ALLOW_MEMORY_GROWTH=1 --preload-file ../sounds@/sounds --preload-file ../images@/images --preload-file ../music@/music $(CLINK)
 
 clean:
 	rm *.o

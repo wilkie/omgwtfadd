@@ -162,26 +162,27 @@ float Tetris::determineDropPosition(game_info* gi) {
 }
 
 // draw 3D
-void Tetris::draw(game_info* gi) {
+void Tetris::draw(Context* context, game_info* gi) {
   if (!engine.network_thread && gi->side == 1) {
     return;
   }
 
   if (gi->state == STATE_GAMEOVER) {
-    drawBoard(gi);
+    drawBoard(context, gi);
   }
   else {
-    drawBoard(gi);
+    drawBoard(context, gi);
 
-    drawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
+    drawPiece(context, gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
 
     if (gi->state == STATE_TETRIS) {
-      drawPiece(gi, (0.5) * (double)gi->pos, determineDropPosition(gi), 18);
+      drawPiece(context, gi, (0.5) * (double)gi->pos, determineDropPosition(gi), 18);
     }
   }
 }
 
-void Tetris::drawBlock(int type, game_info* gi, double x, double y, bool hasLeft   = true,
+void Tetris::drawBlock(Context* context,
+                       int type, game_info* gi, double x, double y, bool hasLeft   = true,
                                                                     bool hasRight  = true,
                                                                     bool hasTop    = true,
                                                                     bool hasBottom = true) {
@@ -189,8 +190,6 @@ void Tetris::drawBlock(int type, game_info* gi, double x, double y, bool hasLeft
 
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);
-
-  //model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -204,30 +203,28 @@ void Tetris::drawBlock(int type, game_info* gi, double x, double y, bool hasLeft
   // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
   model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-
   if (gi->rot2 > 90) {
-    engine.drawQuad(5); // back
+    engine.drawQuad(model, 5); // back
   }
   else {
-    engine.drawQuad(0); // front
+    engine.drawQuad(model, 0); // front
   }
   if (hasLeft) {
-    engine.drawQuad(3); // left
+    engine.drawQuad(model, 3); // left
   }
   if (hasTop) {
-    engine.drawQuad(2); // top
+    engine.drawQuad(model, 2); // top
   }
   if (hasBottom) {
-    engine.drawQuad(4); // bottom
+    engine.drawQuad(model, 4); // bottom
   }
   if (hasRight) {
-    engine.drawQuad(1); // right
+    engine.drawQuad(model, 1); // right
   }
 }
 
 // draw interface
-void Tetris::drawOrtho(game_info* gi) {
+void Tetris::drawOrtho(Context* context, game_info* gi) {
 }
 
 bool Tetris::testGameOver(game_info* gi) {
@@ -454,7 +451,7 @@ void Tetris::addBlock(game_info* gi, int i, int j, int type) {
   gi->board[i][j] = type;
 }
 
-void Tetris::drawBoard(game_info* gi) {
+void Tetris::drawBoard(Context* context, game_info* gi) {
   engine.useTexture(16);
 
   // left
@@ -475,8 +472,7 @@ void Tetris::drawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.25,11.5,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.drawCube();
+  engine.drawCube(model);
 
   // right
   model = base;
@@ -484,8 +480,7 @@ void Tetris::drawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(0.25,11.5,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.drawCube();
+  engine.drawCube(model);
 
   // bottom
   model = base;
@@ -493,8 +488,7 @@ void Tetris::drawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(5,0.25,0.5));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.drawCube();
+  engine.drawCube(model);
 
   // top
   model = base;
@@ -502,9 +496,8 @@ void Tetris::drawBoard(game_info* gi) {
   model = glm::scale(model, glm::vec3(5,0.03125,0.0625));
   model = glm::scale(model, glm::vec3(0.5f, 0.5f, 0.5f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
   engine.useTexture(3);
-  engine.drawCube();
+  engine.drawCube(model);
 
   int i,j;
   if (gi->state != STATE_GAMEOVER) {
@@ -527,7 +520,8 @@ void Tetris::drawBoard(game_info* gi) {
           if (j < 23 && gi->board[i][j+1] != -1) {
             hasBottom = false;
           }
-          drawBlock(gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j, hasLeft,
+          drawBlock(context,
+                    gi->board[i][j], gi, 0.5 * (double)i, 0.5 * (double)j, hasLeft,
                                                                            hasRight,
                                                                            hasTop,
                                                                            hasBottom);
@@ -548,9 +542,8 @@ void Tetris::drawBoard(game_info* gi) {
           model = base;
           model = glm::translate(model, glm::vec3(-2.25f + (0.5f*i) + offset_x, 6.375f - (0.5f*j) + offset_y, z));
           model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
-          glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
           engine.useTexture(gi->board[i][j]);
-          engine.drawCube();
+          engine.drawCube(model);
         }
       }
     }
@@ -559,19 +552,17 @@ void Tetris::drawBoard(game_info* gi) {
   for (i=0; i<10; i++) {
     for (j=2; j<24; j++) {
       if(gi->board[i][j] == -1) {
-        drawBackgroundBlock(gi, i, j);
+        drawBackgroundBlock(context, gi, i, j);
       }
     }
   }
 }
 
-void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
+void Tetris::drawBackgroundBlock(Context* context, game_info* gi, double x, double y) {
   engine.useTexture(17);
 
   // translate to world
   glm::mat4 model = glm::mat4(1.0f);
-
-  //model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -590,36 +581,30 @@ void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
   // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
   model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-
-  GLuint opacity_uniform = glGetUniformLocation(engine._program, "opacity");
-  gl_check_errors("glGetUniformLocation");
-
-  glUniform1f(opacity_uniform, engine.bg_tile_opacity);
-  gl_check_errors("glUniform1i opacity");
+  context->setOpacity(engine.bg_tile_opacity);
 
   if (gi->rot2 > 90) {
-    engine.drawQuad(5);
+    engine.drawQuad(model, 5);
   }
   else {
-    engine.drawQuad(0);
+    engine.drawQuad(model, 0);
   }
 
-  glUniform1f(opacity_uniform, 1.0f);
-  gl_check_errors("glUniform1i opacity");
+  context->setOpacity(1.0f);
 }
 
-void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
+void Tetris::drawPiece(Context* context,
+                       game_info* gi, double x, double y, int texture) {
   switch (gi->curpiece) {
     case 0:
       /*
        *   ##x#
        */
       if (gi->curdir % 2) {
-        drawBlock(texture, gi, x-0.5, y, false, false, true, true);
-        drawBlock(texture, gi, x-1.0, y, true,  false, true, true);
-        drawBlock(texture, gi, x, y,     false, false, true, true);
-        drawBlock(texture, gi, x+0.5, y, false, true,  true, true);
+        drawBlock(context, texture, gi, x-0.5, y, false, false, true, true);
+        drawBlock(context, texture, gi, x-1.0, y, true,  false, true, true);
+        drawBlock(context, texture, gi, x, y,     false, false, true, true);
+        drawBlock(context, texture, gi, x+0.5, y, false, true,  true, true);
       }
       /*
        *   #
@@ -628,10 +613,10 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   #
        */
       else {
-        drawBlock(texture, gi, x, y,     true, true, false, false);
-        drawBlock(texture, gi, x, y+0.5, true, true, false, false);
-        drawBlock(texture, gi, x, y+1.0, true, true, false, true);
-        drawBlock(texture, gi, x, y-0.5, true, true, true,  false);
+        drawBlock(context, texture, gi, x, y,     true, true, false, false);
+        drawBlock(context, texture, gi, x, y+0.5, true, true, false, false);
+        drawBlock(context, texture, gi, x, y+1.0, true, true, false, true);
+        drawBlock(context, texture, gi, x, y-0.5, true, true, true,  false);
       }
       break;
     case 1:
@@ -641,19 +626,19 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   #
        */
       if (gi->curdir % 2) {
-        drawBlock(texture, gi, x+0.5, y,     false, true,  false, true);
-        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
-        drawBlock(texture, gi, x, y,         true,  false, true,  false);
-        drawBlock(texture, gi, x+0.5, y-0.5, true,  true,  true,  false);
+        drawBlock(context, texture, gi, x+0.5, y,     false, true,  false, true);
+        drawBlock(context, texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y,         true,  false, true,  false);
+        drawBlock(context, texture, gi, x+0.5, y-0.5, true,  true,  true,  false);
       }
       /*   ##
        *    x#
        */
       else {
-        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  true);
-        drawBlock(texture, gi, x, y-0.5,     false, true,  true,  false);
-        drawBlock(texture, gi, x, y,         true,  false, false, true);
-        drawBlock(texture, gi, x-0.5, y-0.5, true,  false, true,  true);
+        drawBlock(context, texture, gi, x+0.5, y,     false, true,  true,  true);
+        drawBlock(context, texture, gi, x, y-0.5,     false, true,  true,  false);
+        drawBlock(context, texture, gi, x, y,         true,  false, false, true);
+        drawBlock(context, texture, gi, x-0.5, y-0.5, true,  false, true,  true);
       }
       break;
     case 2:
@@ -663,20 +648,20 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *    #
        */
       if (gi->curdir % 2) {
-        drawBlock(texture, gi, x-0.5, y,     true,  false, false, true);
-        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
-        drawBlock(texture, gi, x, y,         false, true,  true,  false);
-        drawBlock(texture, gi, x-0.5, y-0.5, true,  true,  true,  false);
+        drawBlock(context, texture, gi, x-0.5, y,     true,  false, false, true);
+        drawBlock(context, texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y,         false, true,  true,  false);
+        drawBlock(context, texture, gi, x-0.5, y-0.5, true,  true,  true,  false);
       }
       /*
        *    ##
        *   #x
        */
       else {
-        drawBlock(texture, gi, x-0.5, y,     true,  false, true,  true);
-        drawBlock(texture, gi, x, y-0.5,     true,  false, true,  false);
-        drawBlock(texture, gi, x, y,         false, true,  false, true);
-        drawBlock(texture, gi, x+0.5, y-0.5, false, true,  true,  true);
+        drawBlock(context, texture, gi, x-0.5, y,     true,  false, true,  true);
+        drawBlock(context, texture, gi, x, y-0.5,     true,  false, true,  false);
+        drawBlock(context, texture, gi, x, y,         false, true,  false, true);
+        drawBlock(context, texture, gi, x+0.5, y-0.5, false, true,  true,  true);
       }
       break;
     case 3:
@@ -684,10 +669,10 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   x#
        *   ##
        */
-      drawBlock(texture, gi, x+0.5, y,     false, true,  true,  false);
-      drawBlock(texture, gi, x, y+0.5,     true,  false, false, true);
-      drawBlock(texture, gi, x, y,         true,  false, true,  false);
-      drawBlock(texture, gi, x+0.5, y+0.5, false, true,  false, true);
+      drawBlock(context, texture, gi, x+0.5, y,     false, true,  true,  false);
+      drawBlock(context, texture, gi, x, y+0.5,     true,  false, false, true);
+      drawBlock(context, texture, gi, x, y,         true,  false, true,  false);
+      drawBlock(context, texture, gi, x+0.5, y+0.5, false, true,  false, true);
       break;
     case 4:
       /*
@@ -696,20 +681,20 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   ##
        */
       if (gi->curdir == 0) {
-        drawBlock(texture, gi, x, y,         true,  true,  false, false);
-        drawBlock(texture, gi, x, y+0.5,     true,  false, false, true);
-        drawBlock(texture, gi, x, y-0.5,     true,  true,  true,  false);
-        drawBlock(texture, gi, x+0.5, y+0.5, false, true,  true,  true);
+        drawBlock(context, texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(context, texture, gi, x, y+0.5,     true,  false, false, true);
+        drawBlock(context, texture, gi, x, y-0.5,     true,  true,  true,  false);
+        drawBlock(context, texture, gi, x+0.5, y+0.5, false, true,  true,  true);
       }
       /*
        *   #x#
        *   #
        */
       else if (gi->curdir == 1) {
-        drawBlock(texture, gi, x, y,         false, false, true,  true);
-        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  true);
-        drawBlock(texture, gi, x-0.5, y,     true,  false, true,  false);
-        drawBlock(texture, gi, x-0.5, y+0.5, true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y,         false, false, true,  true);
+        drawBlock(context, texture, gi, x+0.5, y,     false, true,  true,  true);
+        drawBlock(context, texture, gi, x-0.5, y,     true,  false, true,  false);
+        drawBlock(context, texture, gi, x-0.5, y+0.5, true,  true,  false, true);
       }
       /*
        *   ##
@@ -717,20 +702,20 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *    #
        */
       else if (gi->curdir == 2) {
-        drawBlock(texture, gi, x, y,         true,  true,  false, false);
-        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
-        drawBlock(texture, gi, x, y-0.5,     false, true,  true,  false);
-        drawBlock(texture, gi, x-0.5, y-0.5, true,  false, true,  true);
+        drawBlock(context, texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(context, texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y-0.5,     false, true,  true,  false);
+        drawBlock(context, texture, gi, x-0.5, y-0.5, true,  false, true,  true);
       }
       /*
        *     #
        *   #x#
        */
       else {
-        drawBlock(texture, gi, x, y,         false, false, true,  true);
-        drawBlock(texture, gi, x+0.5, y,     false, true,  false, true);
-        drawBlock(texture, gi, x-0.5, y,     true,  false, true, true);
-        drawBlock(texture, gi, x+0.5, y-0.5, true,  true,  true, false);
+        drawBlock(context, texture, gi, x, y,         false, false, true,  true);
+        drawBlock(context, texture, gi, x+0.5, y,     false, true,  false, true);
+        drawBlock(context, texture, gi, x-0.5, y,     true,  false, true, true);
+        drawBlock(context, texture, gi, x+0.5, y-0.5, true,  true,  true, false);
       }
       break;
     case 5:
@@ -740,20 +725,20 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   ##
        */
       if (gi->curdir == 0) {
-        drawBlock(texture, gi, x, y,         true,  true,  false, false);
-        drawBlock(texture, gi, x, y+0.5,     false, true,  false, true);
-        drawBlock(texture, gi, x, y-0.5,     true,  true,  true,  false);
-        drawBlock(texture, gi, x-0.5, y+0.5, true,  false, true,  true);
+        drawBlock(context, texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(context, texture, gi, x, y+0.5,     false, true,  false, true);
+        drawBlock(context, texture, gi, x, y-0.5,     true,  true,  true,  false);
+        drawBlock(context, texture, gi, x-0.5, y+0.5, true,  false, true,  true);
       }
       /*
        *   #
        *   #x#
        */
       else if (gi->curdir == 1) {
-        drawBlock(texture, gi, x, y,         false, false, true,  true);
-        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  true);
-        drawBlock(texture, gi, x-0.5, y,     true,  false, false, true);
-        drawBlock(texture, gi, x-0.5, y-0.5, true,  true,  true,  false);
+        drawBlock(context, texture, gi, x, y,         false, false, true,  true);
+        drawBlock(context, texture, gi, x+0.5, y,     false, true,  true,  true);
+        drawBlock(context, texture, gi, x-0.5, y,     true,  false, false, true);
+        drawBlock(context, texture, gi, x-0.5, y-0.5, true,  true,  true,  false);
       }
       /*
        *   ##
@@ -761,20 +746,20 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   #
        */
       else if (gi->curdir == 2) {
-        drawBlock(texture, gi, x, y,         true,  true,  false, false);
-        drawBlock(texture, gi, x, y+0.5,     true,  true,  false, true);
-        drawBlock(texture, gi, x, y-0.5,     true,  false, true,  false);
-        drawBlock(texture, gi, x+0.5, y-0.5, false, true,  true,  true);
+        drawBlock(context, texture, gi, x, y,         true,  true,  false, false);
+        drawBlock(context, texture, gi, x, y+0.5,     true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y-0.5,     true,  false, true,  false);
+        drawBlock(context, texture, gi, x+0.5, y-0.5, false, true,  true,  true);
       }
       /*
        *   #x#
        *     #
        */
       else {
-        drawBlock(texture, gi, x, y,         false, false, true,  true);
-        drawBlock(texture, gi, x+0.5, y,     false, true,  true,  false);
-        drawBlock(texture, gi, x-0.5, y,     true,  false, true,  true);
-        drawBlock(texture, gi, x+0.5, y+0.5, true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y,         false, false, true,  true);
+        drawBlock(context, texture, gi, x+0.5, y,     false, true,  true,  false);
+        drawBlock(context, texture, gi, x-0.5, y,     true,  false, true,  true);
+        drawBlock(context, texture, gi, x+0.5, y+0.5, true,  true,  false, true);
       }
       break;
     case 6:
@@ -783,10 +768,10 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   #x#
        */
       if (gi->curdir == 0) {
-        drawBlock(texture, gi, x, y,     false, false, false, true);
-        drawBlock(texture, gi, x+0.5, y, false, true,  true,  true);
-        drawBlock(texture, gi, x-0.5, y, true,  false, true,  true);
-        drawBlock(texture, gi, x, y-0.5, true,  true,  true,  false);
+        drawBlock(context, texture, gi, x, y,     false, false, false, true);
+        drawBlock(context, texture, gi, x+0.5, y, false, true,  true,  true);
+        drawBlock(context, texture, gi, x-0.5, y, true,  false, true,  true);
+        drawBlock(context, texture, gi, x, y-0.5, true,  true,  true,  false);
       }
       /*
        *   #
@@ -794,20 +779,20 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *   #
        */
       else if (gi->curdir == 1) {
-        drawBlock(texture, gi, x, y,     true,  false, false, false);
-        drawBlock(texture, gi, x+0.5, y, false, true,  true,  true);
-        drawBlock(texture, gi, x, y+0.5, true,  true,  false, true);
-        drawBlock(texture, gi, x, y-0.5, true,  true,  true,  false);
+        drawBlock(context, texture, gi, x, y,     true,  false, false, false);
+        drawBlock(context, texture, gi, x+0.5, y, false, true,  true,  true);
+        drawBlock(context, texture, gi, x, y+0.5, true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y-0.5, true,  true,  true,  false);
       }
       /*
        *   #x#
        *    #
        */
       else if (gi->curdir == 2) {
-        drawBlock(texture, gi, x, y,     false, false, true,  false);
-        drawBlock(texture, gi, x+0.5, y, false, true,  true,  true);
-        drawBlock(texture, gi, x-0.5, y, true,  false, true,  true);
-        drawBlock(texture, gi, x, y+0.5, true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y,     false, false, true,  false);
+        drawBlock(context, texture, gi, x+0.5, y, false, true,  true,  true);
+        drawBlock(context, texture, gi, x-0.5, y, true,  false, true,  true);
+        drawBlock(context, texture, gi, x, y+0.5, true,  true,  false, true);
       }
       /*
        *    #
@@ -815,10 +800,10 @@ void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
        *    #
        */
       else {
-        drawBlock(texture, gi, x, y,     false, true,  false, false);
-        drawBlock(texture, gi, x-0.5, y, true,  false, true,  true);
-        drawBlock(texture, gi, x, y+0.5, true,  true,  false, true);
-        drawBlock(texture, gi, x, y-0.5, true,  true,  true,  false);
+        drawBlock(context, texture, gi, x, y,     false, true,  false, false);
+        drawBlock(context, texture, gi, x-0.5, y, true,  false, true,  true);
+        drawBlock(context, texture, gi, x, y+0.5, true,  true,  false, true);
+        drawBlock(context, texture, gi, x, y-0.5, true,  true,  true,  false);
       }
       break;
   }

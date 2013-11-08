@@ -2,12 +2,13 @@
 #define GAME_INCLUDED
 
 #include "main.h"
+#include "context.h"
 
 class Game {
 public:
 	virtual void update(game_info* gi, float deltatime) = 0;
-	virtual void draw(game_info* gi) = 0;
-	virtual void drawOrtho(game_info* gi) = 0;
+	virtual void draw(Context* context, game_info* gi) = 0;
+	virtual void drawOrtho(Context* context, game_info* gi) = 0;
 
 	virtual void keyDown(game_info* gi, Uint32 key)=0;
 	virtual void keyUp(game_info* gi, Uint32 key)=0;

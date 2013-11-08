@@ -4,47 +4,10 @@
 
 #include <math.h>
 #include <vector>
-#include <ios>
-#include <iostream>
-#include <sstream>
-#include <fstream>
 
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
 #include "glm/gtc/type_ptr.hpp"
-
-void load_obj(const char* filename, std::vector<glm::vec4> &vertices, std::vector<glm::vec3> &normals, std::vector<GLushort> &elements) {
-  std::ifstream in(filename, std::ios::in);
-  if (!in) { std::cerr << "Cannot open " << filename << std::endl; exit(1); }
-
-  std::string line;
-  while (getline(in, line)) {
-    if (line.substr(0,2) == "v ") {
-      std::istringstream s(line.substr(2));
-      glm::vec4 v; s >> v.x; s >> v.y; s >> v.z; v.w = 1.0f;
-      vertices.push_back(v);
-    }  else if (line.substr(0,2) == "f ") {
-      std::istringstream s(line.substr(2));
-      GLushort a,b,c;
-      s >> a; s >> b; s >> c;
-      a--; b--; c--;
-      elements.push_back(a); elements.push_back(b); elements.push_back(c);
-    }
-    else if (line[0] == '#') { /* ignoring this line */ }
-    else { /* ignoring this line */ }
-  }
-
-  normals.resize(vertices.size(), glm::vec3(0.0, 0.0, 0.0));
-  for (int i = 0; i < elements.size(); i+=3) {
-    GLushort ia = elements[i];
-    GLushort ib = elements[i+1];
-    GLushort ic = elements[i+2];
-    glm::vec3 normal = glm::normalize(glm::cross(
-          glm::vec3(vertices[ib]) - glm::vec3(vertices[ia]),
-          glm::vec3(vertices[ic]) - glm::vec3(vertices[ia])));
-    normals[ia] = normals[ib] = normals[ic] = normal;
-  }
-}
 
 static void gl_check_errors(const char* msg) {
   GLenum error = glGetError();
@@ -64,49 +27,6 @@ static void gl_check_errors(const char* msg) {
     fprintf(stderr, "GL Error: %s: %s\n", msg, errorString);
   }
 }
-
-const char* frag_shader_code[] = {
-  "#ifdef GL_ES\n"
-  "precision highp float;\n"
-  "#endif\n"
-  "\n"
-  "varying vec3 Normal;\n"
-  "varying vec2 Texcoord;\n"
-  "\n"
-  "uniform sampler2D tex;\n"
-  "uniform float opacity;\n"
-  "\n"
-  "void main() {\n"
-  "  gl_FragColor = texture2D(tex, Texcoord) * vec4(1.0, 1.0, 1.0, opacity);\n"
-  "}"
-};
-
-const char* vertex_shader_code[] = {
-  "#version 100\n"
-  "\n"
-  "attribute vec3 normal;\n"
-  "attribute vec3 position;\n"
-  "attribute vec2 texcoord;\n"
-  "\n"
-  "varying vec2 Texcoord;\n"
-  "varying vec3 Normal;\n"
-  "varying vec3 Position;\n"
-  "varying float Opacity;\n"
-  "\n"
-  "uniform mat4 model;\n"
-  "uniform mat4 view;\n"
-  "uniform mat4 proj;\n"
-  "\n"
-  "uniform vec3 camera;\n"
-  "\n"
-  "void main() {\n"
-  "  Texcoord = texcoord;\n"
-  "  Normal = (model * vec4(normal, 1.0)).xyz;\n"
-  "  Position = (model * vec4(position, 1.0)).xyz;\n"
-  "\n"
-  "  gl_Position = proj * view * model * vec4(position, 1.0);\n"
-  "}"
-};
 
 #ifndef NO_NETWORK
 // threading code for networking
@@ -140,7 +60,8 @@ Engine::Engine() {
 Engine::~Engine() {
 }
 
-static const GLfloat _cube_data[] = {
+static
+const GLfloat _cube_data[] = {
   // cube ///////////////////
   //  v6----- v5
   // /|       /|
@@ -183,7 +104,8 @@ static const GLfloat _cube_data[] = {
    1, 1,-1, 0, 0,-1, 0, 1
 };
 
-static const GLushort _cube_elements[] = {
+static
+const GLushort _cube_elements[] = {
   0, 1, 2,
   2, 3, 0,
   4, 5, 6,
@@ -198,7 +120,8 @@ static const GLushort _cube_elements[] = {
   22, 23, 20
 };
 
-static const GLfloat _hud_data[] = {
+static
+const GLfloat _hud_data[] = {
   // 0
   -0.5, 0.5, 0.0, 0, 0, 1, 230.0f/512.0f,  0.0f/512.0f,
    0.5, 0.5, 0.0, 0, 0, 1, 260.0f/512.0f,  0.0f/512.0f,
@@ -260,7 +183,8 @@ static const GLfloat _hud_data[] = {
   -0.5,-0.5, 0.0, 0, 0, 1, 196.0f/512.0f, 39.0f/512.0f,
 };
 
-static const GLushort _hud_elements[] = {
+static
+const GLushort _hud_elements[] = {
   0, 1, 2,
   2, 3, 0,
 
@@ -375,303 +299,18 @@ void Engine::init() {
 
   tetris.getNewPiece(&player1);
 
-  /* Generate VAOS */
-#ifndef EMSCRIPTEN // Emscripten/GLES2 does not have VAO support
-//  glGenVertexArrays(1, &_vao);
-//  glBindVertexArray(_vao);
-  gl_check_errors("glBindVertexArray");
-#endif
+  _context   = new Context();
 
-  /* Generate VBOS */
-  glGenBuffers(1, &_vbo_vertex);
-  glGenBuffers(1, &_vbo_elements_cube);
-  gl_check_errors("glGenBuffers");
-
-  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(_cube_data), _cube_data, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData cube_data");
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_cube_elements), _cube_elements, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData cube_elements");
-
-  glGenBuffers(1, &_vbo_vertex_hud);
-  glGenBuffers(1, &_vbo_elements_hud);
-  gl_check_errors("glGenBuffers");
-
-  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_hud);
-  glBufferData(GL_ARRAY_BUFFER, sizeof(_hud_data), _hud_data, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData hud_data");
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_hud);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(_hud_elements), _hud_elements, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData hud_elements");
+  _cube_mesh = new Mesh(_cube_data, sizeof(_cube_data)/sizeof(float),
+                        _cube_elements, sizeof(_cube_elements)/sizeof(short));
+  _hud_mesh  = new Mesh(_hud_data, sizeof(_hud_data)/sizeof(float),
+                        _hud_elements, sizeof(_hud_elements)/sizeof(short));
+  _ship_mesh = new Mesh("assets/ship_final.obj");
 
   glActiveTexture(GL_TEXTURE0 + 0);
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   gl_check_errors("glBindTexture");
-
-  /* Generate program */
-  GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-  GLuint frag_shader   = glCreateShader(GL_FRAGMENT_SHADER);
-
-  glShaderSource(vertex_shader, 1, vertex_shader_code, NULL);
-  glCompileShader(vertex_shader);
-
-  GLint result = GL_FALSE;
-  int infoLogLength;
-
-  glGetShaderiv(vertex_shader, GL_COMPILE_STATUS, &result);
-  if (result != GL_TRUE) {
-    glGetShaderiv(vertex_shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-    std::vector<char> vertex_error_msg(infoLogLength);
-    glGetShaderInfoLog(vertex_shader, infoLogLength, NULL, &vertex_error_msg[0]);
-    fprintf(stdout, "%s\n", &vertex_error_msg[0]);
-  }
-
-  glShaderSource(frag_shader, 1, frag_shader_code, NULL);
-  glCompileShader(frag_shader);
-
-  glGetShaderiv(frag_shader, GL_COMPILE_STATUS, &result);
-  if (result != GL_TRUE) {
-    glGetShaderiv(frag_shader, GL_INFO_LOG_LENGTH, &infoLogLength);
-    std::vector<char> frag_error_msg(infoLogLength);
-    glGetShaderInfoLog(frag_shader, infoLogLength, NULL, &frag_error_msg[0]);
-    fprintf(stdout, "%s\n", &frag_error_msg[0]);
-  }
-
-  _program = glCreateProgram();
-  glAttachShader(_program, vertex_shader);
-  glAttachShader(_program, frag_shader);
-  glBindAttribLocation(_program, 0, "position");
-  glLinkProgram(_program);
-  gl_check_errors("glLinkProgram");
-
-  glGetProgramiv(_program, GL_LINK_STATUS, &result);
-  if (result != GL_TRUE) {
-    glGetProgramiv(_program, GL_INFO_LOG_LENGTH, &infoLogLength);
-    std::vector<char> program_error_msg(infoLogLength);
-    glGetProgramInfoLog(_program, infoLogLength, NULL, &program_error_msg[0]);
-    fprintf(stdout, "%s\n", &program_error_msg[0]);
-  }
-
-  glUseProgram(_program);
-  gl_check_errors("glUseProgram");
-
-  glDeleteShader(vertex_shader);
-  glDeleteShader(frag_shader);
-  gl_check_errors("glDeleteShader");
-
-  /* Attach/describe uniforms */
-  _model_uniform = glGetUniformLocation(_program, "model");
-  _view_uniform = glGetUniformLocation(_program, "view");
-  _projection_uniform = glGetUniformLocation(_program, "proj");
-
-  GLuint tex_uniform = glGetUniformLocation(_program, "tex");
-  GLuint opacity_uniform = glGetUniformLocation(_program, "opacity");
-  gl_check_errors("glGetUniformLocation");
-
-  GLint posAttrib = glGetAttribLocation(_program, "position");
-  gl_check_errors("glGetAttribLocation position");
-
-  glEnableVertexAttribArray(posAttrib);
-  gl_check_errors("glEnableVertexAttribPointer position");
-
-  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
-                        (GLsizei)(8 * sizeof(float)),
-                        (const GLvoid*)(size_t)(0 * sizeof(float)));
-  gl_check_errors("glVertexAttribPointer position");
-
-  posAttrib = glGetAttribLocation(_program, "normal");
-  gl_check_errors("glGetAttribLocation normal");
-
-  if (posAttrib >= 0) {
-    glEnableVertexAttribArray(posAttrib);
-    gl_check_errors("glEnableVertexAttribPointer normal");
-
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
-                          (GLsizei)(8 * sizeof(float)),
-                          (const GLvoid*)(size_t)(3 * sizeof(float)));
-    gl_check_errors("glVertexAttribPointer normal");
-  }
-
-  posAttrib = glGetAttribLocation(_program, "texcoord");
-  gl_check_errors("glGetAttribLocation texcoord");
-
-  if (posAttrib >= 0) {
-    glEnableVertexAttribArray(posAttrib);
-    gl_check_errors("glEnableVertexAttribPointer texcoord");
-
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
-                          (GLsizei)(8 * sizeof(float)),
-                          (const GLvoid*)(size_t)(6 * sizeof(float)));
-    gl_check_errors("glVertexAttribPointer texcoord");
-  }
-
-  /* set up perspective */
-  _perspective  = glm::perspective(40.0f, (float)WIDTH/(float)HEIGHT, 1.0f, 200.0f);
-  _orthographic = glm::ortho(-(float)WIDTH  / 2.0f, (float)WIDTH  / 2.0f,
-                             -(float)HEIGHT / 2.0f, (float)HEIGHT / 2.0f);
-  glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
-  gl_check_errors("glUniformMatrix4fv perspective");
-
-  /* set up view */
-  _view = glm::lookAt(glm::vec3(0.0f, 0.0f, 21.5f),
-                      glm::vec3(0.0f, 0.0f, 0.0f),
-                      glm::vec3(0.0f, 1.0f, 0.0));
-  _viewOrtho = glm::lookAt(glm::vec3(0.0f, 0.0f, 1.0f),
-                           glm::vec3(0.0f, 0.0f, 0.0f),
-                           glm::vec3(0.0f, 1.0f, 0.0));
-  glUniformMatrix4fv(_view_uniform, 1, GL_FALSE, &_view[0][0]);
-  gl_check_errors("glUniformMatrix4fv view");
-
-  glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-  glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
-  gl_check_errors("glUniformMatrix4fv model");
-
-  glUniform1i(tex_uniform, 0);
-  gl_check_errors("glUniform1i tex");
-
-  glUniform1f(opacity_uniform, 1.0f);
-  gl_check_errors("glUniform1i opacity");
-
   glDisable(GL_CULL_FACE);
-
-  std::vector<glm::vec4> vertices;
-  std::vector<glm::vec3> normals;
-  std::vector<GLushort>  elements;
-  load_obj("assets/ship_final.obj", vertices, normals, elements);
-
-  // Interleave
-  float* data = new float[vertices.size() * 8];
-  for(size_t i = 0; i < vertices.size(); i++) {
-    data[i*8+0] = vertices[i].x;
-    data[i*8+1] = vertices[i].y;
-    data[i*8+2] = vertices[i].z;
-    data[i*8+3] = normals[i].x;
-    data[i*8+4] = normals[i].y;
-    data[i*8+5] = normals[i].z;
-    data[i*8+6] = 0.0;
-    data[i*8+7] = 0.0;
-  }
-
-  unsigned short* element_data = new unsigned short[elements.size()];
-  for(size_t i = 0; i < elements.size(); i++) {
-    element_data[i] = elements[i];
-  }
-
-  glGenBuffers(1, &_vbo_vertex_ship);
-  glGenBuffers(1, &_vbo_elements_ship);
-  gl_check_errors("glGenBuffers");
-
-  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_ship);
-  glBufferData(GL_ARRAY_BUFFER, vertices.size() * 8 * sizeof(float), data, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData cube_data");
-
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_ship);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, elements.size() * sizeof(unsigned short), element_data, GL_STATIC_DRAW);
-  gl_check_errors("glBufferData cube_elements");
-
-  _vbo_count_ship = elements.size();
-  printf("%d\n", _vbo_count_ship);
-
-  delete [] data;
-  delete [] element_data;
-
-  glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
-}
-
-void Engine::switchVAO(int VAO) {
-  switch(VAO) {
-    case 0:
-      glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_cube);
-      gl_check_errors("glBindBuffer cube");
-      break;
-
-    case 1:
-      glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_hud);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_hud);
-      gl_check_errors("glBindBuffer hud");
-      break;
-
-    case 2:
-      glBindBuffer(GL_ARRAY_BUFFER, _vbo_vertex_ship);
-      glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements_ship);
-      gl_check_errors("glBindBuffer ship");
-      break;
-  }
-
-  /* Attach/describe uniforms */
-  GLuint tex_uniform = glGetUniformLocation(_program, "tex");
-  gl_check_errors("glGetUniformLocation");
-
-  GLint posAttrib = glGetAttribLocation(_program, "position");
-  gl_check_errors("glGetAttribLocation position");
-
-  glEnableVertexAttribArray(posAttrib);
-  gl_check_errors("glEnableVertexAttribPointer position");
-
-  glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
-                        (GLsizei)(8 * sizeof(float)),
-                        (const GLvoid*)(size_t)(0 * sizeof(float)));
-  gl_check_errors("glVertexAttribPointer position");
-
-  posAttrib = glGetAttribLocation(_program, "normal");
-  gl_check_errors("glGetAttribLocation normal");
-
-  if (posAttrib >= 0) {
-    glEnableVertexAttribArray(posAttrib);
-    gl_check_errors("glEnableVertexAttribPointer normal");
-
-    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, false,
-                          (GLsizei)(8 * sizeof(float)),
-                          (const GLvoid*)(size_t)(3 * sizeof(float)));
-    gl_check_errors("glVertexAttribPointer normal");
-  }
-
-  posAttrib = glGetAttribLocation(_program, "texcoord");
-  gl_check_errors("glGetAttribLocation texcoord");
-
-  if (posAttrib >= 0) {
-    glEnableVertexAttribArray(posAttrib);
-    gl_check_errors("glEnableVertexAttribPointer texcoord");
-
-    glVertexAttribPointer(posAttrib, 2, GL_FLOAT, false,
-                          (GLsizei)(8 * sizeof(float)),
-                          (const GLvoid*)(size_t)(6 * sizeof(float)));
-    gl_check_errors("glVertexAttribPointer texcoord");
-  }
-
-  /* set up perspective/view */
-  if (VAO != 1) {
-    glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
-    gl_check_errors("glUniformMatrix4fv perspective");
-
-    glUniformMatrix4fv(_view_uniform, 1, GL_FALSE, &_view[0][0]);
-    gl_check_errors("glUniformMatrix4fv view");
-  }
-  else if (VAO == 1) {
-    glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_orthographic[0][0]);
-    gl_check_errors("glUniformMatrix4fv orthographic");
-
-    glUniformMatrix4fv(_view_uniform, 1, GL_FALSE, &_viewOrtho[0][0]);
-    gl_check_errors("glUniformMatrix4fv viewOrtho");
-  }
-
-  glm::mat4 model = glm::scale(glm::mat4(1.0f), glm::vec3(1.0f, 1.0f, 1.0f));
-  glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
-  gl_check_errors("glUniformMatrix4fv model");
-
-  glUniform1i(tex_uniform, 0);
-  gl_check_errors("glUniform1i tex");
-
-  GLuint opacity_uniform = glGetUniformLocation(_program, "opacity");
-  gl_check_errors("glGetUniformLocation");
-
-  glUniform1f(opacity_uniform, 1.0f);
-  gl_check_errors("glUniform1i opacity");
 }
 
 void Engine::sendAttack(int severity) {
@@ -858,8 +497,6 @@ int Engine::intLength(int i) {
 int Engine::drawInt(int i, int color, float x, float y) {
   useTexture(19);
 
-  switchVAO(1);
-
   static int hud_widths[]  = {30.0f, 26.0f, 32.0f, 28.0f, 29.0f,
                               28.0f, 30.0f, 32.0f, 32.0f, 32.0f};
 
@@ -889,16 +526,12 @@ int Engine::drawInt(int i, int color, float x, float y) {
           glm::mat4(1.0f),
           glm::vec3(x+width, y, 1.0f)),
         glm::vec3(hud_widths[digit]*scale, hud_heights[digit]*scale, 1.0f));
-    glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
-    gl_check_errors("glUniformMatrix4fv model");
 
-    drawQuad(digit);
+    _hud_mesh->drawSubset(_context, model, digit * 6, 6);
 
     tmp /= 10;
   } while (width > 0);
 
-
-  switchVAO(0);
   return 0;
 }
 
@@ -1019,7 +652,7 @@ void Engine::draw() {
   glEnable(GL_DEPTH_TEST);
 
   // Perspective
-  glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_perspective[0][0]);
+  _context->usePerspective();
 
   // BACKGROUND!!!
   useTexture(TEXTURE_BG1);
@@ -1035,25 +668,21 @@ void Engine::draw() {
   useTexture(TEXTURE_BG2);
 
   // draw current game
-  games[player1.curgame]->draw(&player1);
-  games[player2.curgame]->draw(&player2);
+  games[player1.curgame]->draw(_context, &player1);
+  games[player2.curgame]->draw(_context, &player2);
 
-  // draw ship
-  switchVAO(2);
-
-  // translate to world
+  // Ship left
+  useTexture(TEXTURE_BLOCK1);
   glm::mat4 model = glm::mat4(1.0f);
 
   model = glm::translate(model, glm::vec3(-3.8f, -1.0f, 0.0f));
   model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
   model = glm::rotate(model, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
+  _ship_mesh->draw(_context, model);
 
-  useTexture(TEXTURE_BLOCK1);
-  drawMesh(_vbo_count_ship);
 
-  // translate to world
+  // Ship right
   model = glm::mat4(1.0f);
 
   model = glm::translate(model, glm::vec3(3.8f, -1.0f, 0.0f));
@@ -1061,18 +690,16 @@ void Engine::draw() {
   model = glm::rotate(model, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
   model = glm::rotate(model, 180.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-
-  drawMesh(_vbo_count_ship);
-
-  switchVAO(0);
+  _ship_mesh->draw(_context, model);
 
   // Orthographic (UI)
-  glUniformMatrix4fv(_projection_uniform, 1, GL_FALSE, &_orthographic[0][0]);
+
+  _context->useOrthographic();
+
   gl_check_errors("glUniformMatrix4fv orthographic");
 
-  games[player1.curgame]->drawOrtho(&player1);
-  games[player2.curgame]->drawOrtho(&player2);
+  games[player1.curgame]->drawOrtho(_context, &player1);
+  games[player2.curgame]->drawOrtho(_context, &player2);
 
   glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1159,21 +786,15 @@ void Engine::drawQuadXY(float x, float y, float z, float w, float h) {
                         glm::vec3(x, y, z)),
                       glm::vec3(w, h, 1.0f));
 
-  glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
-  gl_check_errors("glUniformMatrix4fv model");
-
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, 0);
-  gl_check_errors("glDrawElements");
+  _cube_mesh->drawSubset(_context, model, 0, 6);
 }
 
-void Engine::drawQuad(int side) {
-  glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (GLvoid*)(size_t)(side * 6 * sizeof(unsigned short)));
-  gl_check_errors("glDrawElements");
+void Engine::drawQuad(glm::mat4& model, int side) {
+  _cube_mesh->drawSubset(_context, model, 0, 6);
 }
 
-void Engine::drawCube() {
-  glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_SHORT, 0);
-  gl_check_errors("glDrawElements");
+void Engine::drawCube(glm::mat4& model) {
+  _cube_mesh->draw(_context, model);
 }
 
 void Engine::clearGameData(game_info* player) {
@@ -1572,9 +1193,3 @@ TCPsocket Engine::client_tcpsock = NULL;
 SDL_Thread *Engine::network_thread = NULL;
 
 int Engine::inplay = 1;
-
-float Engine::space_penguinx = -20;
-float Engine::space_penguiny = -20;
-float Engine::space_penguindx = 10.0f;
-float Engine::space_penguindy = 8.0f;
-float Engine::space_penguinrot = 8.0f;

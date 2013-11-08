@@ -2,6 +2,10 @@
 #define ENGINE_INCLUDED
 
 #include "main.h"
+
+#include "context.h"
+#include "mesh.h"
+
 #include "tetris.h"
 #include "breakout.h"
 
@@ -61,9 +65,9 @@ public:
 
   // graphics
 
-  void drawCube();
+  void drawCube(glm::mat4& model);
   void drawQuadXY(float x, float y, float z, float w, float h);
-  void drawQuad(int side);
+  void drawQuad(glm::mat4& model, int side);
 
   // state
 
@@ -90,35 +94,13 @@ public:
 
   void displayMessage(int stringIndex);
 
-  void switchVAO(int vao);
+  Context* _context;
+
+  Mesh*    _cube_mesh;
+  Mesh*    _hud_mesh;
+  Mesh*    _ship_mesh;
 
   // vars
-
-  GLuint _vao;
-
-  GLuint _program;
-
-  glm::mat4 _perspective;
-  glm::mat4 _view;
-  glm::mat4 _orthographic;
-  glm::mat4 _viewOrtho;
-
-  GLuint _projection_uniform;
-  GLuint _view_uniform;
-  GLuint _model_uniform;
-
-  GLuint _vbo_vertex;
-  GLuint _vbo_elements_cube;
-
-  GLuint _vbo_vertex_hud;
-  GLuint _vbo_elements_hud;
-
-  GLuint _vbo_vertex_ship;
-  GLuint _vbo_elements_ship;
-  unsigned int _vbo_count_ship;
-
-  static GLfloat cubecoords[8][4];
-  static GLfloat cubenorms[8][4];
 
   static int gamecount;
   static Game* games[];
@@ -133,13 +115,6 @@ public:
   static int _quit;
 
   static int inplay;
-
-  static float space_penguinx;
-  static float space_penguiny;
-  static float space_penguindx;
-  static float space_penguindy;
-
-  static float space_penguinrot;
 
   static GLuint* textures;
   static int* texture_widths;

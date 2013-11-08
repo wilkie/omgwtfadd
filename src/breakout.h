@@ -2,6 +2,7 @@
 #define BREAKOUT_INCLUDED
 
 #include "game.h"
+#include "context.h"
 
 class BreakOut : public Game {
 public:
@@ -9,8 +10,8 @@ public:
   void initGame(game_info* gi);
 
   void update(game_info* gi, float deltatime);
-  void draw(game_info* gi);
-  void drawOrtho(game_info* gi);
+  void draw(Context* context, game_info* gi);
+  void drawOrtho(Context* context, game_info* gi);
 
   void keyDown(game_info* gi, Uint32 key);
   void keyUp(game_info* gi, Uint32 key);
@@ -26,7 +27,7 @@ public:
   float getLeftBounds(game_info* gi);
   float getRightBounds(game_info* gi);
 
-  void drawBall(game_info* gi);
+  void drawBall(Context* context, game_info* gi);
   void moveBall(game_info* gi, float t, int last_type);
 
   float checkBallAgainst(game_info* gi,

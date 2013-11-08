@@ -655,12 +655,11 @@ void BreakOut::update(game_info* gi, float deltatime) {
   engine.passMessage(MSG_UPDATEBALL, ((float)(gi->ball_x) / 20.0f) * 255.0f, ((float)(gi->ball_y) / 20.0f) * 255.0f, 0);
 }
 
-void BreakOut::drawBall(game_info* gi) {
+void BreakOut::drawBall(Context* context, game_info* gi) {
   // translate
   glm::mat4 model;
 
   model = glm::mat4(1.0f);
-//  model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -673,59 +672,28 @@ void BreakOut::drawBall(game_info* gi) {
   model = glm::translate(model, glm::vec3(-2.25f + (gi->ball_x), 6.375f - (gi->ball_y), 0.0f));
   model = glm::scale(model, glm::vec3(0.125f, 0.125f, 0.125f));
 
-  glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
-  engine.drawCube();
+  engine.drawCube(model);
 }
 
-void BreakOut::draw(game_info* gi) {
+void BreakOut::draw(Context* context, game_info* gi) {
   if (gi->state == STATE_GAMEOVER) {
-    engine.tetris.draw(gi);
+    engine.tetris.draw(context, gi);
     return;
   }
 
-  engine.tetris.drawBoard(gi);
+  engine.tetris.drawBoard(context, gi);
 
   if (gi->state == STATE_BREAKOUT_TRANS) {
-    engine.tetris.drawPiece(gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
+    engine.tetris.drawPiece(context, gi, (0.5) * (double)gi->pos, gi->fine, gi->curpiece);
   }
   else {
-    engine.tetris.drawPiece(gi, gi->fine, 1.0f, gi->curpiece);
+    engine.tetris.drawPiece(context, gi, gi->fine, 1.0f, gi->curpiece);
   }
 
-  drawBall(gi);
-
-  unsigned int i;
-
-  float aspect = (600.0f/800.0f);
-
-  for (i=0; i<xs.size(); i++) {
-    glPushMatrix();
-
-    float x, y;
-
-    x = xs[i];
-    y = ys[i];
-
-    // translate to world
-    glTranslatef(gi->side * 3.75f,0,0);
-
-    // rotate
-    glRotatef(gi->side * gi->rot,0,1,0);
-    glRotatef(-gi->rot2,1,0,0);
-
-    // translate
-    glTranslatef(-2.25 + (x), 5.875 - (y),0);
-
-    // scale
-    glScalef(aspect,1,1);
-
-    //glutSolidSphere(SPHERE_SIZE,30,30);
-
-    glPopMatrix();
-  }
+  drawBall(context, gi);
 }
 
-void BreakOut::drawOrtho(game_info* gi) {
+void BreakOut::drawOrtho(Context* context, game_info* gi) {
 }
 
 void BreakOut::keyRepeat(game_info* gi) {
