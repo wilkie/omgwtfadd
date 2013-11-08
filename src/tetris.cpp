@@ -561,9 +561,9 @@ void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
   model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
 
   float z = -0.8f;
-  float rot_percent = (float)gi->rot2 / 180.0f;
 
-  z = 1.0f * rot_percent - 0.8f;
+  float rot_percent = (float)gi->rot2 / 180.0f;
+  z = 1.6f * rot_percent - 0.8f;
 
   // translate
   model = glm::translate(model, glm::vec3(-2.25f + (x*0.5), 6.375f - (y*0.5), z));
@@ -573,7 +573,12 @@ void Tetris::drawBackgroundBlock(game_info* gi, double x, double y) {
 
   glUniformMatrix4fv(engine._model_uniform, 1, GL_FALSE, &model[0][0]);
 
-  engine.drawQuad(0);
+  if (gi->rot2 > 90) {
+    engine.drawQuad(5);
+  }
+  else {
+    engine.drawQuad(0);
+  }
 }
 
 void Tetris::drawPiece(game_info* gi, double x, double y, int texture) {
