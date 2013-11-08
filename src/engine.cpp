@@ -809,24 +809,26 @@ int Engine::drawInt(int i, int color, float x, float y) {
   int length = 0;
   int width = 0;
 
+  float scale = 0.5f;
+
   int tmp = i;
   do {
     int digit = tmp % 10;
     length += 1;
-    width += hud_widths[digit];
+    width += hud_widths[digit]*scale;
     tmp /= 10;
   } while (tmp > 0);
 
   tmp = i;
   do {
     int digit = tmp % 10;
-    width -= hud_widths[digit];
+    width -= hud_widths[digit]*scale;
 
     glm::mat4 model = glm::scale(
         glm::translate(
           glm::mat4(1.0f),
           glm::vec3(x+width, y, 1.0f)),
-        glm::vec3(hud_widths[digit], hud_heights[digit], 1.0f));
+        glm::vec3(hud_widths[digit]*scale, hud_heights[digit]*scale, 1.0f));
     glUniformMatrix4fv(_model_uniform, 1, GL_FALSE, &model[0][0]);
     gl_check_errors("glUniformMatrix4fv model");
 
