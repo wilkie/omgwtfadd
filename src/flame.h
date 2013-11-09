@@ -32,7 +32,11 @@ public:
   /*
    * Constructs a Flame engine.
    */
-  Flame(float x, float y);
+  Flame(float x, float y, float z);
+
+  void setRotationX(float rotation);
+  void setRotationY(float rotation);
+  void setRotationZ(float rotation);
 
   void update(float elapsed);
   void draw(Context* context);
@@ -49,6 +53,14 @@ private:
     float size;       // Scale
     float position;   // Position on the line as a percentage
     float color;      // Block index
+
+    float start_x;
+    float start_y;
+    float start_z;
+
+    float base_rot_y;
+    float base_rot_z;
+    float base_rot_x;
   };
 
   void _addBlock(float position);
@@ -64,6 +76,11 @@ private:
 
   float _position_x;
   float _position_y;
+  float _position_z;
+
+  float _rotation_z;
+  float _rotation_y;
+  float _rotation_x;
 };
 
 #endif

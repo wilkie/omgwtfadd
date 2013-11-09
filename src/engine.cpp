@@ -312,8 +312,8 @@ void Engine::init() {
   gl_check_errors("glBindTexture");
   glDisable(GL_CULL_FACE);
 
-  _ship_engine_one = new Flame(-9.0, -0.5);
-  _ship_engine_two = new Flame( 9.0, -0.5);
+  _ship_engine_one = new Flame(-9.0, -0.5, 0.0);
+  _ship_engine_two = new Flame( 9.0, -0.5, 0.0);
 }
 
 void Engine::sendAttack(int severity) {
@@ -579,6 +579,7 @@ void Engine::draw() {
   useTexture(TEXTURE_BLOCK1);
   glm::mat4 model = glm::mat4(1.0f);
 
+  model = glm::rotate(model, -player1.rot, glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::translate(model, glm::vec3(-3.8f, -1.0f, 0.0f));
   model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
   model = glm::rotate(model, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -588,6 +589,7 @@ void Engine::draw() {
   // Ship right
   model = glm::mat4(1.0f);
 
+  model = glm::rotate(model, -player1.rot, glm::vec3(0.0f, 1.0f, 0.0f));
   model = glm::translate(model, glm::vec3(3.8f, -1.0f, 0.0f));
   model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
   model = glm::rotate(model, 90.0f, glm::vec3(1.0f, 0.0f, 0.0f));
@@ -596,7 +598,10 @@ void Engine::draw() {
   _ship_mesh->draw(_context, model);
 
   // Ship engines
+  _ship_engine_one->setRotationY(-player1.rot);
   _ship_engine_one->draw(_context);
+
+  _ship_engine_two->setRotationY(-player1.rot);
   _ship_engine_two->draw(_context);
 
   // Orthographic (UI)
@@ -630,7 +635,7 @@ void Engine::keyDown(Uint32 key) {
   }
 
   if (key == SDLK_4) {
-    performAttack(2);
+    performAttack(3);
   }
 
   if (key == SDLK_ESCAPE) {

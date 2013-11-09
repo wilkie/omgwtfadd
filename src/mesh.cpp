@@ -29,8 +29,9 @@ static void gl_check_errors(const char* msg) {
 }
 
 Mesh::Mesh(const char* filename) {
-  std::vector<glm::vec4> vertices;
+  std::vector<glm::vec3> vertices;
   std::vector<glm::vec3> normals;
+  std::vector<glm::vec2> texcoords;
   std::vector<GLushort>  elements;
 
   std::ifstream in(filename, std::ios::in);
@@ -40,12 +41,32 @@ Mesh::Mesh(const char* filename) {
   while (getline(in, line)) {
     if (line.substr(0,2) == "v ") {
       std::istringstream s(line.substr(2));
-      glm::vec4 v; s >> v.x; s >> v.y; s >> v.z; v.w = 1.0f;
+      glm::vec3 v; s >> v.x; s >> v.y; s >> v.z;
       vertices.push_back(v);
-    }  else if (line.substr(0,2) == "f ") {
+    }
+    else if (line.substr(0, 3) == "vn ") {
+      std::istringstream s(line.substr(3));
+      glm::vec3 v; s >> v.x; s >> v.y; s >> v.z;
+      normals.push_back(v);
+    }
+    else if (line.substr(0, 3) == "vt ") {
+      std::istringstream s(line.substr(3));
+      glm::vec2 v; s >> v.x; s >> v.y;
+      texcoords.push_back(v);
+    }
+    else if (line.substr(0, 2) == "f ") {
       std::istringstream s(line.substr(2));
       GLushort a,b,c;
-      s >> a; s >> b; s >> c;
+
+      s >> a; s.get(); s >> b; s.get(); s >> c;
+      a--; b--; c--;
+      elements.push_back(a); elements.push_back(b); elements.push_back(c);
+
+      s >> a; s.get(); s >> b; s.get(); s >> c;
+      a--; b--; c--;
+      elements.push_back(a); elements.push_back(b); elements.push_back(c);
+
+      s >> a; s.get(); s >> b; s.get(); s >> c;
       a--; b--; c--;
       elements.push_back(a); elements.push_back(b); elements.push_back(c);
     }
@@ -53,39 +74,28 @@ Mesh::Mesh(const char* filename) {
     else { /* ignoring this line */ }
   }
 
-  normals.resize(vertices.size(), glm::vec3(0.0, 0.0, 0.0));
-  for (int i = 0; i < elements.size(); i+=3) {
-    GLushort ia = elements[i];
-    GLushort ib = elements[i+1];
-    GLushort ic = elements[i+2];
-    glm::vec3 normal = glm::normalize(glm::cross(
-          glm::vec3(vertices[ib]) - glm::vec3(vertices[ia]),
-          glm::vec3(vertices[ic]) - glm::vec3(vertices[ia])));
-    normals[ia] = normals[ib] = normals[ic] = normal;
-  }
-
   // Interleave
-  float* data = new float[vertices.size() * 8];
-  for(size_t i = 0; i < vertices.size(); i++) {
-    data[i*8+0] = vertices[i].x;
-    data[i*8+1] = vertices[i].y;
-    data[i*8+2] = vertices[i].z;
-    data[i*8+3] = normals[i].x;
-    data[i*8+4] = normals[i].y;
-    data[i*8+5] = normals[i].z;
-    data[i*8+6] = 0.0;
-    data[i*8+7] = 0.0;
+  float* data = new float[(elements.size()/3) * 8];
+  size_t k = 0;
+  for(size_t i = 0; i < elements.size(); i+=3) {
+    data[k+0] = vertices[elements[i+0]].x;
+    data[k+1] = vertices[elements[i+0]].y;
+    data[k+2] = vertices[elements[i+0]].z;
+    data[k+3] = normals[elements[i+2]].x;
+    data[k+4] = normals[elements[i+2]].y;
+    data[k+5] = normals[elements[i+2]].z;
+    data[k+6] = texcoords[elements[i+1]].x;
+    data[k+7] = texcoords[elements[i+1]].y;
+    k+=8;
   }
 
-  unsigned short* element_data = new unsigned short[elements.size()];
-  for(size_t i = 0; i < elements.size(); i++) {
-    element_data[i] = elements[i];
+  unsigned short* element_data = new unsigned short[elements.size()/3];
+  for(size_t i = 0; i < elements.size()/3; i++) {
+    element_data[i] = i;
   }
 
-  _construct(data,         vertices.size() * 8,
-             element_data, elements.size());
-
-  printf("%d\n", _count);
+  _construct(data,         elements.size() / 3 * 8,
+             element_data, elements.size() / 3);
 
   delete [] data;
   delete [] element_data;
