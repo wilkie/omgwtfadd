@@ -15,38 +15,58 @@
 
 class Engine {
 public:
+  /*
+   * Constructs the engine.
+   */
   Engine();
+
+  /*
+   * Destructs.
+   */
   ~Engine();
 
-  // init, uninit
-
+  /*
+   * Initializes the game.
+   */
   void init();
+
+  /*
+   * Terminates the game.
+   */
   void quit();
 
-  // network
-
+  /*
+   * Starts a multiplayer server which listens.
+   */
   void runServer(int port);
+
+  /*
+   * Starts a client that connects to a listening server.
+   */
   void runClient(char* ip, int port);
 
+  /*
+   * Processes a network message.
+   */
   void processMessage(unsigned char msg[4]);
+
+  /*
+   * Sends a network message.
+   */
   void passMessage(unsigned char msgID, unsigned char p1, unsigned char p2, unsigned char p3);
 
-  // game loop
-
+  /*
+   * Runs the game loop.
+   */
   void gameLoop();
 
+  /*
+   * Transition the game to the game over state.
+   */
   void gameOver();
-
-  bool _iterate();
-  static void _c_iterate();
-
-  // frame stuffs
 
   int intLength(int i);
   int drawInt(int i, int color, float x, float y);
-  int _drawString(const char* str, int color, float x, float y, int tx);
-  int drawString(const char* str, int color, float x, float y);
-  int drawStringWhite(const char* str, int color, float x, float y);
 
   void update(float deltatime);
   void draw();
@@ -93,12 +113,6 @@ public:
   void performAttack(int severity);
 
   void displayMessage(int stringIndex);
-
-  Context* _context;
-
-  Mesh*    _cube_mesh;
-  Mesh*    _hud_mesh;
-  Mesh*    _ship_mesh;
 
   // vars
 
@@ -149,5 +163,16 @@ public:
   static TCPsocket client_tcpsock;
 #endif
   static SDL_Thread *network_thread;
+
+private:
+  // Iterate functions
+  bool _iterate();
+  static void _c_iterate();
+
+  Context* _context;
+
+  Mesh*    _cube_mesh;
+  Mesh*    _hud_mesh;
+  Mesh*    _ship_mesh;
 };
 #endif //ENGINE_INCLUDED
