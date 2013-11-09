@@ -1,10 +1,10 @@
 #ifndef ENGINE_INCLUDED
 #define ENGINE_INCLUDED
 
-#include "main.h"
-
 #include "context.h"
 #include "mesh.h"
+
+#include "flame.h"
 
 #include "tetris.h"
 #include "breakout.h"
@@ -174,5 +174,8 @@ private:
   Mesh*    _cube_mesh;
   Mesh*    _hud_mesh;
   Mesh*    _ship_mesh;
+
+  Flame*   _ship_engine_one;
+  Flame*   _ship_engine_two;
 };
 #endif //ENGINE_INCLUDED

@@ -311,6 +311,9 @@ void Engine::init() {
   glBindTexture(GL_TEXTURE_2D, textures[0]);
   gl_check_errors("glBindTexture");
   glDisable(GL_CULL_FACE);
+
+  _ship_engine_one = new Flame(-9.0, -0.5);
+  _ship_engine_two = new Flame( 9.0, -0.5);
 }
 
 void Engine::sendAttack(int severity) {
@@ -484,6 +487,9 @@ void Engine::update(float deltatime) {
 
   // update current game
   games[player1.curgame]->update(&player1, deltatime);
+
+  _ship_engine_one->update(deltatime);
+  _ship_engine_two->update(deltatime);
 }
 
 int Engine::intLength(int i) {
@@ -579,7 +585,6 @@ void Engine::draw() {
 
   _ship_mesh->draw(_context, model);
 
-
   // Ship right
   model = glm::mat4(1.0f);
 
@@ -589,6 +594,10 @@ void Engine::draw() {
   model = glm::rotate(model, 180.0f, glm::vec3(0.0f, 0.0f, 1.0f));
 
   _ship_mesh->draw(_context, model);
+
+  // Ship engines
+  _ship_engine_one->draw(_context);
+  _ship_engine_two->draw(_context);
 
   // Orthographic (UI)
 
