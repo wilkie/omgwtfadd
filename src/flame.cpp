@@ -23,6 +23,8 @@ Flame::Flame(float x, float y, float z)
   _rotation_z = 0.0;
   _rotation_x = 0.0;
 
+  _color = 4;
+
   _addBlock(0.0f);
   _addBlock(0.33f);
   _addBlock(0.66f);
@@ -108,7 +110,7 @@ void Flame::_addBlock(float position) {
 
   bi.size = 1.0f;
 
-  bi.color = 4; ///rand() % 8;
+  bi.color = _color;
 
   _blocks.push_back(bi);
 }
@@ -132,4 +134,8 @@ void Flame::setRotationY(float rotation) {
 
 void Flame::setRotationZ(float rotation) {
   _rotation_z = rotation;
+}
+
+void Flame::setColor(int color) {
+  _color = (color + 4) % 7;
 }

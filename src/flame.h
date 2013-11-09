@@ -38,6 +38,8 @@ public:
   void setRotationY(float rotation);
   void setRotationZ(float rotation);
 
+  void setColor(int color);
+
   void update(float elapsed);
   void draw(Context* context);
 
@@ -81,6 +83,8 @@ private:
   float _rotation_z;
   float _rotation_y;
   float _rotation_x;
+
+  int   _color;
 };
 
 #endif

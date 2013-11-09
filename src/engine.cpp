@@ -598,9 +598,11 @@ void Engine::draw() {
   _ship_mesh->draw(_context, model);
 
   // Ship engines
+  _ship_engine_one->setColor(LEVEL);
   _ship_engine_one->setRotationY(-player1.rot);
   _ship_engine_one->draw(_context);
 
+  _ship_engine_two->setColor(LEVEL);
   _ship_engine_two->setRotationY(-player1.rot);
   _ship_engine_two->draw(_context);
 
