@@ -127,7 +127,7 @@ void Mesh::drawSubset(Context* context, glm::mat4& model,
   glBindBuffer(GL_ARRAY_BUFFER,         _vbo_data);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _vbo_elements);
 
-  context->establish();
+  context->establish(_vbo_data);
 
   context->setModel(model);
 

@@ -71,7 +71,8 @@ const char* vertex_shader_code[] = {
 };
 
 Context::Context()
-  : _opacity(1.0f) {
+  : _opacity(1.0f),
+    _id(0) {
   /* Generate program */
   GLuint vertex_shader = glCreateShader(GL_VERTEX_SHADER);
   GLuint frag_shader   = glCreateShader(GL_FRAGMENT_SHADER);
@@ -205,7 +206,13 @@ void Context::useOrthographic() {
   _in_perspective_mode = false;
 }
 
-void Context::establish() {
+void Context::establish(int id) {
+  if (_id == id) {
+    return;
+  }
+
+  _id = id;
+
   /* Attach/describe uniforms */
   GLuint tex_uniform = glGetUniformLocation(_program, "tex");
   gl_check_errors("glGetUniformLocation");

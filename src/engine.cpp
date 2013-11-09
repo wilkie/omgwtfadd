@@ -697,7 +697,7 @@ void Engine::drawQuadXY(float x, float y, float z, float w, float h) {
 }
 
 void Engine::drawQuad(glm::mat4& model, int side) {
-  _cube_mesh->drawSubset(_context, model, 0, 6);
+  _cube_mesh->drawSubset(_context, model, side * 6, 6);
 }
 
 void Engine::drawCube(glm::mat4& model) {

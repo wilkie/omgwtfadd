@@ -25,7 +25,7 @@ public:
   /*
    * Establishes the gpu programs and matrices.
    */
-  void establish();
+  void establish(int id);
 
   /*
    * Sets the model matrix for the next render.
@@ -54,6 +54,8 @@ private:
   glm::mat4 _viewOrtho;
 
   GLuint _program;
+
+  int _id;
 };
 
 #endif
