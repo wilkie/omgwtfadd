@@ -203,7 +203,7 @@ void Tetris::drawBlock(Context* context,
   // scale (make them 0.5 unit cubes, since our unit cube is 2x2x2)
   model = glm::scale(model, glm::vec3(0.25f, 0.25f, 0.25f));
 
-  if (gi->rot2 > 90) {
+  if (gi->rot2 > 90 || (gi->rot > 90 && gi->rot < 270)) {
     engine.drawQuad(model, 5); // back
   }
   else {
@@ -458,7 +458,6 @@ void Tetris::drawBoard(Context* context, game_info* gi) {
   glm::mat4 model;
 
   model = glm::mat4(1.0f);
-//  model = glm::translate(model, glm::vec3(gi->side * 5.0f, 0.0f, 0.0f));
 
   // rotate
   model = glm::rotate(model, gi->side * gi->rot, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -571,9 +570,13 @@ void Tetris::drawBackgroundBlock(Context* context, game_info* gi, double x, doub
   model = glm::scale(model, glm::vec3(1.3f, 1.3f, 1.3f));
 
   float z = -0.8f;
+  float percent = gi->rot2 / 180.0f;
 
-  float rot_percent = (float)gi->rot2 / 180.0f;
-  z = 1.6f * rot_percent - 0.8f;
+  if (gi->rot > 90 && gi->rot < 270) {
+    percent = 1.0f;
+  }
+
+  z = 1.6f * percent - 0.8f;
 
   // translate
   model = glm::translate(model, glm::vec3(-2.25f + (x*0.5), 6.375f - (y*0.5), z));
@@ -583,7 +586,7 @@ void Tetris::drawBackgroundBlock(Context* context, game_info* gi, double x, doub
 
   context->setOpacity(engine.bg_tile_opacity);
 
-  if (gi->rot2 > 90) {
+  if (gi->rot2 > 90 || (gi->rot > 90 && gi->rot < 270)) {
     engine.drawQuad(model, 5);
   }
   else {
