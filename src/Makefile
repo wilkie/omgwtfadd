@@ -28,7 +28,7 @@ js: audio.cpp breakout.cpp components.cpp engine.cpp game.cpp main.cpp tetris.cp
 	em++ flame.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ main.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
 	em++ tetris.cpp -c $(CFLAGS) -I. -DNO_NETWORK -O2
-	emcc -o ../omgwtfadd.js audio.o mesh.o flame.o context.o breakout.o components.o engine.o game.o main.o tetris.o -s ALLOW_MEMORY_GROWTH=1 --preload-file ../sounds@/sounds --preload-file ../images@/images --preload-file ../music@/music $(CLINK)
+	emcc -o ../omgwtfadd.js audio.o mesh.o flame.o context.o breakout.o components.o engine.o game.o main.o tetris.o -s ALLOW_MEMORY_GROWTH=1 --preload-file ../sounds@/sounds --preload-file ../images@/images --preload-file ../music@/music --preload-file ../assets@/assets $(CLINK)
 
 clean:
 	rm *.o
